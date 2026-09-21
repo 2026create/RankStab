@@ -1,0 +1,46 @@
+{
+  "n_samples": 10,
+  "n_models": 5,
+  "sample_ids": [
+    "gen_0001",
+    "gen_0002",
+    "gen_0003",
+    "gen_0004",
+    "gen_0005",
+    "gen_0006",
+    "gen_0007",
+    "gen_0008",
+    "gen_0009",
+    "gen_0010"
+  ],
+  "models": [
+    "model_clean",
+    "model_flatten",
+    "model_fullwidth",
+    "model_spacy",
+    "model_traditional"
+  ],
+  "seg_modes": [
+    "whole",
+    "para",
+    "para_merge"
+  ],
+  "levels": [
+    "P0",
+    "P1",
+    "P2",
+    "P3",
+    "P4",
+    "P5"
+  ],
+  "n_groups": 18,
+  "primary_metric": "cer_fixed",
+  "bootstrap_n": 2000,
+  "bootstrap_seed": 20260921,
+  "trad_backend": "opencc",
+  "monotonicity_violations": [],
+  "segmode_impl": "reconstructed (pending upstream source alignment at G0)",
+  "data_sources": [
+    "generated"
+  ]
+}

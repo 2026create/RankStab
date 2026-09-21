@@ -1,0 +1,112 @@
+[
+  {
+    "sample_id": "gen_0001",
+    "doc_type": "chat_screenshot",
+    "source": "generated",
+    "sensitive_attrs": [
+      "fullwidth_digit",
+      "trad_simp_mix",
+      "cjk_linebreak_space"
+    ],
+    "license": "self-authored, CC-BY-4.0"
+  },
+  {
+    "sample_id": "gen_0002",
+    "doc_type": "official_longimage",
+    "source": "generated",
+    "sensitive_attrs": [
+      "fullwidth_digit",
+      "trad_simp_mix",
+      "cjk_linebreak_space"
+    ],
+    "license": "self-authored, CC-BY-4.0"
+  },
+  {
+    "sample_id": "gen_0003",
+    "doc_type": "scanned_textbook",
+    "source": "generated",
+    "sensitive_attrs": [
+      "fullwidth_digit",
+      "trad_simp_mix",
+      "cjk_linebreak_space"
+    ],
+    "license": "self-authored, CC-BY-4.0"
+  },
+  {
+    "sample_id": "gen_0004",
+    "doc_type": "chat_screenshot",
+    "source": "generated",
+    "sensitive_attrs": [
+      "fullwidth_digit",
+      "trad_simp_mix",
+      "cjk_linebreak_space"
+    ],
+    "license": "self-authored, CC-BY-4.0"
+  },
+  {
+    "sample_id": "gen_0005",
+    "doc_type": "official_longimage",
+    "source": "generated",
+    "sensitive_attrs": [
+      "fullwidth_digit",
+      "trad_simp_mix",
+      "cjk_linebreak_space"
+    ],
+    "license": "self-authored, CC-BY-4.0"
+  },
+  {
+    "sample_id": "gen_0006",
+    "doc_type": "scanned_textbook",
+    "source": "generated",
+    "sensitive_attrs": [
+      "fullwidth_digit",
+      "trad_simp_mix",
+      "cjk_linebreak_space"
+    ],
+    "license": "self-authored, CC-BY-4.0"
+  },
+  {
+    "sample_id": "gen_0007",
+    "doc_type": "chat_screenshot",
+    "source": "generated",
+    "sensitive_attrs": [
+      "fullwidth_digit",
+      "trad_simp_mix",
+      "cjk_linebreak_space"
+    ],
+    "license": "self-authored, CC-BY-4.0"
+  },
+  {
+    "sample_id": "gen_0008",
+    "doc_type": "official_longimage",
+    "source": "generated",
+    "sensitive_attrs": [
+      "fullwidth_digit",
+      "trad_simp_mix",
+      "cjk_linebreak_space"
+    ],
+    "license": "self-authored, CC-BY-4.0"
+  },
+  {
+    "sample_id": "gen_0009",
+    "doc_type": "scanned_textbook",
+    "source": "generated",
+    "sensitive_attrs": [
+      "fullwidth_digit",
+      "trad_simp_mix",
+      "cjk_linebreak_space"
+    ],
+    "license": "self-authored, CC-BY-4.0"
+  },
+  {
+    "sample_id": "gen_0010",
+    "doc_type": "chat_screenshot",
+    "source": "generated",
+    "sensitive_attrs": [
+      "fullwidth_digit",
+      "trad_simp_mix",
+      "cjk_linebreak_space"
+    ],
+    "license": "self-authored, CC-BY-4.0"
+  }
+]
