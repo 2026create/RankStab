@@ -1,0 +1,964 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>中文 OCR 标注工作台 · 评测基准构建</title>
+<style>
+:root{
+  --bg:#F7F7F5; --panel:#FFFFFF; --panel2:#F1EFE8; --line:#E3E1DA; --line2:#D3D1C7;
+  --ink:#2C2C2A; --ink2:#5F5E5A; --ink3:#888780;
+  --blue:#185FA5; --blue-l:#E6F1FB; --blue-m:#B5D4F4; --blue-d:#0C447C;
+  --green:#3B6D11; --green-l:#EAF3DE;
+  --red:#A32D2D; --red-l:#FCEBEB;
+  --amber:#854F0B; --amber-l:#FAEEDA;
+  --r:10px;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:var(--bg); color:var(--ink);
+  font-family:system-ui,-apple-system,"Segoe UI","Microsoft YaHei",sans-serif;
+  font-size:14px; line-height:1.6;
+}
+header{
+  position:sticky; top:0; z-index:20; background:var(--panel);
+  border-bottom:1px solid var(--line); padding:12px 20px;
+  display:flex; align-items:center; gap:16px; flex-wrap:wrap;
+}
+h1{font-size:16px;font-weight:500;margin:0}
+.sub{font-size:12px;color:var(--ink3)}
+.stat{display:flex;gap:18px;margin-left:auto;font-size:12px;color:var(--ink2)}
+.stat b{font-size:18px;font-weight:500;color:var(--blue-d);display:block;line-height:1.2}
+.btn{
+  border:1px solid var(--line2); background:var(--panel); color:var(--ink);
+  padding:6px 12px; border-radius:8px; font-size:13px; cursor:pointer;
+  font-family:inherit;
+}
+.btn:hover{background:var(--panel2)}
+.btn.primary{background:var(--blue);border-color:var(--blue);color:#fff}
+.btn.primary:hover{background:var(--blue-d)}
+.btn.danger{color:var(--red);border-color:#F09595}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.toolbar{display:flex;gap:8px;flex-wrap:wrap}
+main{padding:16px 20px 60px;max-width:1560px;margin:0 auto}
+.grid{display:grid;grid-template-columns:minmax(300px,420px) minmax(380px,1fr) minmax(320px,420px);gap:14px;align-items:start}
+@media(max-width:1200px){.grid{grid-template-columns:1fr}}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:14px}
+.card h2{font-size:13px;font-weight:500;margin:0 0 10px;color:var(--ink2);letter-spacing:.02em}
+.hint{font-size:12px;color:var(--ink3);line-height:1.55}
+#drop{
+  border:1px dashed var(--line2); border-radius:var(--r); background:var(--panel2);
+  min-height:220px; display:flex; align-items:center; justify-content:center;
+  text-align:center; color:var(--ink3); font-size:13px; padding:16px; cursor:pointer;
+}
+#drop.over{border-color:var(--blue);background:var(--blue-l);color:var(--blue-d)}
+#imgwrap{display:none;position:relative}
+#imgwrap img{width:100%;border:1px solid var(--line);border-radius:8px;background:#fff;cursor:zoom-in}
+#imgwrap.zoom img{cursor:zoom-out;width:auto;max-width:none;position:relative;left:0}
+#imgwrap.zoombox{overflow:auto;max-height:70vh}
+#imgwrap.zoombox img{width:auto;max-width:none}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:10px}
+label.f{font-size:12px;color:var(--ink2);margin-right:2px}
+select,input[type=text]{
+  font-family:inherit;font-size:13px;padding:5px 8px;border:1px solid var(--line2);
+  border-radius:7px;background:var(--panel);color:var(--ink);
+}
+textarea{
+  width:100%;font-family:ui-monospace,Consolas,"Courier New","Microsoft YaHei",monospace;
+  font-size:13px;line-height:1.75;padding:10px;border:1px solid var(--line2);
+  border-radius:8px;background:#FCFCFB;color:var(--ink);resize:vertical;
+}
+textarea:focus,select:focus,input:focus{outline:2px solid var(--blue-m);outline-offset:-1px;border-color:var(--blue)}
+.gtbox{min-height:150px}
+.toolblk{border:1px solid var(--line);border-radius:8px;padding:10px;margin-bottom:10px;background:#FCFCFB}
+.toolblk .head{display:flex;gap:8px;align-items:center;margin-bottom:8px}
+.toolblk .head input{flex:1;font-weight:500}
+.cer{font-size:12px;padding:3px 8px;border-radius:20px;white-space:nowrap}
+.cer.good{background:var(--green-l);color:var(--green)}
+.cer.mid{background:var(--amber-l);color:var(--amber)}
+.cer.bad{background:var(--red-l);color:var(--red)}
+.cer.na{background:var(--panel2);color:var(--ink3)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{
+  font-size:12px;padding:4px 10px;border:1px solid var(--line2);border-radius:20px;
+  cursor:pointer;user-select:none;background:var(--panel);color:var(--ink2);
+}
+.chip.on{background:var(--blue);border-color:var(--blue);color:#fff}
+.sw{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--ink2);margin:8px 0}
+.sw label{display:flex;gap:4px;align-items:center;cursor:pointer}
+.diff{
+  font-family:ui-monospace,Consolas,"Microsoft YaHei",monospace;font-size:13px;line-height:1.9;
+  border:1px solid var(--line);border-radius:8px;padding:10px;background:#FCFCFB;
+  white-space:pre-wrap;word-break:break-all;max-height:260px;overflow:auto;
+}
+.diff del{background:#FCEBEB;color:#A32D2D;text-decoration:none;border-radius:2px}
+.diff ins{background:#EAF3DE;color:#3B6D11;text-decoration:none;border-radius:2px}
+#list{margin-top:16px}
+.sitem{
+  display:flex;gap:10px;align-items:center;padding:8px 10px;border:1px solid var(--line);
+  border-radius:8px;margin-bottom:6px;background:var(--panel);cursor:pointer;
+}
+.sitem:hover{border-color:var(--line2);background:var(--panel2)}
+.sitem img{width:52px;height:38px;object-fit:cover;border-radius:5px;border:1px solid var(--line);background:#fff}
+.sitem .meta{flex:1;min-width:0}
+.sitem .meta b{display:block;font-size:13px;font-weight:500}
+.sitem .meta span{font-size:12px;color:var(--ink3);display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+details.rules{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:12px;margin-top:14px}
+details.rules summary{cursor:pointer;font-size:13px;font-weight:500;color:var(--blue-d)}
+details.rules ol{margin:10px 0 0;padding-left:20px}
+details.rules li{margin-bottom:7px;font-size:13px;color:var(--ink2);line-height:1.65}
+details.rules code{background:var(--panel2);padding:1px 5px;border-radius:4px;font-size:12px}
+.note{background:var(--blue-l);border:1px solid var(--blue-m);border-radius:8px;padding:9px 12px;font-size:12px;color:var(--blue-d);margin-bottom:12px}
+.warn{background:var(--amber-l);border:1px solid #FAC775;border-radius:8px;padding:9px 12px;font-size:12px;color:var(--amber);margin-bottom:12px}
+.statrow{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}
+.statrow div{background:var(--panel2);border-radius:7px;padding:7px 12px;font-size:12px;color:var(--ink2)}
+.statrow b{color:var(--blue-d);font-weight:500}
+table.mini{width:100%;border-collapse:collapse;font-size:12px;margin-top:8px}
+table.mini th,table.mini td{text-align:left;padding:5px 6px;border-bottom:1px solid var(--line);color:var(--ink2)}
+table.mini th{color:var(--ink3);font-weight:400}
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1>中文 OCR 标注工作台</h1>
+    <div class="sub">边标注 · 边自动算 CER · 一键导出评测数据集</div>
+  </div>
+  <div class="toolbar">
+    <button class="btn primary" id="save">保存本样本 <span class="sub" style="color:#CBDEF3">Ctrl+Enter</span></button>
+    <button class="btn" id="exportZip">导出数据集 (.zip)</button>
+    <button class="btn" id="exportJsonl">导出 JSONL</button>
+    <button class="btn danger" id="clearAll">清空全部</button>
+  </div>
+  <div class="stat">
+    <div>已标注<b id="sCount">0</b></div>
+    <div>平均 CER<b id="sCer">—</b></div>
+    <div>覆盖工具<b id="sTools">0</b></div>
+  </div>
+</header>
+
+<main>
+  <div class="note">
+    <b>三步：</b>① 粘贴截图（Ctrl+V）→ ② 粘贴机器识别结果 → ③ 对照图片把答案改对 → 保存。
+    <br>答案不用自己写，点「用机器结果填答案」再改，只改错的地方。数据全部存在你这台电脑的浏览器里，不会上传。
+  </div>
+
+  <div class="grid">
+    <section class="card">
+      <h2>1 · 图片</h2>
+      <div id="drop">点这里选图，或直接 <b>Ctrl+V</b> 粘贴截图<br><span class="hint">也支持把图片文件拖进来</span></div>
+      <div id="imgwrap"><img id="img" alt="待标注样本"></div>
+      <div class="row" style="margin-top:10px">
+        <button class="btn" id="clearImg" style="display:none">换一张</button>
+        <span class="hint" id="imgInfo"></span>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>2 · 标准答案（人工核定，这是全项目最值钱的东西）</h2>
+      <div class="row">
+        <label class="f">文档类型</label>
+        <select id="docType">
+          <option>微信截图</option><option>公众号长图</option><option>聊天记录</option>
+          <option>手机截图-APP</option><option>纸质扫描</option><option>教材</option>
+          <option>试卷</option><option>论文</option><option>票据表单</option><option>其他</option>
+        </select>
+        <label class="f">难度</label>
+        <select id="difficulty"><option>易</option><option selected>中</option><option>难</option></select>
+      </div>
+      <div class="row">
+        <button class="btn" id="fillFromTool">用机器结果填答案</button>
+        <button class="btn" id="swapGT">答案 ←→ 机器输出</button>
+      </div>
+      <textarea id="gt" class="gtbox" placeholder="这里放：这张图“正确的”文字内容（Markdown / LaTeX 原样保留）。&#10;&#10;先点上面的“用机器结果填答案”，然后对照左边图片改错即可。"></textarea>
+
+      <h2 style="margin-top:16px">错误类型（可多选，用来做诊断分析）</h2>
+      <div class="chips" id="tags"></div>
+
+      <div class="row" style="margin-top:12px">
+        <label class="f">备注</label>
+        <input type="text" id="notes" style="flex:1" placeholder="例如：气泡遮挡、图片压缩严重">
+      </div>
+
+      <h2 style="margin-top:16px">评测协议（必须固定，否则前后结果不能比）</h2>
+      <div class="sw">
+        <label><input type="checkbox" id="nSpace"> 忽略空白字符</label>
+        <label><input type="checkbox" id="nHalf"> 全角转半角</label>
+        <label><input type="checkbox" id="nPunct"> 标点归一</label>
+      </div>
+      <div class="hint">改协议会重算所有已保存样本的 CER，并在导出时写进 README，保证可复现。</div>
+    </section>
+
+    <section class="card">
+      <h2>3 · 机器输出（每个工具一条）</h2>
+      <div id="tools"></div>
+      <button class="btn" id="addTool">+ 加一个工具的输出</button>
+
+      <h2 style="margin-top:16px">差异对照（红=机器多出来/错的，绿=答案改成的）</h2>
+      <div class="diff" id="diff"></div>
+
+      <div class="statrow" id="curStat"></div>
+    </section>
+  </div>
+
+  <section class="card" id="listWrap" style="margin-top:16px">
+    <h2>已保存样本 <span class="sub" id="listHint"></span></h2>
+    <div id="list"></div>
+    <div id="stats"></div>
+  </section>
+
+  <details class="rules">
+    <summary>标注规范（开标前必须读一遍，10 条）</summary>
+    <ol>
+      <li><b>答案以图为准，不以常识为准。</b>图上写错了、印错了，答案就照图抄错。你标的是"看得见的内容"，不是"应该是什么"。</li>
+      <li><b>空格只保留原文真实存在的。</b>中文之间不加空格；<code>3 kg</code> 这种数字与单位之间的空格照抄。中文断行处不许补空格——这是最高频的错误。</li>
+      <li><b>断行按语义合并成自然段。</b>一句话被排版切成两行，答案里要接回一句，不要留换行。</li>
+      <li><b>标点用中文全角原样。</b>引号是「」还是""，照图上的抄，不做替换。</li>
+      <li><b>看不清就写 <code>[unclear]</code>，不要猜。</b>猜出来的字会污染整张表，最后所有分数都不可信。</li>
+      <li><b>公式转 LaTeX，表格转 Markdown 表格。</b>拿不准的公式至少写成 <code>$…$</code> 包裹的行内式。</li>
+      <li><b>界面元素也算内容。</b>聊天气泡里的昵称、时间戳、按钮文字、水印，属于图上文字，计入答案；但纯装饰的图标不算。</li>
+      <li><b>标注顺序：先易后难。</b>先标 10 张简单的把手感固定下来，再标难的。否则你会前后标准不一致。</li>
+      <li><b>同一张图不许改两次答案。</b>标完就锁。要改必须留备注说明为什么改——这就是可审计性。</li>
+      <li><b>每标 20 张，回头重标最早的 2 张，算一次自我一致性。</b>两次结果不一样，说明规范有歧义，要改规范而不是改数据。</li>
+    </ol>
+    <div class="hint" style="margin-top:10px">
+      第 10 条是学术上的「标注者一致性」自检。报告里能写出这个数字（哪怕是自我复查），数据可信度会明显高一档。
+    </div>
+  </details>
+</main>
+
+<script>
+"use strict";
+const LS_KEY = "aic_ocr_bench_v1";
+const TAGSET = ["断行错","多空格","少空格","标点错","全半角混","繁简混","错字","漏字","多字","顺序错","公式丢失","表格丢结构","界面文字漏","水印干扰","看不清"];
+
+let state = {
+  protocol:{nSpace:false,nHalf:false,nPunct:false},
+  toolDefaults:["微信OCR"],
+  draft:null,
+  samples:[],
+  seq:1
+};
+const imgMem = new Map();
+
+/* ---------- 存储 ---------- */
+function load(){
+  try{
+    const raw = localStorage.getItem(LS_KEY);
+    if(raw){
+      const o = JSON.parse(raw);
+      state.samples = o.samples||[];
+      state.seq = o.seq||1;
+      state.protocol = o.protocol||state.protocol;
+      state.toolDefaults = o.toolDefaults||state.toolDefaults;
+    }
+  }catch(e){ console.warn("读取本地数据失败",e); }
+}
+function persist(){
+  try{
+    localStorage.setItem(LS_KEY, JSON.stringify({
+      samples:state.samples, seq:state.seq,
+      protocol:state.protocol, toolDefaults:state.toolDefaults
+    }));
+    return true;
+  }catch(e){
+    alert("本地存储写满了。请先点「导出数据集 (.zip)」把数据存到磁盘，再清空全部。\n\n" + e.message);
+    return false;
+  }
+}
+
+/* ---------- IndexedDB 存原图 ---------- */
+let dbp=null;
+function idb(){
+  if(dbp) return dbp;
+  dbp = new Promise((res)=>{
+    try{
+      const r = indexedDB.open("aic_ocr_bench",1);
+      r.onupgradeneeded = ()=>{ try{ r.result.createObjectStore("images"); }catch(e){} };
+      r.onsuccess = ()=>res(r.result);
+      r.onerror = ()=>res(null);
+    }catch(e){ res(null); }
+  });
+  return dbp;
+}
+async function idbPut(k,b){
+  const db = await idb(); if(!db) return false;
+  return new Promise(res=>{
+    try{
+      const tx = db.transaction("images","readwrite");
+      tx.objectStore("images").put(b,k);
+      tx.oncomplete=()=>res(true); tx.onerror=()=>res(false);
+    }catch(e){ res(false); }
+  });
+}
+async function idbGet(k){
+  const db = await idb(); if(!db) return null;
+  return new Promise(res=>{
+    try{
+      const tx = db.transaction("images","readonly");
+      const rq = tx.objectStore("images").get(k);
+      rq.onsuccess=()=>res(rq.result||null); rq.onerror=()=>res(null);
+    }catch(e){ res(null); }
+  });
+}
+
+/* ---------- 文本规范化 ---------- */
+const PUNCT_MAP = {
+  "，":",", "。":".", "、":",", "；":";", "：":":", "！":"!", "？":"?",
+  "（":"(", "）":")", "【":"[", "】":"]", "《":"<", "》":">", "〈":"<", "〉":">",
+  "\u201c":"\"", "\u201d":"\"", "\u2018":"'", "\u2019":"'",
+  "\u2014":"-", "\u2015":"-", "\u2026":".", "\u00b7":".", "\uff5e":"~", "\u301c":"~"
+  /* 与评测核心 src/protocol.py 的 PUNCT_MAP 逐条一致：全部 1:1 映射。
+     省略号必须映射成单字符 "."，展开成 "..." 会改变文本长度，
+     导致不同档位的分母口径不可比。 */
+};
+function norm(s){
+  s = String(s==null?"":s);
+  if(state.protocol.nHalf){
+    s = s.replace(/[\uFF01-\uFF5E]/g, c=>String.fromCharCode(c.charCodeAt(0)-0xFEE0))
+         .replace(/\u3000/g," ");
+  }
+  if(state.protocol.nPunct){
+    let o="";
+    for(const ch of s) o += (PUNCT_MAP[ch]!==undefined? PUNCT_MAP[ch] : ch);
+    s = o;
+  }
+  if(state.protocol.nSpace) s = s.replace(/\s+/g,"");
+  return s;
+}
+
+/* ---------- 编辑距离（带 S/D/I 分解） ---------- */
+function lev(ref,hyp){
+  const n=ref.length, m=hyp.length;
+  if(n===0&&m===0) return {dist:0,S:0,D:0,I:0,refLen:0};
+  if(n*m > 6000000){
+    // 超长文本退化为长度差估算，避免卡死
+    return {dist:Math.abs(n-m),S:0,D:0,I:Math.abs(n-m),refLen:n,overflow:true};
+  }
+  const d = [];
+  for(let i=0;i<=n;i++) d.push(new Uint32Array(m+1));
+  for(let i=0;i<=n;i++) d[i][0]=i;
+  for(let j=0;j<=m;j++) d[0][j]=j;
+  for(let i=1;i<=n;i++){
+    const ci=ref.charCodeAt(i-1);
+    for(let j=1;j<=m;j++){
+      const cost = ci===hyp.charCodeAt(j-1) ? 0 : 1;
+      const a=d[i-1][j]+1, b=d[i][j-1]+1, c=d[i-1][j-1]+cost;
+      d[i][j] = a<b ? (a<c?a:c) : (b<c?b:c);
+    }
+  }
+  let i=n,j=m,S=0,D=0,I=0;
+  while(i>0||j>0){
+    if(i>0&&j>0&&ref[i-1]===hyp[j-1]&&d[i][j]===d[i-1][j-1]){i--;j--;continue;}
+    if(i>0&&j>0&&d[i][j]===d[i-1][j-1]+1){S++;i--;j--;continue;}
+    if(i>0&&d[i][j]===d[i-1][j]+1){D++;i--;continue;}
+    if(j>0&&d[i][j]===d[i][j-1]+1){I++;j--;continue;}
+    break;
+  }
+  return {dist:d[n][m],S:S,D:D,I:I,refLen:n,hypLen:m};
+}
+function cerOf(refRaw,hypRaw){
+  const ref = norm(refRaw), hyp = norm(hypRaw);
+  if(!ref && !hyp) return null;
+  const r = lev(ref,hyp);
+  const denom = Math.max(1, ref.length);
+  return { cer: (r.S+r.D+r.I)/denom, ...r, refLen:ref.length, hypLen:hyp.length };
+}
+function cerClass(c){ if(c==null) return "na"; if(c<=0.02) return "good"; if(c<=0.10) return "mid"; return "bad"; }
+function pct(x){ return (x*100).toFixed(1)+"%"; }
+
+/* ---------- 字符级 diff ---------- */
+function diffOps(a,b){
+  const n=a.length,m=b.length;
+  if(n*m>3000000) return [[b===a?"eq":"ins", b]];
+  const dp=[];
+  for(let i=0;i<=n;i++) dp.push(new Uint32Array(m+1));
+  for(let i=n-1;i>=0;i--){
+    for(let j=m-1;j>=0;j--){
+      dp[i][j] = a[i]===b[j] ? dp[i+1][j+1]+1 : Math.max(dp[i+1][j], dp[i][j+1]);
+    }
+  }
+  const ops=[]; let i=0,j=0;
+  while(i<n&&j<m){
+    if(a[i]===b[j]){ ops.push(["eq",a[i]]); i++; j++; }
+    else if(dp[i+1][j]>=dp[i][j+1]){ ops.push(["del",a[i]]); i++; }
+    else { ops.push(["ins",b[j]]); j++; }
+  }
+  while(i<n) ops.push(["del",a[i++]]);
+  while(j<m) ops.push(["ins",b[j++]]);
+  return ops;
+}
+function esc(s){ return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
+function renderDiff(){
+  const gt = el("gt").value;
+  const t0 = state.draft.tools[0];
+  const raw = t0 ? t0.raw : "";
+  const box = el("diff");
+  if(!gt.trim() && !raw.trim()){ box.innerHTML='<span class="hint">填入答案和机器结果后，这里显示差异。</span>'; return; }
+  const ops = diffOps(raw, gt);
+  let html="", buf="", cur=null;
+  const flush=()=>{ if(!buf) return;
+    if(cur==="eq") html+=esc(buf);
+    else if(cur==="del") html+="<del>"+esc(buf)+"</del>";
+    else html+="<ins>"+esc(buf)+"</ins>";
+    buf="";
+  };
+  for(const [t,ch] of ops){
+    if(t!==cur){ flush(); cur=t; }
+    buf+=ch;
+  }
+  flush();
+  box.innerHTML = html || '<span class="hint">完全一致，零差异。</span>';
+}
+
+/* ---------- DOM ---------- */
+const el = id => document.getElementById(id);
+
+function newDraft(){
+  return {
+    imageId:null, imageName:"", thumb:"",
+    gt:"", docType:el("docType").value, difficulty:el("difficulty").value,
+    tags:[], notes:"",
+    tools: state.toolDefaults.map(n=>({name:n,raw:""}))
+  };
+}
+
+function renderTags(){
+  const box = el("tags");
+  box.innerHTML="";
+  TAGSET.forEach(t=>{
+    const d=document.createElement("div");
+    d.className="chip"+(state.draft.tags.includes(t)?" on":"");
+    d.textContent=t;
+    d.onclick=()=>{
+      const i=state.draft.tags.indexOf(t);
+      if(i>=0) state.draft.tags.splice(i,1); else state.draft.tags.push(t);
+      renderTags(); renderCurStat();
+    };
+    box.appendChild(d);
+  });
+}
+
+function renderTools(){
+  const box = el("tools");
+  box.innerHTML="";
+  state.draft.tools.forEach((t,idx)=>{
+    const blk=document.createElement("div");
+    blk.className="toolblk";
+
+    const head=document.createElement("div");
+    head.className="head";
+    const nm=document.createElement("input");
+    nm.type="text"; nm.value=t.name; nm.placeholder="工具名，例如 微信OCR";
+    nm.oninput=()=>{ t.name=nm.value; };
+    head.appendChild(nm);
+
+    const badge=document.createElement("span");
+    badge.className="cer na"; badge.textContent="CER —";
+    head.appendChild(badge);
+
+    if(state.draft.tools.length>1){
+      const rm=document.createElement("button");
+      rm.className="btn danger"; rm.textContent="删"; rm.style.padding="4px 9px";
+      rm.onclick=()=>{ state.draft.tools.splice(idx,1); renderTools(); renderDiff(); renderCurStat(); };
+      head.appendChild(rm);
+    }
+    blk.appendChild(head);
+
+    const ta=document.createElement("textarea");
+    ta.rows=6; ta.placeholder="粘贴这个工具的识别结果原文";
+    ta.value=t.raw;
+    ta.oninput=()=>{ t.raw=ta.value; refreshBadges(); renderDiff(); renderCurStat(); };
+    blk.appendChild(ta);
+
+    blk._badge = badge;
+    blk._ta = ta;
+    box.appendChild(blk);
+  });
+  refreshBadges();
+}
+
+function refreshBadges(){
+  const blks = el("tools").children;
+  state.draft.tools.forEach((t,i)=>{
+    const blk = blks[i]; if(!blk||!blk._badge) return;
+    if(!el("gt").value.trim() && !t.raw.trim()){
+      blk._badge.className="cer na"; blk._badge.textContent="CER —"; return;
+    }
+    const r = cerOf(el("gt").value, t.raw);
+    if(!r){ blk._badge.className="cer na"; blk._badge.textContent="CER —"; return; }
+    blk._badge.className="cer "+cerClass(r.cer);
+    blk._badge.textContent="CER "+pct(r.cer)+"  (S"+r.S+" D"+r.D+" I"+r.I+")";
+  });
+}
+
+function renderCurStat(){
+  const box=el("curStat");
+  const gt=el("gt").value;
+  const rows=[];
+  rows.push('<div>答案字数 <b>'+norm(gt).length+'</b></div>');
+  rows.push('<div>已选错误类型 <b>'+state.draft.tags.length+'</b></div>');
+  state.draft.tools.forEach(t=>{
+    if(!t.raw.trim()) return;
+    const r=cerOf(gt,t.raw);
+    if(r) rows.push('<div>'+esc(t.name||"未命名")+' <b>'+pct(r.cer)+'</b></div>');
+  });
+  box.innerHTML=rows.join("");
+}
+
+/* ---------- 图片 ---------- */
+function makeThumb(src){
+  return new Promise(res=>{
+    const im=new Image();
+    im.onload=()=>{
+      const W=340, scale=Math.min(1,W/im.width);
+      const c=document.createElement("canvas");
+      c.width=Math.max(1,Math.round(im.width*scale));
+      c.height=Math.max(1,Math.round(im.height*scale));
+      c.getContext("2d").drawImage(im,0,0,c.width,c.height);
+      res(c.toDataURL("image/jpeg",0.6));
+    };
+    im.onerror=()=>res("");
+    im.src=src;
+  });
+}
+
+async function acceptImage(file){
+  if(!file || !file.type.startsWith("image/")) return;
+  const id = "img"+String(state.seq).padStart(4,"0");
+  state.draft.imageId = id;
+  state.draft.imageName = id + (file.type==="image/png"?".png":file.type==="image/jpeg"?".jpg":".bin");
+  imgMem.set(id, file);
+  await idbPut(id, file);
+
+  const url=URL.createObjectURL(file);
+  el("img").src=url;
+  el("imgwrap").style.display="block";
+  el("drop").style.display="none";
+  el("clearImg").style.display="inline-block";
+  el("imgInfo").textContent=file.name+" · "+(file.size/1024).toFixed(0)+" KB";
+  state.draft.thumb = await makeThumb(url);
+  renderList();
+}
+
+function resetImage(){
+  state.draft.imageId=null; state.draft.imageName=""; state.draft.thumb="";
+  el("imgwrap").style.display="none";
+  el("imgwrap").classList.remove("zoombox");
+  el("drop").style.display="flex";
+  el("clearImg").style.display="none";
+  el("img").src="";
+  el("imgInfo").textContent="";
+}
+
+/* ---------- 样本操作 ---------- */
+function currentSample(){
+  const gt=el("gt").value;
+  const tools = state.draft.tools
+    .filter(t=>t.raw.trim())
+    .map(t=>{
+      const r=cerOf(gt,t.raw);
+      return {name:t.name||"未命名", raw:t.raw, cer:r?r.cer:null,
+              S:r?r.S:null, D:r?r.D:null, I:r?r.I:null};
+    });
+  return {
+    id: state.draft.imageId || ("s"+String(state.seq).padStart(4,"0")),
+    imageId: state.draft.imageId, imageName: state.draft.imageName,
+    thumb: state.draft.thumb,
+    docType: el("docType").value, difficulty: el("difficulty").value,
+    tags: state.draft.tags.slice(), notes: el("notes").value,
+    gt: gt, tools: tools, createdAt: new Date().toISOString()
+  };
+}
+
+let editingId = null;
+
+function saveSample(){
+  const s = currentSample();
+  if(!s.gt.trim() && !s.tools.length){ alert("标准答案和机器结果都是空的，没什么可存的。"); return; }
+  if(!s.gt.trim()){ alert("标准答案不能为空——标准答案才是这个数据集的价值所在。"); return; }
+
+  const key = editingId || s.id;
+  s.id = key;
+  const i = state.samples.findIndex(x=>x.id===key);
+  if(i>=0){
+    s.createdAt = state.samples[i].createdAt;
+    if(!s.thumb) s.thumb = state.samples[i].thumb;
+    if(!s.imageId) { s.imageId = state.samples[i].imageId; s.imageName = state.samples[i].imageName; }
+    state.samples[i]=s;
+  }else{
+    state.samples.push(s);
+    state.seq++;
+  }
+  if(s.tools.length){
+    const names = s.tools.map(t=>t.name);
+    state.toolDefaults = Array.from(new Set([...state.toolDefaults, ...names]));
+  }
+  persist();
+  editingId=null;
+  resetForm();
+  renderAll();
+}
+</script>
+<script>
+/* ---------- 表单重置 ---------- */
+function resetForm(){
+  el("gt").value="";
+  el("notes").value="";
+  resetImage();
+  state.draft = newDraft();
+  renderTags(); renderTools(); renderDiff(); renderCurStat();
+  renderList();
+}
+
+/* ---------- 列表与统计 ---------- */
+function renderList(){
+  const box=el("list");
+  if(!state.samples.length){
+    box.innerHTML='<div class="hint">还没有样本。标完第一条点右上角「保存本样本」。</div>';
+    el("listHint").textContent="";
+    return;
+  }
+  el("listHint").textContent = "（点任意一条可重新编辑）";
+  box.innerHTML="";
+  state.samples.slice().reverse().forEach(s=>{
+    const d=document.createElement("div");
+    d.className="sitem";
+    const img = s.thumb ? '<img src="'+s.thumb+'" alt="">' :
+      '<div style="width:52px;height:38px;border:1px solid var(--line);border-radius:5px;background:var(--panel2)"></div>';
+    const ts = s.tools.map(t=>t.name+(t.cer!=null?" "+pct(t.cer):"")).join(" · ");
+    d.innerHTML = img +
+      '<div class="meta"><b>'+esc(s.id)+' · '+esc(s.docType)+' · '+esc(s.difficulty)+'</b>'+
+      '<span>'+(ts?esc(ts):"无机器结果")+' | '+esc((s.gt||"").slice(0,40).replace(/\n/g," "))+'</span></div>'+
+      '<span class="cer na">'+norm(s.gt).length+' 字</span>';
+    d.onclick=()=>loadSample(s.id);
+    box.appendChild(d);
+  });
+}
+
+async function loadSample(id){
+  const s = state.samples.find(x=>x.id===id);
+  if(!s) return;
+  editingId = id;
+  el("docType").value=s.docType; el("difficulty").value=s.difficulty;
+  el("gt").value=s.gt; el("notes").value=s.notes||"";
+  state.draft = {
+    imageId:s.imageId, imageName:s.imageName, thumb:s.thumb||"",
+    gt:s.gt, docType:s.docType, difficulty:s.difficulty,
+    tags:(s.tags||[]).slice(), notes:s.notes||"",
+    tools: s.tools.length ? s.tools.map(t=>({name:t.name,raw:t.raw})) : state.toolDefaults.map(n=>({name:n,raw:""}))
+  };
+  renderTags(); renderTools(); renderDiff(); renderCurStat();
+
+  if(s.imageId){
+    const blob = imgMem.get(s.imageId) || await idbGet(s.imageId);
+    if(blob){
+      imgMem.set(s.imageId, blob);
+      const url = URL.createObjectURL(blob);
+      el("img").src=url;
+      el("imgwrap").style.display="block";
+      el("drop").style.display="none";
+      el("clearImg").style.display="inline-block";
+      el("imgInfo").textContent=(s.imageName||"")+" · 已载入";
+    }else if(s.thumb){
+      el("img").src=s.thumb;
+      el("imgwrap").style.display="block";
+      el("drop").style.display="none";
+      el("clearImg").style.display="inline-block";
+      el("imgInfo").textContent="仅剩缩略图（原图未在本次会话中）";
+    }else{
+      resetImage();
+    }
+  }else{
+    resetImage();
+  }
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+
+function renderStats(){
+  const S=state.samples;
+  el("sCount").textContent=S.length;
+  const all=[];
+  S.forEach(s=>s.tools.forEach(t=>{ if(t.cer!=null) all.push(t); }));
+  el("sCer").textContent = all.length? pct(all.reduce((a,b)=>a+b.cer,0)/all.length) : "—";
+  el("sTools").textContent = new Set(all.map(t=>t.name)).size;
+
+  const box=el("stats");
+  if(S.length<1){ box.innerHTML=""; return; }
+
+  const byType={};
+  S.forEach(s=>{
+    (byType[s.docType] = byType[s.docType] || []).push(s);
+  });
+  let html='<table class="mini"><tr><th>文档类型</th><th>样本数</th><th>平均 CER</th></tr>';
+  Object.keys(byType).forEach(k=>{
+    const arr=byType[k];
+    const cs=[];
+    arr.forEach(s=>s.tools.forEach(t=>{ if(t.cer!=null) cs.push(t.cer); }));
+    html+='<tr><td>'+esc(k)+'</td><td>'+arr.length+'</td><td>'+(cs.length?pct(cs.reduce((a,b)=>a+b,0)/cs.length):"—")+'</td></tr>';
+  });
+  html+='</table>';
+
+  const byTool={};
+  all.forEach(t=>{ (byTool[t.name]=byTool[t.name]||[]).push(t.cer); });
+  html+='<table class="mini" style="margin-top:14px"><tr><th>工具</th><th>测过样本</th><th>平均 CER</th><th>平均错误构成 (替换/遗漏/多出)</th></tr>';
+  Object.keys(byTool).forEach(k=>{
+    const cs=byTool[k];
+    const ts=all.filter(t=>t.name===k);
+    const avg=(f)=>ts.reduce((a,b)=>a+(b[f]||0),0)/ts.length;
+    html+='<tr><td>'+esc(k)+'</td><td>'+cs.length+'</td><td>'+pct(cs.reduce((a,b)=>a+b,0)/cs.length)+'</td><td>'+
+      avg("S").toFixed(1)+' / '+avg("D").toFixed(1)+' / '+avg("I").toFixed(1)+'</td></tr>';
+  });
+  html+='</table>';
+
+  const tagCount={};
+  S.forEach(s=>(s.tags||[]).forEach(t=>tagCount[t]=(tagCount[t]||0)+1));
+  const tk=Object.keys(tagCount).sort((a,b)=>tagCount[b]-tagCount[a]);
+  if(tk.length){
+    html+='<table class="mini" style="margin-top:14px"><tr><th>错误类型</th><th>出现次数</th></tr>';
+    tk.forEach(k=>{ html+='<tr><td>'+esc(k)+'</td><td>'+tagCount[k]+'</td></tr>'; });
+    html+='</table>';
+  }
+  box.innerHTML=html;
+}
+
+function renderAll(){ renderList(); renderStats(); }
+
+/* ---------- 导出 ---------- */
+function download(blob,name){
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(blob); a.download=name;
+  document.body.appendChild(a); a.click();
+  setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); },1500);
+}
+
+function jsonlText(){
+  return state.samples.map(s=>JSON.stringify({
+    id:s.id, image:"images/"+(s.imageName||s.id+".png"),
+    doc_type:s.docType, difficulty:s.difficulty, error_tags:s.tags, notes:s.notes,
+    ground_truth:s.gt,
+    model_outputs:s.tools.map(t=>({tool:t.name, output:t.raw, cer:t.cer, S:t.S, D:t.D, I:t.I}))
+  })).join("\n")+ (state.samples.length?"\n":"");
+}
+
+function readmeText(){
+  const p=state.protocol;
+  const on=[];
+  if(p.nSpace) on.push("忽略全部空白字符");
+  if(p.nHalf) on.push("全角字符转半角");
+  if(p.nPunct) on.push("中英文标点归一");
+  const all=[];
+  state.samples.forEach(s=>s.tools.forEach(t=>{ if(t.cer!=null) all.push(t.cer); }));
+  return [
+    "# 中文复杂文档解析评测集（人工标注）",
+    "",
+    "- 样本数：" + state.samples.length,
+    "- 标注时间：" + new Date().toISOString().slice(0,10),
+    "- 平均 CER：" + (all.length ? pct(all.reduce((a,b)=>a+b,0)/all.length) : "—"),
+    "",
+    "## 评测协议（固定，用于复现）",
+    "- 指标：CER = (S + D + I) / N，N 为标准答案字符数；S/D/I 分别为替换、遗漏、多出。",
+    "- 归一化：" + (on.length ? on.join("；") : "无（严格逐字符比对）"),
+    "- 未在上述列表中的差异一律计入错误。",
+    "",
+    "## 文件说明",
+    "- `samples.jsonl`：每行一条样本，含标准答案、各工具原始输出与逐条 CER。",
+    "- `stats.csv`：按文档类型 / 工具的汇总表。",
+    "- `images/`：原始图片，文件名与 jsonl 中的 `image` 字段对应。",
+    "",
+    "## 标注约定",
+    "1. 标准答案以图片实际呈现为准，不依据常识纠正原文。",
+    "2. 中文之间不补空格；原文存在的空格照抄。",
+    "3. 语义连续的断行合并为自然段。",
+    "4. 无法辨认处标注 [unclear]，不做猜测。",
+    "5. 公式以 LaTeX、表格以 Markdown 表格形式记录。",
+    "",
+    "> 本数据集的每一条标准答案均由人工对照原图核定。"
+  ].join("\n");
+}
+
+function statsCsv(){
+  const rows=["scope,name,samples,avg_cer"];
+  const byType={}, byTool={};
+  state.samples.forEach(s=>s.tools.forEach(t=>{
+    if(t.cer==null) return;
+    (byType[s.docType]=byType[s.docType]||[]).push(t.cer);
+    (byTool[t.name]=byTool[t.name]||[]).push(t.cer);
+  }));
+  const push=(scope,map)=>{ Object.keys(map).forEach(k=>{
+    const a=map[k]; rows.push([scope,'"'+k+'"',a.length,(a.reduce((x,y)=>x+y,0)/a.length).toFixed(4)].join(","));
+  });};
+  push("doc_type",byType); push("tool",byTool);
+  return rows.join("\n")+"\n";
+}
+
+function crc32(u8){
+  let c=0xFFFFFFFF;
+  for(let i=0;i<u8.length;i++){
+    c ^= u8[i];
+    for(let k=0;k<8;k++) c = (c & 1) ? ((c>>>1) ^ 0xEDB88320) : (c>>>1);
+  }
+  return (c ^ 0xFFFFFFFF)>>>0;
+}
+function dosStamp(d){
+  const time = ((d.getHours()&31)<<11) | ((d.getMinutes()&63)<<5) | ((d.getSeconds()/2)&31);
+  const date = (((d.getFullYear()-1980)&127)<<9) | (((d.getMonth()+1)&15)<<5) | (d.getDate()&31);
+  return {time, date};
+}
+function buildZip(files){
+  const enc=new TextEncoder();
+  const st=dosStamp(new Date());
+  const parts=[], central=[];
+  let offset=0;
+  for(const f of files){
+    const nb=enc.encode(f.name);
+    const crc=crc32(f.data);
+    const lh=new Uint8Array(30+nb.length);
+    const dv=new DataView(lh.buffer);
+    dv.setUint32(0,0x04034b50,true); dv.setUint16(4,20,true);
+    dv.setUint16(6,0x0800,true); dv.setUint16(8,0,true);
+    dv.setUint16(10,st.time,true); dv.setUint16(12,st.date,true);
+    dv.setUint32(14,crc,true); dv.setUint32(18,f.data.length,true); dv.setUint32(22,f.data.length,true);
+    dv.setUint16(26,nb.length,true); dv.setUint16(28,0,true);
+    lh.set(nb,30);
+    parts.push(lh, f.data);
+
+    const ch=new Uint8Array(46+nb.length);
+    const d2=new DataView(ch.buffer);
+    d2.setUint32(0,0x02014b50,true); d2.setUint16(4,20,true); d2.setUint16(6,20,true);
+    d2.setUint16(8,0x0800,true); d2.setUint16(10,0,true);
+    d2.setUint16(12,st.time,true); d2.setUint16(14,st.date,true);
+    d2.setUint32(16,crc,true); d2.setUint32(20,f.data.length,true); d2.setUint32(24,f.data.length,true);
+    d2.setUint16(28,nb.length,true); d2.setUint16(30,0,true); d2.setUint16(32,0,true);
+    d2.setUint16(34,0,true); d2.setUint16(36,0,true); d2.setUint32(38,0,true);
+    d2.setUint32(42,offset,true);
+    ch.set(nb,46);
+    central.push(ch);
+    offset += lh.length + f.data.length;
+  }
+  let cdSize=0; central.forEach(c=>cdSize+=c.length);
+  const eo=new Uint8Array(22);
+  const d3=new DataView(eo.buffer);
+  d3.setUint32(0,0x06054b50,true);
+  d3.setUint16(8,central.length,true); d3.setUint16(10,central.length,true);
+  d3.setUint32(12,cdSize,true); d3.setUint32(16,offset,true);
+  return new Blob([...parts,...central,eo],{type:"application/zip"});
+}
+
+async function exportZip(){
+  if(!state.samples.length){ alert("还没有样本可导出。"); return; }
+  const enc=new TextEncoder();
+  const files=[];
+  files.push({name:"samples.jsonl", data:enc.encode(jsonlText())});
+  files.push({name:"README.md", data:enc.encode(readmeText())});
+  files.push({name:"stats.csv", data:enc.encode(statsCsv())});
+  files.push({name:"protocol.json", data:enc.encode(JSON.stringify({
+    metric:"CER=(S+D+I)/N_ground_truth",
+    protocol:state.protocol,
+    exported_at:new Date().toISOString(),
+    tool_version:"annotation-workbench-v1"
+  },null,2))});
+
+  let missing=0;
+  for(const s of state.samples){
+    if(!s.imageId) continue;
+    let blob = imgMem.get(s.imageId) || await idbGet(s.imageId);
+    let name = s.imageName || (s.imageId+".png");
+    if(!blob && s.thumb){
+      const res = await fetch(s.thumb);
+      const b = await res.blob();
+      const buf = new Uint8Array(await b.arrayBuffer());
+      files.push({name:"images/"+s.imageId+".jpg", data:buf});
+      missing++;
+      continue;
+    }
+    if(!blob){ missing++; continue; }
+    const buf=new Uint8Array(await blob.arrayBuffer());
+    files.push({name:"images/"+name, data:buf});
+  }
+  if(missing) console.warn("有 "+missing+" 张原图缺失（仅导出了缩略图）");
+  download(buildZip(files), "中文OCR评测集_"+new Date().toISOString().slice(0,10)+".zip");
+}
+
+/* ---------- 事件绑定 ---------- */
+el("save").onclick=saveSample;
+el("addTool").onclick=()=>{ state.draft.tools.push({name:"工具"+(state.draft.tools.length+1),raw:""}); renderTools(); };
+el("fillFromTool").onclick=()=>{
+  const t=state.draft.tools[0];
+  if(!t||!t.raw.trim()){ alert("先在右边粘贴机器识别结果。"); return; }
+  el("gt").value=t.raw;
+  refreshBadges(); renderDiff(); renderCurStat();
+};
+el("swapGT").onclick=()=>{
+  const t=state.draft.tools[0]; if(!t) return;
+  const a=el("gt").value; el("gt").value=t.raw; t.raw=a;
+  renderTools(); renderDiff(); renderCurStat();
+};
+el("gt").addEventListener("input",()=>{ refreshBadges(); renderDiff(); renderCurStat(); });
+el("exportZip").onclick=exportZip;
+el("exportJsonl").onclick=()=>{
+  if(!state.samples.length){ alert("还没有样本可导出。"); return; }
+  download(new Blob([jsonlText()],{type:"application/x-ndjson"}),"samples.jsonl");
+};
+el("clearAll").onclick=()=>{
+  if(!confirm("确定清空全部 "+state.samples.length+" 条样本？此操作不可撤销。\n建议先点「导出数据集」备份。")) return;
+  if(!confirm("真的确定？")) return;
+  state.samples=[]; state.seq=1; persist(); resetForm(); renderAll();
+};
+el("clearImg").onclick=()=>{ resetImage(); };
+
+["nSpace","nHalf","nPunct"].forEach(id=>{
+  el(id).addEventListener("change",()=>{ state.protocol[id]=el(id).checked; persist(); renderTools(); renderDiff(); renderStats(); });
+});
+
+/* 粘贴 */
+document.addEventListener("paste", async e=>{
+  const items = e.clipboardData ? e.clipboardData.items : null;
+  if(!items || !items.length) return;
+  let img=null, hasText=false;
+  for(let i=0;i<items.length;i++){
+    const it=items[i];
+    if(it.kind==="string" && it.type==="text/plain") hasText=true;
+    if(it.type && it.type.indexOf("image/")===0 && !img) img=it.getAsFile();
+  }
+  const tag = document.activeElement ? document.activeElement.tagName : "";
+  const inField = (tag==="TEXTAREA"||tag==="INPUT");
+  // 剪贴板里同时有文字时，优先让文本框正常粘贴文字
+  if(inField && hasText) return;
+  if(img){ e.preventDefault(); await acceptImage(img); }
+});
+
+/* 拖放 */
+const drop=el("drop");
+drop.onclick=()=>{
+  const inp=document.createElement("input");
+  inp.type="file"; inp.accept="image/*";
+  inp.onchange=()=>{ if(inp.files[0]) acceptImage(inp.files[0]); };
+  inp.click();
+};
+drop.addEventListener("dragover",e=>{ e.preventDefault(); drop.classList.add("over"); });
+drop.addEventListener("dragleave",()=>drop.classList.remove("over"));
+drop.addEventListener("drop",async e=>{
+  e.preventDefault(); drop.classList.remove("over");
+  const f=e.dataTransfer.files[0];
+  if(f) await acceptImage(f);
+});
+
+/* 缩放 */
+el("img").onclick=()=>{ el("imgwrap").classList.toggle("zoombox"); };
+
+/* 快捷键 */
+document.addEventListener("keydown",e=>{
+  if(e.ctrlKey && e.key==="Enter"){ e.preventDefault(); saveSample(); }
+});
+
+/* 启动 */
+load();
+state.draft = newDraft();
+["nSpace","nHalf","nPunct"].forEach(id=>{ el(id).checked = !!state.protocol[id]; });
+renderTags(); renderTools(); renderDiff(); renderCurStat(); renderAll();
+</script>
+</body>
+</html>

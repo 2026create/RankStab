@@ -1,0 +1,22 @@
+# 统一换行符为 LF。
+# 理由：评委可能在 macOS / Linux 上 clone。若按平台各自转换，
+# 同一份文件在不同系统上 diff 全红，会被误读成「作者改了东西」。
+* text=auto eol=lf
+
+# 明确标记二进制，避免 git 做文本转换损坏文件
+*.png  binary
+*.jpg  binary
+*.jpeg binary
+*.webp binary
+*.gif  binary
+*.pdf  binary
+*.zip  binary
+*.xlsx binary
+*.docx binary
+
+# 若将来出现 Windows 批处理，仍需 CRLF
+*.bat text eol=crlf
+*.cmd text eol=crlf
+
+# 语言统计时不计入
+*.csv linguist-generated=false

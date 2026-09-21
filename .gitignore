@@ -1,0 +1,36 @@
+# ---------------- Python ----------------
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.pytest_cache/
+
+# ---------------- 真实数据：绝不入库 ----------------
+# 原因：真实截图含微信昵称、头像、手机号、聊天内容。
+# 赛事规则明文要求「不得公开无权再分发的第三方资源、个人信息」。
+# 保留目录结构，内容一律忽略。
+data/raw/*
+!data/raw/.gitkeep
+
+# 若把真实数据放在仓库内的 data/gt 下，也必须先脱敏再提交。
+# 默认忽略，需要公开时用 git add -f 显式确认。
+data/gt/*.png
+data/gt/*.jpg
+data/gt/*.jpeg
+
+# 模型原始输出体积大，且可能整包包含敏感片段。归档走外部渠道（HF dataset / release）。
+models_out/*/
+!models_out/.gitkeep
+
+# ---------------- 编辑器 / 系统 ----------------
+.vscode/
+.idea/
+*.swp
+.DS_Store
+Thumbs.db
+
+# ---------------- 临时文件 ----------------
+_tmp/
+*.tmp
+*.log
