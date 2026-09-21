@@ -79,10 +79,36 @@ def test_protocol():
     eq("A17 P4 包含 P3 全角转换", n("Ａ，Ｂ", "P4"), "a,b")
 
     # 繁简后端必须被记录（报告里要照实声明用了哪个）
-    ok("A18 繁简后端已记录", protocol.TRAD_BACKEND in ("opencc", "snapshot_table"),
-       protocol.TRAD_BACKEND)
+    # A18 已被 A18b 取代：TRAD_BACKEND 现在必须恒定，不再允许随环境取值。
     ok("A19 繁简表规模合理", len(protocol.TRAD_TO_SIMP) > 3000,
        len(protocol.TRAD_TO_SIMP))
+
+    # --- 可复现性防线：繁简后端不得随环境变化 -------------------------------
+    # 事故背景（2026-09-21）：曾经的实现是「装了 opencc 就用它」，
+    # 导致同一份代码在两台机器上产出不同字节，且不报错，只是静静改变产物。
+    # 对一个主张可复现的项目这是致命缺陷，故在此用断言永久锁死。
+    eq("A18b 繁简后端恒定不随环境变化", protocol.TRAD_BACKEND, "snapshot_table")
+    eq("A18c 快照被标记为已冻结", protocol.TRAD_TO_SIMP_COVERAGE.get("frozen"), True)
+
+    # 无论本机是否装有 opencc，P5 的转换结果必须完全一致。
+    # 这条断言在「装有 opencc」和「未装 opencc」两种环境下都必须通过，
+    # 只要它通过，就证明环境差异无法渗入评分路径。
+    # 注意：「路」「算」在繁简两侧同形，无映射项应原样保留 —— 这正是逐个字符
+    # 映射的正确行为，不要"顺手"把它们也映射掉。
+    eq("A18d P5 转换结果与环境无关(一)",
+       n("\u8a08\u7b97\u6a5f\u8207\u7db2\u8def", "P5"), "\u8ba1\u7b97\u673a\u4e0e\u7f51\u8def")
+    eq("A18e P5 转换结果与环境无关(二)",
+       n("\u9ede\u7dda\u8207\u5716\u8868", "P5"), "\u70b9\u7ebf\u4e0e\u56fe\u8868")
+
+    # 若本机恰好装有 opencc，则顺带交叉校验快照与它一致（不一致说明快照有问题）。
+    # 未安装时该断言自动跳过，不构成对环境的依赖。
+    _cc, _ccver = protocol._load_opencc_for_crosscheck()
+    if _cc is not None:
+        _probe = "\u8a08\u7b97\u6a5f\u8207\u7db2\u8def\u7684\u7bc0\u9ede"
+        _snap = "".join(protocol.TRAD_TO_SIMP.get(c, c) for c in _probe)
+        eq(f"A18f 快照与 OpenCC({_ccver}) 交叉校验一致", _cc.convert(_probe), _snap)
+    else:
+        ok("A18f 本机无 opencc，跳过交叉校验（不影响结果一致性）", True, "skipped")
 
     # 长度型规则必须被单独标出（单调性陷阱的来源）
     ok("A20 长度型规则可识别", "collapse_ws" in protocol.length_affecting_rules("P1"),
@@ -207,8 +233,11 @@ def test_end_to_end():
         ok("D8 无单调性违规（固定分母口径）", not meta["monotonicity_violations"],
            meta["monotonicity_violations"][:2])
         ok("D9 切分实现标注重建状态", "reconstructed" in meta["segmode_impl"])
+        # D10 用于断言 meta 中的后端取值合法；现收紧为「必须恒为快照」。
+        # 这样一旦有人把环境探测逻辑改回来，D10b 会立刻失败。
         ok("D10 繁简后端写入 meta", meta["trad_backend"] in ("opencc", "snapshot_table"),
            meta["trad_backend"])
+        eq("D10b meta 中的繁简后端恒为快照", meta["trad_backend"], "snapshot_table")
 
         for fn in ("scores.csv", "rank_matrix.csv", "stability.csv",
                    "protocol_curve.csv", "meta.json"):

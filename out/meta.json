@@ -37,7 +37,7 @@
   "primary_metric": "cer_fixed",
   "bootstrap_n": 2000,
   "bootstrap_seed": 20260921,
-  "trad_backend": "opencc",
+  "trad_backend": "snapshot_table",
   "monotonicity_violations": [],
   "segmode_impl": "reconstructed (pending upstream source alignment at G0)",
   "data_sources": [
