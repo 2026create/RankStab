@@ -34,8 +34,8 @@
 ## 快速开始
 
 ```bash
-# 依赖可选。装不上时自动使用同源离线快照表，行为一致。
-pip install opencc-python-reimplemented
+# 无必需依赖。繁简转换走仓库内固化的离线快照表（src/trad_table.py），
+# 不依赖 opencc，也不受其版本变化影响 —— 见 SPEC.md 第 2.2 与 7 节。
 
 # 一条命令验收全部主张（自检 + 流水线 + 结果可重复）
 python verify.py
@@ -46,7 +46,7 @@ python verify.py
 想逐步执行：
 
 ```bash
-# 1. 自检：必须输出「通过 85 / 85」
+# 1. 自检：必须输出「通过 98 / 98」
 python tests/test_all.py
 
 # 2. 用合成数据跑通全流程（不需要任何真实数据）
@@ -86,7 +86,7 @@ rankstab/                   ← 本目录即仓库根
 │   ├── gen_trad_table.py   重新生成繁简快照表
 │   └── 中文OCR标注工作台.html  数据集构建工具（单文件、零依赖、纯本地）
 ├── tests/
-│   └── test_all.py         85 项自检
+│   └── test_all.py         98 项自检
 ├── data/
 │   ├── gt/                 真值（index.json + <sample_id>.md）
 │   └── raw/                原始截图 / 文档（不入库）
@@ -148,6 +148,7 @@ python run.py
 | 文件 | 关注什么 |
 |---|---|
 | `stability.csv` | **核心产出。** `rank_shift` 越大，说明这个模型的名次越依赖评分规则 |
+| `verdicts.csv` | **名次可信度判定。** 每个相邻名次对给出 `STABLE` / `FRAGILE` / `TIE` |
 | `protocol_curve.csv` | 模型 × 档位曲线。某模型在 P3 突然下降，说明它的主要偏差是全角字符 |
 | `rank_matrix.csv` | 18 个完整榜单。用它可以指出「第 3 名和第 4 名在两个档位下互换」 |
 | `scores.csv` | 每组的双口径 CER、S/D/I 分解、bootstrap 区间 |
@@ -155,6 +156,17 @@ python run.py
 
 **一句话读法**：`rank_shift = 0` 的模型，名次可以放心引用；
 `rank_shift >= 2` 的模型，任何单一榜单的排名都不足以支撑结论。
+
+**更严格的读法看 `verdicts.csv`**——名次位移只是现象，判定才是结论：
+
+| 判定 | 含义 | 怎么用 |
+|---|---|---|
+| `STABLE` | `margin >= 1`，协议抖动的极限也追不上这个差距 | 名次可以引用 |
+| `FRAGILE` | 已观测到翻转，或 `margin < 1` 翻得动 | 换规则就变，别拿它下结论 |
+| `TIE` | bootstrap 区间重叠 | 连谁赢都没定，这个名次本身没意义 |
+
+> `margin = gap / (span_a + span_b)`。阈值取 **1** 不是超参数：
+> 等于 1 就是「领先幅度正好等于协议能把两者掀起的极限」。判据见 `SPEC.md` 第 4.5 节。
 
 ---
 

@@ -16,6 +16,7 @@
 
 from __future__ import annotations
 
+import csv
 import json
 import os
 import shutil
@@ -321,7 +322,7 @@ def test_end_to_end():
                 return b"\r\n" in fh.read()
 
         csv_names = ["scores.csv", "rank_matrix.csv", "stability.csv",
-                     "protocol_curve.csv"]
+                     "verdicts.csv", "protocol_curve.csv"]
         bad_csv = [n for n in csv_names if has_crlf(os.path.join(out, n))]
         ok("E1 CSV 行尾为 LF（csv 模块默认 CRLF，须显式覆盖）", not bad_csv, bad_csv)
         ok("E2 meta.json 行尾为 LF", not has_crlf(os.path.join(out, "meta.json")))
@@ -331,6 +332,60 @@ def test_end_to_end():
                   if os.path.isfile(os.path.join(gt, n))
                   and has_crlf(os.path.join(gt, n))]
         ok("E4 真值文件行尾为 LF", not gt_bad, gt_bad[:5])
+
+        # ---- F 组：名次可信度判定（SPEC v1.1 第 4.5 节）----
+        # 这组断言锁的是**判据本身的数学性质**，不是某个具体数字。
+        # 数字会随数据变化，性质不会 —— 判据若站不住，项目主张就站不住。
+        vp = os.path.join(out, "verdicts.csv")
+        ok("F1 verdicts.csv 已产出", os.path.exists(vp))
+        if os.path.exists(vp):
+            with open(vp, "r", encoding="utf-8-sig", newline="") as fh:
+                vrows = list(csv.DictReader(fh))
+
+            with open(os.path.join(out, "rank_matrix.csv"), "r",
+                      encoding="utf-8-sig", newline="") as fh:
+                n_models = len({r["model"] for r in csv.DictReader(fh)})
+            eq("F2 相邻名次对数 = 模型数 - 1", len(vrows), n_models - 1)
+
+            # 判据的核心定理：margin >= 1 时协议不可能掀翻顺序。
+            # 证明：e(g) 相对 e(g0) 的偏移不超过 span；两者相向而行的最坏情形
+            #       要求 gap < span_a + span_b，即 margin < 1。故 margin>=1 ⟹ 不翻。
+            bad_bound = [(r["model_a"], r["model_b"], r["margin"])
+                         for r in vrows
+                         if r["margin"] != "inf"
+                         and float(r["margin"]) >= 1.0
+                         and int(r["flipped_groups"]) > 0]
+            ok("F3 margin>=1 的对在 18 组内不可能翻转（判据的数学核心）",
+               not bad_bound, bad_bound)
+
+            # 逆否命题：观测到翻转的对必然 margin < 1。F3 与 F4 一起把判据夹死。
+            bad_flip = [(r["model_a"], r["model_b"], r["margin"], r["flipped_groups"])
+                        for r in vrows
+                        if int(r["flipped_groups"]) > 0
+                        and r["margin"] != "inf"
+                        and not float(r["margin"]) < 1.0]
+            ok("F4 观测到翻转的对必然 margin<1（F3 的逆否）", not bad_flip, bad_flip)
+
+            eq("F5 判定值域封闭为三种",
+               {r["verdict"] for r in vrows} <= {"FRAGILE", "STABLE", "TIE"}, True)
+
+            # TIE 与 CI 重叠必须严格等价 —— 否则「分不出胜负」就只是口头说法
+            mism = [(r["model_a"], r["model_b"], r["ci_overlap"], r["verdict"])
+                    for r in vrows
+                    if (r["verdict"] == "TIE") != (r["ci_overlap"] == "1")]
+            ok("F6 TIE 当且仅当 bootstrap 区间重叠", not mism, mism)
+
+            bad_gap = [(r["model_a"], r["model_b"], r["gap"]) for r in vrows
+                       if float(r["gap"]) < -1e-12]
+            ok("F7 相邻名次对的 gap 非负", not bad_gap, bad_gap)
+
+            with open(os.path.join(out, "stability.csv"), "r",
+                      encoding="utf-8-sig", newline="") as fh:
+                srows = list(csv.DictReader(fh))
+            need = ("ref_cer_fixed", "ref_ci_lo", "ref_ci_hi",
+                    "gap_nearest", "margin", "verdict")
+            ok("F8 stability.csv 含可信度摘要列",
+               all(k in srows[0] for k in need), list(srows[0].keys()))
 
     finally:
         shutil.rmtree(tmp, ignore_errors=True)
@@ -346,6 +401,9 @@ if __name__ == "__main__":
     total = _PASS + len(_FAIL)
     print("=" * 62)
     print("通过 %d / %d" % (_PASS, total))
+    # 纯 ASCII 汇总行。verify.py 优先解析它：中文行的编码随终端区域变化，
+    # 不应让「区域设置」有能力伪装成「自检失败」。
+    print("ASSERTIONS %d/%d" % (_PASS, total))
     if _FAIL:
         print("-" * 62)
         for f in _FAIL:

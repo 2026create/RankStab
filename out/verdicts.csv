@@ -1,0 +1,5 @@
+﻿rank,model_a,model_b,cer_a,cer_b,gap,span_a,span_b,margin,flipped_groups,ci_overlap,verdict,ref_group
+1,model_clean,model_fullwidth,0.004766,0.030982,0.026216,0.000103,0.03113,0.839369,9,0,FRAGILE,para_merge/P0
+2,model_fullwidth,model_spacy,0.030982,0.052431,0.021449,0.03113,0.047527,0.27269,0,1,TIE,para_merge/P0
+3,model_spacy,model_traditional,0.052431,0.399905,0.347474,0.047527,0.40182,0.773287,3,0,FRAGILE,para_merge/P0
+4,model_traditional,model_flatten,0.399905,1.067207,0.667302,0.40182,1.941195,0.284805,5,0,FRAGILE,para_merge/P0

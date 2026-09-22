@@ -42,5 +42,21 @@
   "segmode_impl": "reconstructed (pending upstream source alignment at G0)",
   "data_sources": [
     "generated"
-  ]
+  ],
+  "ref_group": {
+    "seg_mode": "para_merge",
+    "level": "P0"
+  },
+  "verdict_rule": {
+    "margin_threshold": 1.0,
+    "margin_formula": "gap / (span_a + span_b)",
+    "ci_level": 0.95,
+    "precedence": [
+      "TIE",
+      "FRAGILE(observed flip)",
+      "FRAGILE(margin<1)",
+      "STABLE"
+    ],
+    "span_is_lower_bound": true
+  }
 }

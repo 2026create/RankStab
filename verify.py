@@ -5,7 +5,7 @@
 
 依次验证四件事：
 
-  1. 自检全过          度量实现本身没有问题（85 项断言）
+  1. 自检全过          度量实现本身没有问题（98 项断言）
   2. 流水线可跑        18 组重算能完整执行并产出全部文件
   3. 结果可重复        连跑两次，产物**逐字节一致**（sha256 对比）
   4. 提交状态干净      （若在 git 仓库内）工作区无未提交的产物改动
@@ -30,10 +30,10 @@ PY = sys.executable
 OUT = os.path.join(HERE, "out")
 
 # 断言总数下限。只允许随新增断言上调；下调意味着有断言被删掉了。
-MIN_ASSERTIONS = 85
+MIN_ASSERTIONS = 98
 
 # 流水线必须产出的文件，缺一不可（只看退出码不够，脚本可能静默半途而废）
-REQUIRED = ["scores.csv", "rank_matrix.csv", "stability.csv",
+REQUIRED = ["scores.csv", "rank_matrix.csv", "stability.csv", "verdicts.csv",
             "protocol_curve.csv", "meta.json", "report.html"]
 
 USE_COLOR = not (os.name == "nt" and not os.environ.get("WT_SESSION"))
@@ -44,9 +44,15 @@ RESET = "\033[0m" if USE_COLOR else ""
 
 
 def _run(args: list[str]) -> tuple[int, str]:
+    # 子进程在 Windows（尤其是中文区域）下，stdout 默认用 GBK 编码，
+    # 而这里按 UTF-8 解码会得到乱码，进而让「通过 N / N」无法解析 ——
+    # 表现是「自检莫名其妙失败」，实际是编码问题。显式钉死子进程用 UTF-8 输出。
+    env = os.environ.copy()
+    env["PYTHONIOENCODING"] = "utf-8"
+    env["PYTHONUTF8"] = "1"
     r = subprocess.run(
         args, cwd=HERE, capture_output=True, text=True,
-        encoding="utf-8", errors="replace",
+        encoding="utf-8", errors="replace", env=env,
     )
     return r.returncode, (r.stdout or "") + (r.stderr or "")
 
@@ -68,7 +74,10 @@ def _snapshot(folder: str) -> dict[str, str]:
 # --------------------------------------------------------------------- 步骤
 def step_tests() -> tuple[bool, str]:
     code, out = _run([PY, os.path.join("tests", "test_all.py")])
-    m = re.search(r"通过\s*(\d+)\s*/\s*(\d+)", out)
+    # 优先解析纯 ASCII 汇总行：它不受任何终端/区域编码影响。
+    # 中文行只在 ASCII 行缺失时作为兜底，避免编码问题伪装成「自检失败」。
+    m = re.search(r"ASSERTIONS\s+(\d+)\s*/\s*(\d+)", out) or \
+        re.search(r"通过\s*(\d+)\s*/\s*(\d+)", out)
     if not m:
         return False, "未能解析自检输出（tests/test_all.py 可能异常退出）"
     passed, total = int(m.group(1)), int(m.group(2))
@@ -134,7 +143,7 @@ def step_git_clean() -> tuple[bool, str]:
 
 
 STEPS = [
-    ("1  自检 85 项断言", step_tests),
+    ("1  自检 98 项断言", step_tests),
     ("2  连跑两次，产物逐字节一致", step_run_twice),
     ("3  out/ 与提交版本一致", step_git_clean),
 ]
