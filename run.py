@@ -49,8 +49,24 @@ def _print_summary(res) -> None:
               % (r["model"], "  ".join("%8.4f" % r[l] for l in meta["levels"]),
                  r["drop_P0_to_P5"]))
 
+    verdicts = res.get("verdicts", [])
+    if verdicts:
+        print("\n【名次可信度判定】相邻名次对 —— 这是本项目的结论形态")
+        print("%-7s %-26s %10s %9s %7s %7s %9s"
+              % ("名次", "名次对", "gap", "margin", "翻转组", "CI重叠", "判定"))
+        for v in verdicts:
+            print("%-7s %-26s %10.6f %9s %7d %7d %9s"
+                  % ("%d vs %d" % (v["rank"], v["rank"] + 1),
+                     "%s / %s" % (v["model_a"], v["model_b"]),
+                     v["gap"], v["margin"], v["flipped_groups"],
+                     v["ci_overlap"], v["verdict"]))
+        n_stable = sum(1 for v in verdicts if v["verdict"] == "STABLE")
+        print("  -> %d/%d 个相邻名次对站得住（STABLE）；判据见 SPEC.md 第 4.5 节"
+              % (n_stable, len(verdicts)))
+
     print("\n输出目录: %s" % os.path.abspath(os.path.join(HERE, "out")))
-    print("  scores.csv / rank_matrix.csv / stability.csv / protocol_curve.csv / meta.json")
+    print("  scores.csv / rank_matrix.csv / stability.csv / verdicts.csv"
+          " / protocol_curve.csv / meta.json / report.html")
 
 
 def main() -> int:
