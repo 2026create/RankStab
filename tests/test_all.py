@@ -420,6 +420,34 @@ def test_end_to_end():
            mj.get("long_text_fallback", {}).get("groups_with_overflow") == 0,
            mj.get("long_text_fallback"))
 
+        # ---- J 组：分层评测（限定切分方式 + 指定参考组）----
+        # 动机：把不适用于某层的口径也算进 span，会把 span 撑大、
+        # 使 margin 全部跌向 0，任何对比都退化为 TIE，判定失去区分能力。
+        with tempfile.TemporaryDirectory(prefix="rankstab_layer_") as t3:
+            ds = os.path.join(t3, "gt")
+            mo = os.path.join(t3, "models")
+            o1 = os.path.join(t3, "out_whole")
+            os.makedirs(ds, exist_ok=True)
+            make_demo.generate(ds, mo)
+            r1 = runner.run(ds, mo, o1, n_boot=200,
+                            seg_modes=["whole"], ref_seg="whole")
+            m1 = r1["meta"]
+            eq("J1 限定单一切分方式后组数 = 6", m1["n_groups"], 6)
+            eq("J2 meta 记录生效的切分方式", m1["seg_modes"], ["whole"])
+            eq("J3 meta 记录参考组", m1["ref_group"],
+               {"seg_mode": "whole", "level": "P0"})
+            ok("J4 全部切分方式已登记备查",
+               m1.get("seg_modes_all") == list(segmatch.SEG_MODES),
+               m1.get("seg_modes_all"))
+            # span 只在参与组上计算：限定后必然小于等于未限定时的 span
+            o2 = os.path.join(t3, "out_all")
+            r2 = runner.run(ds, mo, o2, n_boot=200)
+            span1 = {r["model"]: r["cer_fixed_spread"] for r in r1["stability"]}
+            span2 = {r["model"]: r["cer_fixed_spread"] for r in r2["stability"]}
+            ok("J5 限定口径后 span 不大于全口径 span（span 只在参与组上算）",
+               all(span1[k] <= span2[k] + 1e-9 for k in span1),
+               {k: (span1[k], span2[k]) for k in span1})
+
     finally:
         shutil.rmtree(tmp, ignore_errors=True)
 

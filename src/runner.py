@@ -145,7 +145,28 @@ def _write_csv(path: str, rows: List[Dict]) -> None:
         w.writerows(rows)
 
 
-def run(gt_dir: str, models_out: str, out_dir: str, n_boot: int = BOOTSTRAP_N) -> Dict:
+def run(gt_dir: str, models_out: str, out_dir: str, n_boot: int = BOOTSTRAP_N,
+        ref_seg: str | None = None, ref_level: str | None = None,
+        seg_modes: Sequence[str] | None = None) -> Dict:
+    """跑协议空间重算。默认 3 种切分 × 6 档 = 18 组。
+
+    `seg_modes` 限定**本层适用的切分方式**。这不是可有可无的选项，而是分层评测的前提：
+
+      行级 OCR  ：只有 `whole` 适用 → 1 × 6 = 6 组
+      端到端解析：3 种都适用       → 3 × 6 = 18 组
+
+    为什么必须限定：`span`（协议能造成的分数抖动）是在所有参与组上算的。
+    实测教训——把段落口径一并算进去后，行级 OCR 的 `span` 被撑到 1.5 以上，
+    于是 `margin` 全部跌到 0.02 附近，**任何对比都退化为 TIE**，
+    判定失去了区分能力。限定之后判定才有意义。
+
+    `ref_seg` / `ref_level` 指定「参考组」——名次、区间与判定都在该组下计算。
+    参考组必须落在 `seg_modes` 之内。二者都记入 `meta.json`，不做运行时探测。
+    """
+    modes = list(seg_modes) if seg_modes else list(SEG_MODES)
+    modes = [m for m in modes if m in SEG_MODES]
+    if not modes:
+        raise ValueError("seg_modes 为空或全部非法：%r" % (seg_modes,))
     gt = load_gt(gt_dir)
     sids = [e["sample_id"] for e in gt]
     models = load_predictions(models_out, sids)
@@ -156,11 +177,11 @@ def run(gt_dir: str, models_out: str, out_dir: str, n_boot: int = BOOTSTRAP_N) -
 
     # 固定分母：逐 (样本, 切分方式) 预先算好
     base = {(e["sample_id"], seg): base_length(e["_ref_md"], seg)
-            for e in gt for seg in SEG_MODES}
+            for e in gt for seg in modes}
 
     # ---- 逐组打分 ----
     score_rows: List[Dict] = []
-    for seg in SEG_MODES:
+    for seg in modes:
         for lvl in LEVELS:
             for model, preds in models.items():
                 rows: List[Dict] = []
@@ -209,8 +230,8 @@ def run(gt_dir: str, models_out: str, out_dir: str, n_boot: int = BOOTSTRAP_N) -
     # 这一步回答一个此前没人回答的问题：**「稳定」到底以什么为标准**。
     # 绝对的名次位移没有意义 —— 位移 1 位，若两者差 5 分是稳的，差 0.01 分是脆的。
     # 因此所有判据都相对「名次间距」定义，而不是相对名次的绝对变化。
-    ref_seg = REF_SEG if REF_SEG in SEG_MODES else SEG_MODES[0]
-    ref_lvl = REF_LEVEL if REF_LEVEL in LEVELS else LEVELS[0]
+    ref_seg = (ref_seg or REF_SEG) if (ref_seg or REF_SEG) in modes else modes[0]
+    ref_lvl = (ref_level or REF_LEVEL) if (ref_level or REF_LEVEL) in LEVELS else LEVELS[0]
     ref_key = (ref_seg, ref_lvl)
     ref_group_name = "%s/%s" % (ref_seg, ref_lvl)
 
@@ -363,9 +384,10 @@ def run(gt_dir: str, models_out: str, out_dir: str, n_boot: int = BOOTSTRAP_N) -
         "n_models": len(models),
         "sample_ids": sids,
         "models": sorted(models.keys()),
-        "seg_modes": SEG_MODES,
+        "seg_modes": modes,
+        "seg_modes_all": list(SEG_MODES),
         "levels": LEVELS,
-        "n_groups": len(SEG_MODES) * len(LEVELS),
+        "n_groups": len(modes) * len(LEVELS),
         "primary_metric": "cer_fixed",
         "bootstrap_n": n_boot,
         "bootstrap_seed": BOOTSTRAP_SEED,

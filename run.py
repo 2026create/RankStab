@@ -86,6 +86,15 @@ def main() -> int:
     ap.add_argument("--models", default=os.path.join(HERE, "models_out"))
     ap.add_argument("--out", default=os.path.join(HERE, "out"))
     ap.add_argument("--boot", type=int, default=runner.BOOTSTRAP_N)
+    ap.add_argument("--ref-seg", default=None,
+                    help="参考组切分方式（判定基准）。行级 OCR 应用 whole；"
+                         "端到端解析器用 para_merge。默认取 runner.REF_SEG。")
+    ap.add_argument("--ref-level", default=None,
+                    help="参考组归一化档位。默认取 runner.REF_LEVEL（P0）。")
+    ap.add_argument("--seg-modes", default=None,
+                    help="限定本层适用的切分方式，逗号分隔。默认全部三种。"
+                         "行级 OCR 只适用 whole；端到端解析器三种都适用。"
+                         "限定会影响 span 的计算范围，进而影响判定 —— 见 runner.run。")
     args = ap.parse_args()
 
     if args.demo:
@@ -93,7 +102,11 @@ def main() -> int:
         print("已生成合成数据:", json.dumps(info, ensure_ascii=False))
         print("注意：合成数据 source=generated，不可用于声称真实工具的水平。")
 
-    res = runner.run(args.gt, args.models, args.out, n_boot=args.boot)
+    seg_modes = ([s.strip() for s in args.seg_modes.split(",") if s.strip()]
+                 if args.seg_modes else None)
+    res = runner.run(args.gt, args.models, args.out, n_boot=args.boot,
+                     ref_seg=args.ref_seg, ref_level=args.ref_level,
+                     seg_modes=seg_modes)
     _print_summary(res, args.out)
 
     report = make_report.build(res, os.path.join(args.out, "report.html"))
