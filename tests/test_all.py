@@ -27,7 +27,8 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
 sys.path.insert(0, ROOT)
 
-from src import make_demo, make_report, metrics, protocol, runner, segmatch  # noqa: E402
+from src import (flatten, make_demo, make_report, metrics,  # noqa: E402
+                 protocol, runner, segmatch)
 
 _PASS = 0
 _FAIL = []
@@ -423,8 +424,50 @@ def test_end_to_end():
         shutil.rmtree(tmp, ignore_errors=True)
 
 
+# ------------------------------------------------------------ H 降级为纯文本
+def test_flatten():
+    """Markdown → 纯文本：只处理「标记」，不处理「字符」。
+
+    这组断言里最重要的一条是 H7 —— 它证明本模块**没有越界**去动全角/半角/繁简。
+    那三件事属于六档协议；两处都做会让协议效应无法归因。
+    """
+    eq("H1 代码围栏去掉、内容保留",
+       flatten.md_to_plain("```python\nprint(1)\n```"), "print(1)")
+
+    eq("H2 HTML 表格拍平为制表符与换行",
+       flatten.md_to_plain("<table><tr><td>甲</td><td>乙</td></tr>"
+                           "<tr><td>丙</td><td>丁</td></tr></table>"),
+       "甲\t乙\n丙\t丁")
+
+    eq("H3 图片只保留 alt 文字",
+       flatten.md_to_plain("见图 ![结构图](../a/b.png) 所示"),
+       "见图 结构图 所示")
+
+    eq("H4 链接只保留文字、丢掉 URL",
+       flatten.md_to_plain("参考 [官方文档](https://example.com/x) 说明"),
+       "参考 官方文档 说明")
+
+    eq("H5 标题/引用/列表标记去掉",
+       flatten.md_to_plain("# 标题\n> 引用\n- 条目"), "标题\n引用\n条目")
+
+    eq("H6 公式只去定界符、内容保留",
+       flatten.md_to_plain("结果为 \\(x^2+1\\) 与 $y$"), "结果为 x^2+1 与 y")
+
+    # ★ 核心边界：本模块不得改变字符本身
+    sample = "全角１２３ 繁体網路 Ｗｉｄｅ 半角123 网络"
+    eq("H7 不改变全角与繁简字符（那是协议的职责，不是降级的职责）",
+       flatten.md_to_plain(sample), sample)
+
+    ok("H8 降级幂等（对已降级文本再降级结果不变）",
+       flatten.md_to_plain(flatten.md_to_plain("# 标题\n- 条目")) ==
+       flatten.md_to_plain("# 标题\n- 条目"))
+
+    eq("H9 空输入安全", flatten.md_to_plain(""), "")
+
+
 if __name__ == "__main__":
-    for fn in (test_protocol, test_metrics, test_segmatch, test_end_to_end):
+    for fn in (test_protocol, test_metrics, test_segmatch,
+               test_flatten, test_end_to_end):
         try:
             fn()
         except Exception as exc:  # noqa: BLE001

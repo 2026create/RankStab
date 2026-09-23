@@ -5,7 +5,7 @@
 
 依次验证四件事：
 
-  1. 自检全过          度量实现本身没有问题（105 项断言）
+  1. 自检全过          度量实现本身没有问题（114 项断言）
   2. 流水线可跑        18 组重算能完整执行并产出全部文件
   3. 结果可重复        连跑两次，产物**逐字节一致**（sha256 对比）
   4. 提交状态干净      （若在 git 仓库内）工作区无未提交的产物改动
@@ -30,7 +30,7 @@ PY = sys.executable
 OUT = os.path.join(HERE, "out")
 
 # 断言总数下限。只允许随新增断言上调；下调意味着有断言被删掉了。
-MIN_ASSERTIONS = 105
+MIN_ASSERTIONS = 114
 
 # 流水线必须产出的文件，缺一不可（只看退出码不够，脚本可能静默半途而废）
 REQUIRED = ["scores.csv", "rank_matrix.csv", "stability.csv", "verdicts.csv",
@@ -143,7 +143,7 @@ def step_git_clean() -> tuple[bool, str]:
 
 
 STEPS = [
-    ("1  自检 105 项断言", step_tests),
+    ("1  自检 114 项断言", step_tests),
     ("2  连跑两次，产物逐字节一致", step_run_twice),
     ("3  out/ 与提交版本一致", step_git_clean),
 ]
