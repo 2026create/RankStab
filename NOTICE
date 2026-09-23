@@ -7,7 +7,12 @@ Copyright 2026 2026create
 1. OpenCC（繁体/简体转换）
 --------------------------------------------------------------------------
 src/trad_table.py 是由 OpenCC 的 t2s 转换结果生成的**离线快照**
-（3,751 对单字映射），用于在本机未安装 OpenCC 时提供等价的繁简归一能力。
+（3,751 对单字映射），是本仓库繁简归一（P5 档）的**唯一**实现路径。
+
+本仓库**不**在运行时探测或依赖 OpenCC。原因有二：
+  1. 跨平台一致性 —— 避免「装了 OpenCC 与没装」产出不同结果；
+  2. OpenCC 自身跨版本会修改转换表，直接依赖会使多年后重跑
+     悄悄改变已发布的分数与名次，而本项目的度量对象正是「名次稳定度」。
 
   项目: OpenCC - https://github.com/BYVoid/OpenCC
   许可证: Apache License 2.0
@@ -38,6 +43,20 @@ OmniDocBench 是**被研究的对象**，不是本仓库分发的一部分。
 MinerU、docling、PaddleOCR、RapidOCR、Umi-OCR、dots.ocr、DeepSeek-OCR 等
 均为各自权利人所有的独立项目。本项目仅读取它们的**输出文本**用于度量，
 不分发其代码或权重。各项目的许可证以其仓库内 LICENSE 文件为准。
+
+其中 MinerU（opendatalab）需单独署名：
+
+  项目: MinerU - https://github.com/opendatalab/MinerU
+  许可证: **Apache-2.0 with additional terms**
+
+  该项目的 GitHub API license 字段返回 NOASSERTION —— 因为它并非纯
+  OSI 标准许可，而是 Apache-2.0 附加了两条条款：
+    ① 商业使用门槛：月活跃用户超 1 亿，或月收入超 2000 万美元，需另获商业许可；
+    ② 在线服务署名义务：若基于 MinerU 向第三方提供在线服务，
+       须在界面或公开文档中显著标注。
+  本项目两条均不触发（仅作推理使用、不分发其代码、不提供在线服务），
+  但仍在此主动署名。**本条许可信息系人工阅读其仓库内 LICENSE.md 正文核实，
+  不得表述为「Apache-2.0」而省略 additional terms。**
 
 --------------------------------------------------------------------------
 4. 数据来源声明
