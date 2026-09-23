@@ -21,7 +21,7 @@ sys.path.insert(0, HERE)
 from src import make_demo, make_report, runner  # noqa: E402
 
 
-def _print_summary(res) -> None:
+def _print_summary(res, out_dir: str) -> None:
     meta = res["meta"]
     print()
     print("=" * 74)
@@ -64,7 +64,9 @@ def _print_summary(res) -> None:
         print("  -> %d/%d 个相邻名次对站得住（STABLE）；判据见 SPEC.md 第 4.5 节"
               % (n_stable, len(verdicts)))
 
-    print("\n输出目录: %s" % os.path.abspath(os.path.join(HERE, "out")))
+    # 注意打印的是实际生效的 --out 目录，不是写死的默认值 ——
+    # 自定义 --out 时若仍显示默认目录，会让人跑到错的地方找产物。
+    print("\n输出目录: %s" % os.path.abspath(out_dir))
     print("  scores.csv / rank_matrix.csv / stability.csv / verdicts.csv"
           " / protocol_curve.csv / meta.json / report.html")
 
@@ -85,7 +87,7 @@ def main() -> int:
         print("注意：合成数据 source=generated，不可用于声称真实工具的水平。")
 
     res = runner.run(args.gt, args.models, args.out, n_boot=args.boot)
-    _print_summary(res)
+    _print_summary(res, args.out)
 
     report = make_report.build(res, os.path.join(args.out, "report.html"))
     print("可视化报告: %s" % report)
