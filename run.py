@@ -33,6 +33,13 @@ def _print_summary(res, out_dir: str) -> None:
         print("!! 单调性违规 %d 处（协议实现可能有问题）" % len(meta["monotonicity_violations"]))
     else:
         print("单调性自检: 通过（固定分母口径，18 组内无违规）")
+
+    lt = meta.get("long_text_fallback", {})
+    if lt.get("groups_with_overflow"):
+        print("!! 长文本保护触发：%d 组、共 %d 条样本的"
+              % (lt["groups_with_overflow"], lt["samples_with_overflow_total"]))
+        print("   「编辑距离」实为长度差估算 —— 这些组的数字不得作为真实 CER 引用。")
+        print("   判断依据见 scores.csv 的 overflow_samples 列与 SPEC 第 4.6 节。")
     print("=" * 74)
 
     print("\n【名次稳定度】按位移排序 —— 这是本项目的核心产出")

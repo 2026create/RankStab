@@ -58,5 +58,11 @@
       "STABLE"
     ],
     "span_is_lower_bound": true
+  },
+  "long_text_fallback": {
+    "trigger_threshold_product": 4000000,
+    "groups_with_overflow": 0,
+    "samples_with_overflow_total": 0,
+    "note": "overflow_samples>0 的组，其 cer/cer_fixed 为长度差估算而非编辑距离，不得作为真实 CER 引用"
   }
 }

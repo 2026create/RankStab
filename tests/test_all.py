@@ -387,6 +387,38 @@ def test_end_to_end():
             ok("F8 stability.csv 含可信度摘要列",
                all(k in srows[0] for k in need), list(srows[0].keys()))
 
+        # ---- G 组：长文本保护必须可见（SPEC v1.1 第 4.6 节）----
+        # 实测背景：whole 口径下 18 条样本里有 6~7 条的乘积超过阈值，
+        # 于是「编辑距离」被静默替换成长度差，而下游一无所知 ——
+        # 结论从"真实距离"变成"长度之差"，全程不报错。
+        # 这组断言的作用就是让这件事**不可能再静默发生**。
+        ok("G1 小文本不触发长文本保护",
+           metrics.edit_ops("甲乙丙", "甲乙丁").get("overflow") is False)
+        big_a, big_b = "甲" * 2001, "乙" * 2000      # 乘积 4,002,000 > 4e6
+        ops_big = metrics.edit_ops(big_a, big_b)
+        ok("G2 超阈值时显式置 overflow（不得静默降级）",
+           ops_big.get("overflow") is True,
+           "len %d x %d" % (len(big_a), len(big_b)))
+        ok("G3 保护路径下只给 D/I、不给 S（S=0 是降级路径的特征）",
+           ops_big["S"] == 0 and ops_big["D"] + ops_big["I"] == ops_big["dist"])
+        ok("G4 overflow 字段恒存在（缺失会让上游忘记检查）",
+           "overflow" in metrics.edit_ops("a", "b"))
+
+        with open(os.path.join(out, "scores.csv"), "r",
+                  encoding="utf-8-sig", newline="") as fh:
+            g_rows = list(csv.DictReader(fh))
+        ok("G5 scores.csv 逐组登记 overflow_samples",
+           "overflow_samples" in g_rows[0], list(g_rows[0].keys()))
+        ok("G6 合成 demo 规模下不应触发长文本保护",
+           all(int(r["overflow_samples"]) == 0 for r in g_rows),
+           [r["seg_mode"] + "/" + r["level"] for r in g_rows
+            if int(r["overflow_samples"])])
+        with open(os.path.join(out, "meta.json"), encoding="utf-8") as fh:
+            mj = json.load(fh)
+        ok("G7 meta.json 登记长文本保护触发情况",
+           mj.get("long_text_fallback", {}).get("groups_with_overflow") == 0,
+           mj.get("long_text_fallback"))
+
     finally:
         shutil.rmtree(tmp, ignore_errors=True)
 

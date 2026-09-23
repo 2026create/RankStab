@@ -55,12 +55,17 @@ def _score_one(ref_md: str, hyp_md: str, seg_mode: str, level: str,
 
     dist = sub = dele = ins = 0
     ref_len = 0
+    overflow = 0
 
     for rb, hb in pairs:
         rn, hn = normalize(rb, level), normalize(hb, level)
         ops = edit_ops(rn, hn)
         dist += ops["dist"]; sub += ops["S"]; dele += ops["D"]; ins += ops["I"]
         ref_len += len(rn)
+        if ops.get("overflow"):
+            # 该块的"编辑距离"实为长度差。必须让它可见：一旦被当作真实距离
+            # 参与汇总，整个语料级指标就失真，而且不会报错。
+            overflow += 1
 
     # 未匹配的 ref 块：整块漏字
     for b in ref_left:
@@ -81,6 +86,7 @@ def _score_one(ref_md: str, hyp_md: str, seg_mode: str, level: str,
         "ins_rate": ins / d_fx,
         "ref_len": ref_len,
         "fixed_denom": d_fx,
+        "overflow": overflow,
     }
 
 
@@ -166,6 +172,7 @@ def run(gt_dir: str, models_out: str, out_dir: str, n_boot: int = BOOTSTRAP_N) -
                     rows.append(r)
                 agg = corpus_cer(rows)
                 ci = bootstrap_ci(rows, n_boot=n_boot)
+                n_ovf = sum(1 for r in rows if r.get("overflow"))
                 score_rows.append({
                     "seg_mode": seg, "level": lvl, "model": model,
                     "cer": round(agg["cer"], 6),
@@ -176,6 +183,9 @@ def run(gt_dir: str, models_out: str, out_dir: str, n_boot: int = BOOTSTRAP_N) -
                     "ref_len": agg["ref_len"],
                     "ci_lo": round(ci[0], 6),
                     "ci_hi": round(ci[1], 6),
+                    # 该组有多少条样本因长文本保护退化为长度差。
+                    # 只要 > 0，本行的 cer/cer_fixed 就不是纯编辑距离，不得当作真实 CER 引用。
+                    "overflow_samples": n_ovf,
                 })
 
     _write_csv(os.path.join(out_dir, "scores.csv"), score_rows)
@@ -343,6 +353,11 @@ def run(gt_dir: str, models_out: str, out_dir: str, n_boot: int = BOOTSTRAP_N) -
                     "cer_fixed_from": a["cer_fixed"], "cer_fixed_to": b["cer_fixed"],
                 })
 
+    # 长文本保护触发统计。这不是元信息，而是**结论有效性的前提**：
+    # 静默降级曾让 18 组里三分之一的样本把长度差当成编辑距离报出去。
+    ovf_groups = sum(1 for r in score_rows if r["overflow_samples"] > 0)
+    ovf_total = sum(r["overflow_samples"] for r in score_rows)
+
     meta = {
         "n_samples": len(gt),
         "n_models": len(models),
@@ -367,6 +382,13 @@ def run(gt_dir: str, models_out: str, out_dir: str, n_boot: int = BOOTSTRAP_N) -
             "precedence": ["TIE", "FRAGILE(observed flip)",
                            "FRAGILE(margin<1)", "STABLE"],
             "span_is_lower_bound": True,
+        },
+        "long_text_fallback": {
+            "trigger_threshold_product": 4_000_000,
+            "groups_with_overflow": ovf_groups,
+            "samples_with_overflow_total": ovf_total,
+            "note": ("overflow_samples>0 的组，其 cer/cer_fixed 为长度差估算而非"
+                     "编辑距离，不得作为真实 CER 引用"),
         },
     }
     # newline="\n"：见 _write_csv 的说明。meta.json 是复现入口，必须跨平台一致。

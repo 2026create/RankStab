@@ -54,7 +54,10 @@ def edit_ops(ref: str, hyp: str) -> Dict[str, int]:
             I += 1; j -= 1; continue
         break
 
-    return {"dist": rows[n][m], "S": S, "D": D, "I": I, "refLen": n, "hypLen": m}
+    # overflow 恒存在，哪怕为 False —— 缺失字段会让上游"忘了检查"变得不可见，
+    # 而静默降级正是本项目最忌讳的一类缺陷（见 SPEC 第 4.6 节）。
+    return {"dist": rows[n][m], "S": S, "D": D, "I": I,
+            "refLen": n, "hypLen": m, "overflow": False}
 
 
 def char_error_rate(ref_norm: str, hyp_norm: str, fixed_denom: Optional[int] = None) -> Dict[str, float]:
