@@ -25,6 +25,11 @@
     "para",
     "para_merge"
   ],
+  "seg_modes_all": [
+    "whole",
+    "para",
+    "para_merge"
+  ],
   "levels": [
     "P0",
     "P1",
