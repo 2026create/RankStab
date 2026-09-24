@@ -18,12 +18,17 @@ D-009 已经把「运行时探测环境」定为可复现性漏洞 ——
 所以这里**不写** `try: import A except: import B` 这类回退逻辑。
 选哪个引擎由调用者给出，并记录进 manifest。
 
-可用引擎（两者都是 PP-OCR 系列，但**代际不同**，是真正不同的识别模型）：
+可用引擎：
 
-    ppocr-v3   rapidocr-onnxruntime  → PP-OCRv3
-    ppocr-v6   rapidocr (3.x)        → PP-OCRv6
+    ppocr-v3   rapidocr-onnxruntime  → PP-OCRv3   文档解析
+    ppocr-v6   rapidocr (3.x)        → PP-OCRv6   文档解析
+    ddddocr    ddddocr               → 验证码识别  **领域外对照**
 
-依赖：pip install rapidocr-onnxruntime rapidocr
+前两者是 PP-OCR 系列的**不同代际**，是真正不同的识别模型。
+第三个**不是文档解析模型**，其角色见 `_Dddd` 的说明：它是**判据的对照**，
+用来检验"差距很大时判据是否仍能给出 STABLE"。
+
+依赖：pip install rapidocr-onnxruntime rapidocr ddddocr
 """
 
 from __future__ import annotations
@@ -90,7 +95,58 @@ class _V6:
         return boxes_to_markdown(boxes, txts)
 
 
-ENGINES = {"ppocr-v3": _V3, "ppocr-v6": _V6}
+class _Dddd:
+    """ddddocr —— **领域外对照，不是文档解析模型**。
+
+    它的识别模型是为验证码/单行短文本训练的。把它放进本项目**不是**为了
+    比较文档解析水平，而是为了检验判据在极端位置是否健全：
+
+        一个远落后于其他的模型，判据**应当**给出稳定的"垫底"，
+        而不是同样报 `FRAGILE`。
+
+    若连它都判成 `FRAGILE`，说明判据在"差距很大"时也失去了分辨力，
+    那才是判据本身的问题。**它是判据的对照，不是排名表的选手。**
+
+    之所以选它：模型（`common.onnx` 等三个文件）**随 wheel 分发**，
+    不需要联网拉取 —— 本机实测 github.com 与 HF 镜像均不可达，
+    EasyOCR / docling 的权重都取不下来。
+    """
+
+    name = "ddddocr"
+    package = "ddddocr"
+    domain = "out-of-domain-control"
+
+    def __init__(self):
+        import ddddocr
+        self._det = ddddocr.DdddOcr(det=True, show_ad=False)
+        self._cls = ddddocr.DdddOcr(show_ad=False)
+
+    def run(self, path: str) -> str:
+        import io
+
+        from PIL import Image
+
+        with open(path, "rb") as f:
+            raw = f.read()
+        rects = self._det.detection(raw)
+        if not rects:
+            return ""
+        img = Image.open(io.BytesIO(raw)).convert("RGB")
+
+        polys, texts = [], []
+        for r in rects:
+            x1, y1, x2, y2 = (int(v) for v in r[:4])
+            if x2 <= x1 or y2 <= y1:
+                continue
+            buf = io.BytesIO()
+            img.crop((x1, y1, x2, y2)).save(buf, format="PNG")
+            texts.append(self._cls.classification(buf.getvalue()) or "")
+            # ddddocr 给的是轴对齐矩形，还原成 boxes_to_markdown 要的 4 点多边形
+            polys.append([[x1, y1], [x2, y1], [x2, y2], [x1, y2]])
+        return boxes_to_markdown(polys, texts)
+
+
+ENGINES = {"ppocr-v3": _V3, "ppocr-v6": _V6, "ddddocr": _Dddd}
 
 
 def main() -> int:
@@ -137,6 +193,8 @@ def main() -> int:
         "model_name": args.name,
         "engine": args.engine,
         "engine_package": ENGINES[args.engine].package,
+        # 领域外对照必须显式登记，避免它被误读成"第三个文档解析模型"
+        "domain": getattr(ENGINES[args.engine], "domain", "document-parsing"),
         "n_samples": len(names),
         "images_dir": os.path.abspath(args.images),
         "elapsed_sec": round(time.time() - t0, 1),
