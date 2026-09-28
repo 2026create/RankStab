@@ -130,17 +130,17 @@ textarea:focus{outline:2px solid var(--acc);border-color:var(--acc)}
 <script>
 const D={
  line:{ref:"whole / P0",pairs:[
-  {rank:1,a:"rapidocr_v6",b:"rapidocr_v3",ca:.10847,cb:.136389,gap:.027919,span:.087263,margin:.162924,flip:0,ci:0,v:"FRAGILE"},
-  {rank:2,a:"rapidocr_v3",b:"windows_ocr",ca:.136389,cb:.795588,gap:.659199,span:.084099,margin:1.008306,flip:0,ci:0,v:"STABLE"},
-  {rank:3,a:"windows_ocr",b:"ddddocr",ca:.795588,cb:.950874,gap:.155286,span:.56967,margin:.248052,flip:0,ci:0,v:"FRAGILE"}],
+  {rank:1,a:"rapidocr_v6",b:"rapidocr_v3",ca:.10847,cb:.136389,gap:.027919,span:.171362,margin:.162924,flip:0,ci:0,v:"FRAGILE"},
+  {rank:2,a:"rapidocr_v3",b:"windows_ocr",ca:.136389,cb:.795588,gap:.659199,span:.653769,margin:1.008306,flip:0,ci:0,v:"STABLE"},
+  {rank:3,a:"windows_ocr",b:"ddddocr",ca:.795588,cb:.950874,gap:.155286,span:.626021,margin:.248052,flip:0,ci:0,v:"FRAGILE"}],
   models:[
   {m:"rapidocr_v6",rank:1,shift:0,cer:.10847,lo:.097248,hi:.121281,margin:.162924,v:"FRAGILE"},
   {m:"rapidocr_v3",rank:2,shift:0,cer:.136389,lo:.12501,hi:.149513,margin:.162924,v:"FRAGILE"},
   {m:"windows_ocr（微软内置 · 非 PP-OCR 家族）",rank:3,shift:0,cer:.795588,lo:.759377,hi:.835703,margin:.248052,v:"FRAGILE"},
   {m:"ddddocr（领域外对照）",rank:4,shift:0,cer:.950874,lo:.944279,hi:.956767,margin:.248052,v:"FRAGILE"}]},
  full:{ref:"para_merge / P0",pairs:[
-  {rank:1,a:"ddddocr",b:"rapidocr_v3",ca:.989543,cb:1.823087,gap:.833544,span:.09502,margin:.445291,flip:6,ci:0,v:"FRAGILE"},
-  {rank:2,a:"rapidocr_v3",b:"rapidocr_v6",ca:1.823087,cb:1.831245,gap:.008158,span:1.776889,margin:.00227,flip:6,ci:1,v:"TIE"}],
+  {rank:1,a:"ddddocr",b:"rapidocr_v3",ca:.989543,cb:1.823087,gap:.833544,span:1.871909,margin:.445291,flip:6,ci:0,v:"FRAGILE"},
+  {rank:2,a:"rapidocr_v3",b:"rapidocr_v6",ca:1.823087,cb:1.831245,gap:.008158,span:3.593079,margin:.00227,flip:6,ci:1,v:"TIE"}],
   models:[
   {m:"ddddocr（领域外对照）",rank:"1~3",shift:2,cer:.989543,lo:.985071,hi:.995429,margin:.445291,v:"FRAGILE"},
   {m:"rapidocr_v3",rank:2,shift:0,cer:1.823087,lo:1.812407,hi:1.832942,margin:.00227,v:"TIE"},
@@ -151,9 +151,9 @@ const D={
   {m:"ddddocr",v:[.950874,.894651,.894651,.894523,.894523,.897687]},
   {m:"windows_ocr",v:[.795588,.739621,.738552,.71478,.713626,.225918]}]},
  real:{ref:"whole / P0",pairs:[
-  {rank:1,a:"rapidocr_v6",b:"rapidocr_v3",ca:.140943,cb:.185605,gap:.044662,span:.03719,margin:.556744,flip:0,ci:1,v:"TIE"},
-  {rank:2,a:"rapidocr_v3",b:"windows_ocr",ca:.185605,cb:.65198,gap:.466375,span:.04303,margin:1.758419,flip:0,ci:0,v:"STABLE"},
-  {rank:3,a:"windows_ocr",b:"ddddocr",ca:.65198,cb:.96032,gap:.30834,span:.222194,margin:1.142944,flip:0,ci:0,v:"STABLE"}],
+  {rank:1,a:"rapidocr_v6",b:"rapidocr_v3",ca:.140943,cb:.185605,gap:.044662,span:.08022,margin:.556744,flip:0,ci:1,v:"TIE"},
+  {rank:2,a:"rapidocr_v3",b:"windows_ocr",ca:.185605,cb:.65198,gap:.466375,span:.265224,margin:1.758419,flip:0,ci:0,v:"STABLE"},
+  {rank:3,a:"windows_ocr",b:"ddddocr",ca:.65198,cb:.96032,gap:.30834,span:.269777,margin:1.142944,flip:0,ci:0,v:"STABLE"}],
   models:[
   {m:"rapidocr_v6",rank:1,shift:0,cer:.140943,lo:.061424,hi:.236813,margin:.556744,v:"TIE"},
   {m:"rapidocr_v3",rank:2,shift:0,cer:.185605,lo:.103154,hi:.284556,margin:.556744,v:"TIE"},
@@ -206,7 +206,7 @@ board:{
 const TABS=[["s-demo","在线检测"],["s-home","概览"],["s-verdict","名次判定"],["s-curve","宽容度曲线"],["s-real","真实数据"],["s-board","上游 35 模型"],["s-how","方法与复现"]];
 const VC={STABLE:"t-STABLE",FRAGILE:"t-FRAGILE",TIE:"t-TIE"};
 function tag(v){return '<span class="tag '+VC[v]+'">'+v+'</span>'}
-function pairTable(p){return '<table><tr><th>名次</th><th>名次对</th><th>分数 A</th><th>分数 B</th><th>gap 差距</th><th>span 协议幅度</th><th>margin</th><th>翻转组</th><th>CI重叠</th><th>判定</th></tr>'+
+function pairTable(p){return '<table><tr><th>名次</th><th>名次对</th><th>分数 A</th><th>分数 B</th><th>gap 差距</th><th>span 协议幅度（A+B 合计）</th><th>margin</th><th>翻转组</th><th>CI重叠</th><th>判定</th></tr>'+
  p.pairs.map(r=>'<tr><td>'+r.rank+'</td><td>'+r.a+'<br><span style="color:#69718a">vs '+r.b+'</span></td><td class="num">'+r.ca.toFixed(4)+'</td><td class="num">'+r.cb.toFixed(4)+'</td><td class="num">'+r.gap.toFixed(4)+'</td><td class="num">'+r.span.toFixed(4)+'</td><td class="num"><b>'+r.margin.toFixed(3)+'</b></td><td class="num">'+r.flip+'</td><td class="num">'+(r.ci?"是":"否")+'</td><td>'+tag(r.v)+'</td></tr>').join("")+"</table>"}
 function modelTable(p){return '<table><tr><th>模型</th><th>名次</th><th>位移</th><th>误差率</th><th>95% 置信区间</th><th>margin</th></tr>'+
  p.models.map(r=>'<tr><td>'+r.m+'</td><td>'+r.rank+'</td><td class="num">'+r.shift+'</td><td class="num">'+r.cer.toFixed(4)+'</td><td class="num">['+r.lo.toFixed(4)+', '+r.hi.toFixed(4)+']</td><td class="num">'+r.margin.toFixed(3)+'</td></tr>').join("")+"</table>"}
@@ -224,7 +224,7 @@ document.getElementById("s-home").innerHTML=
 '<div class="kpi"><b style="color:#0d9463">STABLE</b><span>margin &gt; 1，协议拧到底也翻不过这个差距</span></div>'+
 '<div class="kpi"><b style="color:#d97706">FRAGILE</b><span>margin &lt; 1，协议一拧就可能翻转</span></div>'+
 '<div class="kpi"><b style="color:#8b5cf6">TIE</b><span>置信区间重叠，根本分不开</span></div></div>'+
-'<p class="note">margin = 相邻名次分数差(gap) ÷ 协议能把分数掀起的最大幅度(span)。阈值 1 由定义直接推出：比值大于 1 意味着即使协议全开全关也翻不过去。</p></div>'+
+'<p class="note">margin = 相邻名次分数差(gap) ÷ 协议能把分数掀起的最大幅度(span)，其中 span 取两个模型各自幅度之和（表中即 A+B 合计），可直接验算。阈值 1 由定义直接推出：比值大于 1 意味着即使协议全开全关也翻不过去。</p></div>'+
 '<div class="card"><h2>核心结论</h2>'+
 modelTable(D.line)+
 '<div class="hl">现有榜单只会说「rapidocr_v6 第一」，<b>不会告诉你这个第一在协议抖动面前站不住</b>（margin 仅 0.163）。而同一套判据对差距大的名次对给出 <b>STABLE</b> —— 说明判据有分辨力，不是对所有输入都报 FRAGILE。</div></div>';
@@ -262,10 +262,10 @@ document.getElementById("s-curve").innerHTML=
 
 document.getElementById("s-real").innerHTML=
 '<div class="card"><h2>真实数据上的判定（22 条真实截图，真值约 1.13 万字）</h2>'+
-'<p class="note">真值由人工逐字对照原图校对，纪律：照抄所见（全角就写全角）、原文错字不修正（否则等于给标准答案注水）。</p>'+
+'<p class="note">真值由人工逐字对照原图校对，纪律：照抄所见（全角就写全角）、原文错字不修正（否则等于给标准答案注水）。本层 rapidocr_v3 采用「起草偏倚对照」输出（仓库 data/real22/models_out/rapidocr_v3_起草偏倚对照），表中简写为 rapidocr_v3。</p>'+
 pairTable(D.real)+modelTable(D.real)+
 '<div class="hl">真实数据只有 22 条，置信区间明显更宽（v6 的区间是 [0.061, 0.237]），因此两个真实模型对判为 <b>TIE</b> —— 不是判据失效，是<b>样本量决定分辨力</b>。领域外对照依然稳定垫底（STABLE）。</div></div>'+
-'<div class="card"><h2>聚合数字掩盖了差距的领域结构（按文档类型切片）</h2>'+
+'<div class="card"><h2>切片分析：聚合数字掩盖了差距的领域结构（合成探针层 108 条，按 9 类主题切片）</h2>'+
 '<table><tr><th>文档类型</th><th>rapidocr_v6</th><th>rapidocr_v3</th><th>差距</th></tr>'+
 D.themes.map(t=>'<tr><td>'+t.t+'</td><td class="num">'+t.a.toFixed(4)+'</td><td class="num">'+t.b.toFixed(4)+'</td><td class="num">'+Math.abs(t.a-t.b).toFixed(4)+'</td></tr>').join("")+'</table>'+
 '<div class="hl">整体差距 0.028 是<b>误导性</b>的：在<b>繁体</b>上差 0.147（5.3 倍），在 <b>emoji</b> 上只差 0.002 且<b>方向相反</b>。只报总分的榜单永远不会告诉你这件事。另外，刻意不注入任何敏感特征的对照组 baseline，抖动也有 0.045 —— <b>不存在「协议不敏感」的中文样本</b>，因为中文天然自带全角标点。</div></div>';
