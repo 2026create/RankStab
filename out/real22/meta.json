@@ -1,0 +1,82 @@
+{
+  "n_samples": 22,
+  "n_models": 4,
+  "sample_ids": [
+    "real_0001",
+    "real_0002",
+    "real_0003",
+    "real_0004",
+    "real_0005",
+    "real_0006",
+    "real_0007",
+    "real_0008",
+    "real_0009",
+    "real_0014",
+    "real_0015",
+    "real_0016",
+    "real_0017",
+    "real_0018",
+    "real_0019",
+    "real_0020",
+    "real_0022",
+    "real_0023",
+    "real_0024",
+    "real_0025",
+    "real_0026",
+    "real_0027"
+  ],
+  "models": [
+    "ddddocr",
+    "rapidocr_v3_起草偏倚对照",
+    "rapidocr_v6",
+    "windows_ocr"
+  ],
+  "seg_modes": [
+    "whole"
+  ],
+  "seg_modes_all": [
+    "whole",
+    "para",
+    "para_merge"
+  ],
+  "levels": [
+    "P0",
+    "P1",
+    "P2",
+    "P3",
+    "P4",
+    "P5"
+  ],
+  "n_groups": 6,
+  "primary_metric": "cer_fixed",
+  "bootstrap_n": 2000,
+  "bootstrap_seed": 20260921,
+  "trad_backend": "snapshot_table",
+  "monotonicity_violations": [],
+  "segmode_impl": "reconstructed (pending upstream source alignment at G0)",
+  "data_sources": [
+    "real"
+  ],
+  "ref_group": {
+    "seg_mode": "whole",
+    "level": "P0"
+  },
+  "verdict_rule": {
+    "margin_threshold": 1.0,
+    "margin_formula": "gap / (span_a + span_b)",
+    "ci_level": 0.95,
+    "precedence": [
+      "TIE",
+      "FRAGILE(observed flip)",
+      "FRAGILE(margin<1)",
+      "STABLE"
+    ],
+    "span_is_lower_bound": true
+  },
+  "long_text_fallback": {
+    "trigger_threshold_product": 4000000,
+    "groups_with_overflow": 0,
+    "samples_with_overflow_total": 0,
+    "note": "overflow_samples>0 的组，其 cer/cer_fixed 为长度差估算而非编辑距离，不得作为真实 CER 引用"
+  }
+}

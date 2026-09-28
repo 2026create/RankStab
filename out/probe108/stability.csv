@@ -1,0 +1,5 @@
+﻿model,n_groups,rank_min,rank_max,rank_shift,rank_mean,rank_std,cer_fixed_min,cer_fixed_max,cer_fixed_spread,cer_min,cer_max,ref_cer_fixed,ref_ci_lo,ref_ci_hi,gap_nearest,margin,verdict
+ddddocr,6,4,4,0,4.0,0.0,0.894523,0.950874,0.056351,0.943495,0.957541,0.950874,0.944279,0.956767,0.155286,0.248052,FRAGILE
+rapidocr_v3,6,2,2,0,2.0,0.0,0.05229,0.136389,0.084099,0.055776,0.136389,0.136389,0.12501,0.149513,0.027919,0.162924,FRAGILE
+rapidocr_v6,6,1,1,0,1.0,0.0,0.021207,0.10847,0.087263,0.022621,0.10847,0.10847,0.097248,0.121281,0.027919,0.162924,FRAGILE
+windows_ocr,6,3,3,0,3.0,0.0,0.225918,0.795588,0.56967,0.240981,0.795588,0.795588,0.759377,0.835703,0.155286,0.248052,FRAGILE

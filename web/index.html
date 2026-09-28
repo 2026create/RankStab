@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RankStab · 榜单名次可信度检测</title>
+<style>
+:root{--bg:#f6f7fb;--card:#fff;--ink:#1c2333;--mut:#69718a;--line:#e4e7f0;--acc:#1e3a8a;--gold:#d4af37;--ok:#0d9463;--warn:#d97706;--bad:#dc2626;--tie:#8b5cf6}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:"Microsoft YaHei",system-ui,sans-serif;background:var(--bg);color:var(--ink);line-height:1.8;font-size:16.5px}
+.wrap{max-width:1680px;margin:0 auto}
+header{background:#111a3a;color:#fff;padding:30px 36px}
+header h1{font-size:30px;letter-spacing:.5px}
+header p{color:#aab3d6;font-size:16px;margin-top:8px}
+nav{background:#fff;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:9}
+#nav{display:flex;gap:8px;overflow-x:auto}
+nav button{border:0;background:none;padding:16px 22px;font-size:16.5px;color:var(--mut);cursor:pointer;border-bottom:3px solid transparent;white-space:nowrap}
+nav button.on{color:var(--acc);border-color:var(--acc);font-weight:600}
+main{max-width:1680px;margin:0 auto;padding:34px 32px 70px}
+section{display:none}section.on{display:block}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:30px 34px;margin-bottom:24px;box-shadow:0 1px 3px rgba(20,30,70,.04)}
+.card h2{font-size:22px;margin-bottom:18px}
+.card h3{font-size:18px;margin:18px 0 8px;color:var(--acc)}
+.card p{margin:10px 0}
+.grid{display:grid;gap:16px}
+.g3{grid-template-columns:repeat(3,1fr)}.g2{grid-template-columns:repeat(2,1fr)}
+.kpi{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:22px 24px}
+.kpi b{display:block;font-size:38px;color:var(--acc);line-height:1.25}
+.kpi span{font-size:14.5px;color:var(--mut)}
+table{width:100%;border-collapse:collapse;font-size:15.5px;margin:10px 0}
+th,td{padding:12px 14px;border-bottom:1px solid var(--line);text-align:left;white-space:nowrap}
+th{color:var(--mut);font-weight:600;background:#fafbfe}
+td.num{font-variant-numeric:tabular-nums}
+.tag{display:inline-block;padding:3px 13px;border-radius:20px;font-size:14px;font-weight:600}
+.t-STABLE{background:#e6f6ef;color:var(--ok)}.t-FRAGILE{background:#fdeee0;color:var(--warn)}.t-TIE{background:#f0eaff;color:var(--tie)}
+.note{font-size:14.5px;color:var(--mut);margin-top:14px}
+.hl{background:#fff8e6;border-left:4px solid var(--warn);padding:16px 20px;border-radius:8px;font-size:15.5px;margin-top:18px}
+code{background:#eef1f9;padding:2px 7px;border-radius:5px;font-size:14.5px}
+pre{background:#111a3a;color:#d7e0ff;padding:18px 20px;border-radius:10px;font-size:14.5px;overflow-x:auto;line-height:1.8}
+select{padding:8px 12px;border:1px solid var(--line);border-radius:8px;font-size:14px;margin-bottom:14px}
+svg{max-width:100%}
+.legend{display:flex;gap:18px;font-size:14.5px;color:var(--mut);margin:10px 0}
+.dot{display:inline-block;width:11px;height:11px;border-radius:50%;margin-right:6px}
+footer{text-align:center;color:var(--mut);font-size:13px;padding:28px}
+/* ===== v2 设计升级 ===== */
+header{background:linear-gradient(135deg,#070b1e 0%,#101b4d 55%,#1e3a8a 100%);border-bottom:3px solid var(--gold)}
+header .chips{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px}
+.chip{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.28);color:#e6ebff;padding:5px 15px;border-radius:20px;font-size:13.5px}
+.cta{display:inline-block;margin-top:20px;background:linear-gradient(135deg,#e2c25a,#c49b2a);color:#0b1030;padding:13px 34px;border-radius:12px;font-size:17px;font-weight:700;text-decoration:none;box-shadow:0 6px 20px rgba(212,175,55,.38)}
+.cta:hover{filter:brightness(1.12)}
+table{font-size:15px}
+tbody tr:nth-child(odd){background:#fbfcff}
+tbody tr:hover{background:#eef3ff}
+th.sortable{cursor:pointer;user-select:none}
+th.sortable::after{content:" ⇅";color:#b7bdd1;font-size:12px}
+th.sort-asc::after{content:" ▲";color:var(--acc)}
+th.sort-desc::after{content:" ▼";color:var(--acc)}
+.medal{font-size:15px}
+.filterbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:8px 0 14px}
+.fchip{border:1.5px solid var(--line);background:#fff;color:var(--mut);padding:7px 18px;border-radius:20px;font-size:13.5px;cursor:pointer}
+.fchip.on{background:var(--acc);border-color:var(--acc);color:#fff;font-weight:600}
+.search{flex:1;min-width:180px;padding:10px 16px;border:1.5px solid var(--line);border-radius:22px;font-size:14px}
+.bars .row{display:grid;grid-template-columns:220px 1fr 60px;gap:10px;align-items:center;margin:7px 0}
+.bars .track{background:#eef1f9;border-radius:6px;height:20px;position:relative;overflow:hidden}
+.bars .fill{position:absolute;left:0;top:0;bottom:0;border-radius:6px;background:var(--acc)}
+.bars .fill.hot{background:var(--bad)}
+.bars .val{font-size:13px;text-align:right;font-variant-numeric:tabular-nums}
+.howto{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:16px}
+.howto .step{background:#f6f8ff;border:1px solid var(--line);border-radius:10px;padding:15px 18px;font-size:14.5px}
+.howto .step b{display:block;color:var(--acc);margin-bottom:5px}
+/* ===== v2.1 观感 ===== */
+header{position:relative;overflow:hidden}
+header::after{content:"";position:absolute;right:-90px;top:-130px;width:460px;height:460px;border-radius:50%;background:radial-gradient(circle,rgba(110,140,255,.5),transparent 62%);pointer-events:none}
+header .wrap{position:relative;z-index:1}
+#s-demo .card:first-child{border-top:4px solid var(--acc)}
+.steps{display:flex;gap:10px;margin:4px 0 18px}
+.steps .step{flex:1;background:#f6f8ff;border:1px solid var(--line);border-radius:10px;padding:11px 15px;font-size:13.5px;color:var(--mut)}
+.steps .step.on{color:var(--acc);border-color:var(--acc);background:#f0f4ff;font-weight:600}
+footer a{color:var(--acc);text-decoration:none}
+footer a:hover{text-decoration:underline}
+textarea{width:100%;padding:14px;font-size:14.5px;border:1px solid var(--line);border-radius:10px;font-family:inherit;line-height:1.6;resize:vertical;background:#fdfdff}
+textarea:focus{outline:2px solid var(--acc);border-color:var(--acc)}
+.btn{background:var(--acc);color:#fff;border:0;padding:12px 28px;border-radius:10px;font-size:16px;font-weight:600;cursor:pointer}
+.btn:hover{filter:brightness(1.1)}
+.btn2{background:#fff;color:var(--acc);border:1.5px solid var(--acc);padding:12px 22px;border-radius:10px;font-size:16px;font-weight:600;cursor:pointer}
+#demoOut table{margin-top:14px}
+.warn{background:#fdeee0;color:#7c4a03;padding:12px 16px;border-radius:8px;font-size:14.5px;margin-top:14px}
+</style>
+</head>
+<body>
+<header><div class="wrap">
+  <h1>RankStab · 榜单名次可信度检测</h1>
+  <p>教育科研场景 · 在采信一个 AI 模型榜单之前，先检测「这个名次站不站得住」</p>
+  <div class="chips">
+    <span class="chip">4 个真实 OCR 引擎实测</span>
+    <span class="chip">35 个榜单模型名次间距分析</span>
+    <span class="chip">18 组协议 × 130 张样本</span>
+    <span class="chip">纯 CPU · 一键复现</span>
+  </div>
+</div></header>
+<nav><div class="wrap" id="nav"></div></nav>
+<main>
+<section id="s-demo" class="on">
+ <div class="card">
+ <h2>🧪 在线检测：粘贴两段文字，亲眼看协议怎么改变分数</h2>
+ <div class="steps">
+  <div class="step on">① 输入两段文字</div>
+  <div class="step">② 点「运行检测」</div>
+  <div class="step">③ 对照六档分数变化</div>
+ </div>
+ <p>左边填<b>标准答案</b>，右边填<b>模型输出</b>，点「运行检测」。工具会在 6 档协议下分别计算字符误差率——<b>同一对文本，换一套评分规则，分数就不一样</b>。</p>
+  <div class="grid g2">
+   <div><h3>标准答案（GT）</h3><textarea id="gt" rows="8" placeholder="粘贴标准答案文本…"></textarea></div>
+   <div><h3>模型输出（Pred）</h3><textarea id="pd" rows="8" placeholder="粘贴模型识别出的文本…"></textarea></div>
+  </div>
+  <p style="margin-top:14px"><button class="btn" id="run">▶ 运行检测</button>　<button class="btn2" id="fill">填入示例</button></p>
+  <div id="demoOut"></div>
+  <p class="note"><b>两段文字从哪来</b>：左边 = <b>你人工抄写</b>某张图上的文字（照抄原文，全角就写全角、原文错字也不修正——修正了等于给标准答案注水）；右边 = 用任意 OCR 工具识别<b>同一张图</b>的结果（微信截图「提取文字」、手机自带识别都可以）。项目内已附带 130 组现成的 GT / 引擎输出（见仓库 03_data/）。本页面内置的繁简映射为演示简表，完整 3751 对随仓库开源；批量评测请使用仓库命令行工具。</p>
+ </div>
+</section>
+<section id="s-home"></section>
+<section id="s-verdict"></section>
+<section id="s-curve"></section>
+<section id="s-real"></section>
+<section id="s-board"></section>
+<section id="s-how"></section>
+</main>
+<footer>RankStab · 锐思队 · 教育科研场景 ｜ <a href="https://github.com/2026create/RankStab" target="_blank">GitHub 开源仓库</a> ｜ Apache-2.0 ｜ 对同一批模型输出，在 6 档协议 × 3 种切分下重算 18 遍，检验名次是否站得住</footer>
+<script>
+const D={
+ line:{ref:"whole / P0",pairs:[
+  {rank:1,a:"rapidocr_v6",b:"rapidocr_v3",ca:.10847,cb:.136389,gap:.027919,span:.087263,margin:.162924,flip:0,ci:0,v:"FRAGILE"},
+  {rank:2,a:"rapidocr_v3",b:"windows_ocr",ca:.136389,cb:.795588,gap:.659199,span:.084099,margin:1.008306,flip:0,ci:0,v:"STABLE"},
+  {rank:3,a:"windows_ocr",b:"ddddocr",ca:.795588,cb:.950874,gap:.155286,span:.56967,margin:.248052,flip:0,ci:0,v:"FRAGILE"}],
+  models:[
+  {m:"rapidocr_v6",rank:1,shift:0,cer:.10847,lo:.097248,hi:.121281,margin:.162924,v:"FRAGILE"},
+  {m:"rapidocr_v3",rank:2,shift:0,cer:.136389,lo:.12501,hi:.149513,margin:.162924,v:"FRAGILE"},
+  {m:"windows_ocr（微软内置 · 非 PP-OCR 家族）",rank:3,shift:0,cer:.795588,lo:.759377,hi:.835703,margin:.248052,v:"FRAGILE"},
+  {m:"ddddocr（领域外对照）",rank:4,shift:0,cer:.950874,lo:.944279,hi:.956767,margin:.248052,v:"FRAGILE"}]},
+ full:{ref:"para_merge / P0",pairs:[
+  {rank:1,a:"ddddocr",b:"rapidocr_v3",ca:.989543,cb:1.823087,gap:.833544,span:.09502,margin:.445291,flip:6,ci:0,v:"FRAGILE"},
+  {rank:2,a:"rapidocr_v3",b:"rapidocr_v6",ca:1.823087,cb:1.831245,gap:.008158,span:1.776889,margin:.00227,flip:6,ci:1,v:"TIE"}],
+  models:[
+  {m:"ddddocr（领域外对照）",rank:"1~3",shift:2,cer:.989543,lo:.985071,hi:.995429,margin:.445291,v:"FRAGILE"},
+  {m:"rapidocr_v3",rank:2,shift:0,cer:1.823087,lo:1.812407,hi:1.832942,margin:.00227,v:"TIE"},
+  {m:"rapidocr_v6",rank:"1~3",shift:2,cer:1.831245,lo:1.820229,hi:1.842068,margin:.00227,v:"TIE"}]},
+ curve:{levels:["P0","P1","P2","P3","P4","P5"],rows:[
+  {m:"rapidocr_v6",v:[.10847,.046218,.046218,.022874,.022874,.021207]},
+  {m:"rapidocr_v3",v:[.136389,.076361,.076232,.05494,.054898,.05229]},
+  {m:"ddddocr",v:[.950874,.894651,.894651,.894523,.894523,.897687]},
+  {m:"windows_ocr",v:[.795588,.739621,.738552,.71478,.713626,.225918]}]},
+ real:{ref:"whole / P0",pairs:[
+  {rank:1,a:"rapidocr_v6",b:"rapidocr_v3",ca:.140943,cb:.185605,gap:.044662,span:.03719,margin:.556744,flip:0,ci:1,v:"TIE"},
+  {rank:2,a:"rapidocr_v3",b:"windows_ocr",ca:.185605,cb:.65198,gap:.466375,span:.04303,margin:1.758419,flip:0,ci:0,v:"STABLE"},
+  {rank:3,a:"windows_ocr",b:"ddddocr",ca:.65198,cb:.96032,gap:.30834,span:.222194,margin:1.142944,flip:0,ci:0,v:"STABLE"}],
+  models:[
+  {m:"rapidocr_v6",rank:1,shift:0,cer:.140943,lo:.061424,hi:.236813,margin:.556744,v:"TIE"},
+  {m:"rapidocr_v3",rank:2,shift:0,cer:.185605,lo:.103154,hi:.284556,margin:.556744,v:"TIE"},
+  {m:"windows_ocr（微软内置 · 非 PP-OCR 家族）",rank:3,shift:0,cer:.65198,lo:.481751,hi:.808313,margin:1.142944,v:"STABLE"},
+  {m:"ddddocr（领域外对照）",rank:4,shift:0,cer:.96032,lo:.933077,hi:.980538,margin:1.142944,v:"STABLE"}]},
+ themes:[
+  {t:"p5 繁体",a:.0456,b:.1923},{t:"table 表格",a:.2172,b:.2393},{t:"p3 全角",a:.1862,b:.2098},
+  {t:"baseline 对照组",a:.0605,b:.0777},{t:"p1 空白缩进",a:.1526,b:.1664},{t:"p4 标点",a:.0545,b:.0673},
+  {t:"mix 中英混排",a:.0493,b:.0618},{t:"code 代码",a:.102,b:.1138},  {t:"emoji",a:.1492,b:.1471}],
+board:{
+ total:35, checked:34, ok:34,
+ stat:{min:.030, med:.260, max:4.930, lt01:7, lt05:24, npairs:34},
+ rows:[
+  {r:1,m:"TeleOCR",t:"专用模型",s:"1.2B",o:96.91,g:.44},
+  {r:2,m:"OvisOCR2",t:"专用模型",s:"0.8B",o:96.47,g:.13},
+  {r:3,m:"PaddleOCR-VL-1.6",t:"专用模型",s:"0.9B",o:96.34,g:.59},
+  {r:4,m:"MinerU2.5-Pro",t:"专用模型",s:"1.2B",o:95.75,g:.53},
+  {r:5,m:"GLM-OCR",t:"专用模型",s:"0.9B",o:95.22,g:.29},
+  {r:6,m:"PaddleOCR-VL-1.5",t:"专用模型",s:"0.9B",o:94.93,g:.75},
+  {r:7,m:"PaddleOCR-VL",t:"专用模型",s:"0.9B",o:94.18,g:.18},
+  {r:8,m:"Unlimited-OCR",t:"专用模型",s:"3B",o:94.00,g:.10},
+  {r:9,m:"Qianfan-OCR",t:"专用模型",s:"4B",o:93.90,g:.16},
+  {r:10,m:"Youtu-Parsing",t:"专用模型",s:"2.5B",o:93.74,g:.04},
+  {r:11,m:"Ovis2.6-30B-A3B",t:"通用模型",s:"30B",o:93.70,g:.37},
+  {r:12,m:"Logics-Parsing-v2",t:"专用模型",s:"4B",o:93.33,g:.03},
+  {r:13,m:"ABot-OCR",t:"专用模型",s:"2B",o:93.30,g:.04},
+  {r:14,m:"FireRed-OCR",t:"专用模型",s:"2B",o:93.26,g:.22},
+  {r:15,m:"MinerU-2.5",t:"专用模型",s:"1.2B",o:93.04,g:.13},
+  {r:16,m:"Gemini 3 Pro",t:"通用模型",s:"—",o:92.91,g:.29},
+  {r:17,m:"Gemini 3 Flash",t:"通用模型",s:"—",o:92.62,g:1.85},
+  {r:18,m:"dots.ocr",t:"专用模型",s:"3B",o:90.77,g:.10},
+  {r:19,m:"OpenDoc-0.1B",t:"专用模型",s:"0.1B",o:90.67,g:.42},
+  {r:20,m:"DeepSeek-OCR 2",t:"专用模型",s:"3B",o:90.25,g:.30},
+  {r:21,m:"HunyuanOCR",t:"专用模型",s:"1B",o:89.95,g:.17},
+  {r:22,m:"Qwen3-VL-235B",t:"通用模型",s:"235B",o:89.78,g:.28},
+  {r:23,m:"Dolphin-v2",t:"专用模型",s:"3B",o:89.50,g:.90},
+  {r:24,m:"OCRVerse",t:"专用模型",s:"4B",o:88.60,g:.03},
+  {r:25,m:"MonkeyOCR-pro-3B",t:"专用模型",s:"3B",o:88.57,g:1.98},
+  {r:26,m:"GPT-5.2",t:"通用模型",s:"—",o:86.59,g:.07},
+  {r:27,m:"Dolphin-1.5",t:"专用模型",s:"0.3B",o:86.52,g:.05},
+  {r:28,m:"MinerU-Pipeline",t:"流水线工具",s:"—",o:86.47,g:.73},
+  {r:29,m:"olmOCR",t:"专用模型",s:"7B",o:85.74,g:.08},
+  {r:30,m:"Mistral OCR",t:"专用模型",s:"—",o:85.66,g:1.13},
+  {r:31,m:"Kimi K2.5",t:"通用模型",s:"1T",o:84.53,g:.77},
+  {r:32,m:"InternVL3.5-241B",t:"通用模型",s:"241B",o:83.76,g:.15},
+  {r:33,m:"Nanonets-OCR-s",t:"专用模型",s:"3B",o:83.61,g:.24},
+  {r:34,m:"POINTS-Reader",t:"专用模型",s:"3B",o:83.37,g:4.93},
+  {r:35,m:"Marker",t:"流水线工具",s:"—",o:78.44,g:null}]}
+};
+const TABS=[["s-demo","在线检测"],["s-home","概览"],["s-verdict","名次判定"],["s-curve","宽容度曲线"],["s-real","真实数据"],["s-board","上游 35 模型"],["s-how","方法与复现"]];
+const VC={STABLE:"t-STABLE",FRAGILE:"t-FRAGILE",TIE:"t-TIE"};
+function tag(v){return '<span class="tag '+VC[v]+'">'+v+'</span>'}
+function pairTable(p){return '<table><tr><th>名次</th><th>名次对</th><th>分数 A</th><th>分数 B</th><th>gap 差距</th><th>span 协议幅度</th><th>margin</th><th>翻转组</th><th>CI重叠</th><th>判定</th></tr>'+
+ p.pairs.map(r=>'<tr><td>'+r.rank+'</td><td>'+r.a+'<br><span style="color:#69718a">vs '+r.b+'</span></td><td class="num">'+r.ca.toFixed(4)+'</td><td class="num">'+r.cb.toFixed(4)+'</td><td class="num">'+r.gap.toFixed(4)+'</td><td class="num">'+r.span.toFixed(4)+'</td><td class="num"><b>'+r.margin.toFixed(3)+'</b></td><td class="num">'+r.flip+'</td><td class="num">'+(r.ci?"是":"否")+'</td><td>'+tag(r.v)+'</td></tr>').join("")+"</table>"}
+function modelTable(p){return '<table><tr><th>模型</th><th>名次</th><th>位移</th><th>误差率</th><th>95% 置信区间</th><th>margin</th></tr>'+
+ p.models.map(r=>'<tr><td>'+r.m+'</td><td>'+r.rank+'</td><td class="num">'+r.shift+'</td><td class="num">'+r.cer.toFixed(4)+'</td><td class="num">['+r.lo.toFixed(4)+', '+r.hi.toFixed(4)+']</td><td class="num">'+r.margin.toFixed(3)+'</td></tr>').join("")+"</table>"}
+document.getElementById("s-home").innerHTML=
+'<div class="grid g2">'+
+'<div class="kpi"><b>18</b><span>重算组数 —— 6 档归一化协议 × 3 种切分方式</span></div>'+
+'<div class="kpi"><b>4</b><span>OCR 引擎完成稳定度实测（含 1 个非 PP-OCR 家族）</span></div>'+
+'<div class="kpi"><b>35</b><span>上游榜单模型完成名次间距分析（非稳定度判定）</span></div>'+
+'<div class="kpi"><b>108 / 22</b><span>合成探针集 / 真实截图（真值约 1.13 万字）</span></div></div>'+
+'<div class="card"><h2>这个工具解决什么问题</h2>'+
+'<p style="font-size:14px">文档解析榜单按「谁错得少谁第一」排名。但「错一个字」没有统一定义：全角还是半角、繁体还是简体、中文逗号还是英文逗号、有没有缩进——这些规定合起来叫<b>评测协议</b>，各家自己定，从没有人量过<b>改动它会造成什么后果</b>。</p>'+
+'<div class="hl"><b>三条事实（均有一手证据）</b>：① 上游榜单 v1.5→v1.6，同一模型分数 92.98 → 95.69，<b>模型未改</b>；② 同一份内容仅因输出格式不同，误差在 <b>0.0 与 1.0 之间跳变</b>；③ 榜单相邻名次最小差距 <b>0.030 分</b>，34 组里 7 组 &lt; 0.1 分。</div></div>'+
+'<div class="card"><h2>怎么检测</h2><p style="font-size:14px">把评测协议从写死的常量变成<b>可调节的旋钮</b>，对<b>同一批模型输出</b>重算 18 遍。因为输入完全不变，分数的任何变化<b>只能来自评分规则</b>——这就是变量隔离。然后按判据给每个相邻名次打标签：</p>'+
+'<div class="grid g3" style="margin-top:12px">'+
+'<div class="kpi"><b style="color:#0d9463">STABLE</b><span>margin &gt; 1，协议拧到底也翻不过这个差距</span></div>'+
+'<div class="kpi"><b style="color:#d97706">FRAGILE</b><span>margin &lt; 1，协议一拧就可能翻转</span></div>'+
+'<div class="kpi"><b style="color:#8b5cf6">TIE</b><span>置信区间重叠，根本分不开</span></div></div>'+
+'<p class="note">margin = 相邻名次分数差(gap) ÷ 协议能把分数掀起的最大幅度(span)。阈值 1 由定义直接推出：比值大于 1 意味着即使协议全开全关也翻不过去。</p></div>'+
+'<div class="card"><h2>核心结论</h2>'+
+modelTable(D.line)+
+'<div class="hl">现有榜单只会说「rapidocr_v6 第一」，<b>不会告诉你这个第一在协议抖动面前站不住</b>（margin 仅 0.163）。而同一套判据对差距大的名次对给出 <b>STABLE</b> —— 说明判据有分辨力，不是对所有输入都报 FRAGILE。</div></div>';
+
+document.getElementById("s-verdict").innerHTML=
+'<div class="card"><h2>如何读这张判定表（3 步）</h2><div class="howto">'+
+'<div class="step"><b>① 看 margin</b>margin = 名次差距(gap) ÷ 协议能掀起的最大幅度(span)。它回答：这个领先，换一套评分规则还在不在？</div>'+
+'<div class="step"><b>② 对判据</b>margin &gt; 1 → STABLE（站得住）；&lt; 1 → FRAGILE（一拧就翻）；置信区间重叠 → TIE（根本分不开）。</div>'+
+'<div class="step"><b>③ 别误读</b>FRAGILE 不等于"这个模型差"——它说的是<b>「这个名次是评分规则的函数」</b>，换套规则结论可能反过来。</div></div></div>'+
+'<div class="card"><h2>名次可信度判定 —— 行级层（6 组口径）</h2><p class="note">参考组：'+D.line.ref+'，即最严格的归一化档位。这是对外可比的主口径。</p>'+pairTable(D.line)+'</div>'+
+'<div class="card"><h2>反例：口径不匹配时，评测器会安静地给出荒谬排名</h2><p class="note">全协议空间（18 组混算，参考组 '+D.full.ref+'）。</p>'+pairTable(D.full)+
+'<div class="hl">在 18 组混算口径下，<b>验证码识别模型 ddddocr 排到了第 1 名</b>（0.99 vs 1.82）。机制：那种切分下，行级模型「写得多但结构对不上」被判大量错误；而写得极少的模型反而占便宜。<b>口径与模型范式不匹配时，评测器不报错、不警告。</b></div></div>';
+
+(function(){
+const W=960,H=300,L=64,B=40,T=18,R=18;
+const d=D.curve,lv=d.levels;
+const max=Math.max.apply(null,d.rows.map(r=>Math.max.apply(null,r.v)))*1.08;
+const x=i=>L+i*(W-L-R)/(lv.length-1), y=v=>T+(H-T-B)*(1-v/max);
+let g='<svg viewBox="0 0 '+W+' '+H+'">';
+for(let k=0;k<=4;k++){const vv=max*k/4,yy=y(vv);
+ g+='<line x1="'+L+'" y1="'+yy+'" x2="'+(W-R)+'" y2="'+yy+'" stroke="#e4e7f0"/>';
+ g+='<text x="'+(L-8)+'" y="'+(yy+4)+'" font-size="11" fill="#69718a" text-anchor="end">'+vv.toFixed(2)+'</text>';}
+lv.forEach((l,i)=>{g+='<text x="'+x(i)+'" y="'+(H-B+20)+'" font-size="12" fill="#69718a" text-anchor="middle">'+l+'</text>';});
+const col=["#3b5bfd","#d97706","#0d9463"];
+d.rows.forEach((r,i)=>{const pts=r.v.map((v,k)=>x(k)+","+y(v)).join(" ");
+ g+='<polyline points="'+pts+'" fill="none" stroke="'+col[i]+'" stroke-width="2.2"/>';
+ r.v.forEach((v,k)=>{g+='<circle cx="'+x(k)+'" cy="'+y(v)+'" r="4" fill="'+col[i]+'"/>';});});
+g+='</svg>';
+document.getElementById("s-curve").innerHTML=
+'<div class="card"><h2>宽容度曲线：拧动协议，每个模型的分数怎么走</h2>'+
+'<div class="legend">'+d.rows.map((r,i)=>'<span><i class="dot" style="background:'+col[i]+'"></i>'+r.m+'</span>').join("")+'</div>'+g+
+'<div class="hl"><b>P0 → P1 一步就吃掉约 71% 的总降幅</b>（v3 降 0.060、v6 降 0.062）。在这批中文文档上，「空白/缩进」比「全角」和「繁简」都敏感得多。拆开看：这部分改善 <b>83–85% 来自「漏字」的减少</b>——一个多余的缩进空格会破坏后面整段的对齐，把大量本来正确的字符算成漏了。</div>'+
+'<div class="hl">另一个机制性发现：P1→P3 的改善<b>全部发生在「替换」上</b>——v3 残留替换率 0.0174，v6 降到 0.0012（几乎清零）。说明 <b>v6 几乎不产生全角/半角差异</b>，这是后处理层的差别，不是识别能力的差别。</div></div>';
+})();
+
+document.getElementById("s-real").innerHTML=
+'<div class="card"><h2>真实数据上的判定（22 条真实截图，真值约 1.13 万字）</h2>'+
+'<p class="note">真值由人工逐字对照原图校对，纪律：照抄所见（全角就写全角）、原文错字不修正（否则等于给标准答案注水）。</p>'+
+pairTable(D.real)+modelTable(D.real)+
+'<div class="hl">真实数据只有 22 条，置信区间明显更宽（v6 的区间是 [0.061, 0.237]），因此两个真实模型对判为 <b>TIE</b> —— 不是判据失效，是<b>样本量决定分辨力</b>。领域外对照依然稳定垫底（STABLE）。</div></div>'+
+'<div class="card"><h2>聚合数字掩盖了差距的领域结构（按文档类型切片）</h2>'+
+'<table><tr><th>文档类型</th><th>rapidocr_v6</th><th>rapidocr_v3</th><th>差距</th></tr>'+
+D.themes.map(t=>'<tr><td>'+t.t+'</td><td class="num">'+t.a.toFixed(4)+'</td><td class="num">'+t.b.toFixed(4)+'</td><td class="num">'+Math.abs(t.a-t.b).toFixed(4)+'</td></tr>').join("")+'</table>'+
+'<div class="hl">整体差距 0.028 是<b>误导性</b>的：在<b>繁体</b>上差 0.147（5.3 倍），在 <b>emoji</b> 上只差 0.002 且<b>方向相反</b>。只报总分的榜单永远不会告诉你这件事。另外，刻意不注入任何敏感特征的对照组 baseline，抖动也有 0.045 —— <b>不存在「协议不敏感」的中文样本</b>，因为中文天然自带全角标点。</div></div>';
+
+document.getElementById("s-how").innerHTML=
+'<div class="card"><h2>六档归一化协议（P0 最严 → P5 最宽，逐档追加规则）</h2>'+
+'<table><tr><th>档</th><th>名称</th><th>追加规则</th></tr>'+
+'<tr><td>P0</td><td>字面严格</td><td>仅去除首尾空白</td></tr>'+
+'<tr><td>P1</td><td>空白宽容</td><td>连续空白折叠为单空格（<b>长度型</b>）</td></tr>'+
+'<tr><td>P2</td><td>大小写宽容</td><td>英文大小写不敏感</td></tr>'+
+'<tr><td>P3</td><td>宽度宽容</td><td>全角字母/数字/符号 → 半角</td></tr>'+
+'<tr><td>P4</td><td>标点宽容</td><td>中英标点归一（25 条 1:1 映射）</td></tr>'+
+'<tr><td>P5</td><td>字形宽容</td><td>繁体 → 简体；删除 CJK 字符间空格</td></tr></table>'+
+'<div class="hl">规则分两类：<b>映射型</b>（P2/P3/P4，长度不变）与<b>长度型</b>（P1/P5，改变长度）。长度型会让「误差率的分母」变小，导致放宽规则分数反而变差。<b>解法是固定分母口径 cer_fixed：分母恒用 P0 下的参考文本长度</b>，使档位间差异 100% 来自比对规则。</div></div>'+
+'<div class="card"><h2>一键复现（CPU 即可，无 GPU 依赖）</h2>'+
+'<pre>git clone https://github.com/2026create/RankStab.git\ncd RankStab\npython verify.py     # 一键验收：119 项断言 + 连跑两次逐字节一致\npython run.py --demo # 内置样本跑 18 组，输出判定表</pre>'+
+'<p class="note">产物：scores.csv（双口径 CER + bootstrap 区间）、verdicts.csv（相邻名次对判定）、protocol_curve.csv（宽容度曲线）、stability.csv、rank_matrix.csv、meta.json。种子固定，结果可逐字节复现。</p></div>'+
+'<div class="card"><h2>边界（主动声明）</h2><p style="font-size:13.5px">① 合成样本占多数，不能据此声称真实工具在真实文档上的水平；② 4 个实测引擎中，两个同属 PP-OCR 系列（v3 / v6 为不同代际），但微软 Windows 内置 OCR 来自完全不同的家族——<b>「同系列」这一局限已部分缓解，仍不能外推为「通用排名不可信」</b>；③ 领域外对照 ddddocr 是验证码识别模型，仅用于验证判据有分辨力，不参与文档解析水平比较；④ 真实数据 22 条，置信区间较宽；⑤ windows_ocr 的中文输出在字间插空格，其 P0→P5 的巨大降幅（0.796→0.226）是长度型归一化规则的典型作用对象，<b>不代表该引擎识别能力变好了</b>。</p></div>';
+
+(function(){
+const b=D.board;
+const kpi='<div class="grid g3" style="margin-bottom:18px">'+
+ '<div class="kpi"><b>'+b.total+'</b><span>上游榜单模型总数 —— 全部列出，一条不少</span></div>'+
+ '<div class="kpi"><b>'+b.stat.min.toFixed(3)+'</b><span>相邻名次最小差距（满分 100 分）</span></div>'+
+ '<div class="kpi"><b>'+b.stat.lt01+' / '+b.stat.npairs+'</b><span>差距不足 0.1 分的名次对 —— 一碰就翻</span></div></div>';
+const rows=b.rows.map(r=>{
+ const g=r.g==null?"—":r.g.toFixed(2);
+ const hot=r.g!=null&&r.g<0.1;
+ return '<tr><td>'+r.r+'</td><td>'+r.m+'</td><td>'+r.t+'</td><td class="num">'+r.s+'</td><td class="num">'+r.o.toFixed(2)+
+ '</td><td class="num" style="'+(hot?'color:#dc2626;font-weight:700':'')+'">'+g+'</td></tr>';}).join("");
+document.getElementById("s-board").innerHTML=
+'<div class="card"><h2>上游公开榜单 · 35 个模型的名次间距分析</h2>'+
+'<p style="font-size:15px">我们从上游公开榜单完整提取了 <b>'+b.total+' 个模型</b>的总分，并逐一用官方公式反向验算：<b>'+b.checked+' / '+b.total+' 吻合</b>（唯一不吻合者按原值保留并记录），证明提取与计算可靠。下表给出<b>每一个模型与下一名的差距</b>。</p>'+
+'<div class="hl"><b>先说清楚这张表是什么、不是什么：</b><br>'+
+'✅ 这张表是 <b>名次间距分析</b> —— 基于榜单公开的聚合分数，算出相邻名次差多少分。<br>'+
+'❌ 这张表<b>不是</b>稳定度判定 —— 判定需要每个模型的逐页输出，榜单只公布聚合分，我们拿不到。<br>'+
+'真正做了 18 组协议重算并给出 STABLE / FRAGILE / TIE 判定的，是<b>「名次判定」页里实测的 3 个引擎</b>。</div>'+
+kpi+
+'<table><tr><th>名次</th><th>模型</th><th>类型</th><th>参数量</th><th>总分</th><th>与下一名差距（分）</th></tr>'+rows+'</table>'+
+'<p class="note"><span style="color:#dc2626;font-weight:700">红色</span> = 差距不足 0.1 分。统计：最小 '+b.stat.min.toFixed(3)+'，中位 '+b.stat.med.toFixed(3)+'，最大 '+b.stat.max.toFixed(3)+'；&lt; 0.1 分的 '+b.stat.lt01+' 组，&lt; 0.5 分的 '+b.stat.lt05+' 组（共 '+b.stat.npairs+' 组）。</p></div>'+
+'<div class="card"><h2>这张表说明什么</h2>'+
+'<div class="hl">在 0–100 分的尺度上，<b>千分之几的评分规则偏差，就足以改变名次</b>。而本工具复现的缺陷，在单个样本上就能造成 0.0 → 1.0 的满量程误差——所以「受影响样本的占比」哪怕很低，也可能改写这张表的名次。</div>'+
+'<p class="note">为什么实测引擎只有 3 个：其余模型的权重托管在境外模型仓库，本环境不可达。工具本身<b>不限制模型数量</b>——接入新模型只需提供它的输出目录，评测代码不需要改。</p></div>';
+})();
+
+/* ---- 在线检测引擎：与仓库 src/protocol.py 同一套规则的前端实现 ---- */
+const PUNCT={"，":",","。":".","：":":","；":";","！":"!","？":"?","（":"(","）":")","【":"[","】":"]","《":"<","》":">","〈":"<","〉":">","“":'"',"”":'"',"‘":"'","’":"'","、":",","—":"-","―":"-","～":"~","〜":"~","…":".","·":"."};
+const T2S={"東":"东","車":"车","馬":"马","門":"门","開":"开","關":"关","見":"见","貝":"贝","長":"长","網":"网","國":"国","學":"学","術":"术","數":"数","據":"据","運":"运","動":"动","處":"处","變":"变","異":"异","詳":"详","錄":"录"};
+function t2s(s){return [...s].map(c=>T2S[c]||c).join("")}
+function norm(s,lv){
+ s=s.replace(/^[ \t\r\n]+|[ \t\r\n]+$/g,"");
+ if(lv>=1)s=s.split(/[ \t\r\n]+/).filter(x=>x!=="").join(" ");
+ if(lv>=2)s=s.toLowerCase();
+ if(lv>=3)s=[...s].map(c=>{const d=c.codePointAt(0);return(d>=0xFF01&&d<=0xFF5E)?String.fromCharCode(d-0xFEE0):(d===0x3000?" ":c)}).join("");
+ if(lv>=4)s=[...s].map(c=>PUNCT[c]||c).join("");
+ if(lv>=5)s=t2s(s).replace(/([\u4e00-\u9fff])[ \t]+(?=[\u4e00-\u9fff])/g,"$1");
+ return s;
+}
+function edi(a,b){
+ const m=[...a],n=[...b],R=m.length+1,C=n.length+1;
+ const dp=Array.from({length:R},()=>new Array(C).fill(0));
+ for(let i=1;i<R;i++)dp[i][0]=i;
+ for(let j=1;j<C;j++)dp[0][j]=j;
+ for(let i=1;i<R;i++)for(let j=1;j<C;j++)
+  dp[i][j]=Math.min(dp[i-1][j]+1,dp[i][j-1]+1,dp[i-1][j-1]+(m[i-1]===n[j-1]?0:1));
+ let i=R-1,j=C-1,S=0,Dl=0,I=0;
+ while(i>0||j>0){
+  if(i>0&&j>0&&dp[i][j]===dp[i-1][j-1]+(m[i-1]===n[j-1]?0:1)){if(m[i-1]!==n[j-1])S++;i--;j--;}
+  else if(i>0&&dp[i][j]===dp[i-1][j]+1){Dl++;i--;}
+  else{I++;j--;}}
+ return [dp[R-1][C-1],S,Dl,I];
+}
+const LVL=[["P0","字面严格"],["P1","空白宽容"],["P2","大小写宽容"],["P3","宽度宽容"],["P4","标点宽容"],["P5","字形宽容"]];
+function runDemo(){
+ const g=document.getElementById("gt").value,p=document.getElementById("pd").value;
+ const out=document.getElementById("demoOut");
+ if(!g.trim()||!p.trim()){out.innerHTML='<div class="warn">两边都要有内容——点「填入示例」可以先看效果。</div>';return}
+ const g0=norm(g,0),base=[...g0].length;
+ let rows="",prev=null;
+ for(let lv=0;lv<6;lv++){
+  const a=norm(g,lv),b2=norm(p,lv),d=edi(a,b2);
+  const cerStd=([...a].length)?d[0]/[...a].length:0;      // 标准口径：分母=该档归一化后参考长度
+  const cer=base?d[0]/base:0;                              // 固定分母口径：分母恒为 P0 长度
+  const hot=prev!==null&&Math.abs(cer-prev)>1e-9;
+  rows+='<tr'+(hot?' style="background:#fff8e6"':'')+'><td>'+LVL[lv][0]+'</td><td>'+LVL[lv][1]+'</td><td class="num">'+[...a].length+'</td><td class="num">'+d[0]+'</td><td class="num">'+d[1]+' / '+d[2]+' / '+d[3]+'</td><td class="num">'+cerStd.toFixed(4)+'</td><td class="num"><b>'+cer.toFixed(4)+'</b></td></tr>';
+  prev=cer;
+ }
+ out.innerHTML='<h3 style="margin-top:20px">六档协议下的检测结果（分母固定 = P0 长度 '+base+' 字符）</h3>'+
+ '<table><tr><th>档</th><th>名称</th><th>归一化后长度</th><th>编辑距离</th><th>替换/删除/插入</th><th>标准 CER</th><th>固定分母 CER</th></tr>'+rows+'</table>'+
+ '<div class="hl">看<b>固定分母 CER</b> 这一列：<b>哪里变了，就说明两个文本的差异其实是评分规则造成的，不是模型错了</b>。本工具量测的"协议效应"，就是这个。</div>';
+}
+document.getElementById("run").onclick=runDemo;
+document.getElementById("fill").onclick=()=>{
+ document.getElementById("gt").value="论文题目：多模态文档解析评测协议的敏感性分析\n第 3 章：实验设计（１８ 组）\n结论：协议变更会使名次发生翻转，详见附表。";
+ document.getElementById("pd").value="论文题目:多模态文档解析评测协议的敏感性分析\n第3章:实验设计(18组)\n结论:协议变更会使名次发生翻转,详见附表";
+ runDemo();
+};
+/* ---- v2 交互增强：排序 / 奖牌 / 筛选 / 条形图 ---- */
+function medal(n){return n===1?'🥇 ':n===2?'🥈 ':n===3?'🥉 ':''}
+document.querySelectorAll("main table").forEach(tb=>{
+  const ths=[...tb.querySelectorAll("th")];
+  if(ths.length&&ths[0].innerText.trim()==="名次"){
+    [...tb.tBodies[0].rows].forEach(r=>{const n=parseInt(r.cells[0].innerText);
+      if(n>=1&&n<=3)r.cells[0].innerHTML=medal(n)+r.cells[0].innerText;});
+  }
+  ths.forEach((th,i)=>{
+    th.classList.add("sortable");
+    th.addEventListener("click",()=>{
+      const dir=th.classList.contains("sort-asc")?-1:1;
+      ths.forEach(h=>h.classList.remove("sort-asc","sort-desc"));
+      th.classList.add(dir>0?"sort-asc":"sort-desc");
+      const rows=[...tb.tBodies[0].rows];
+      rows.sort((A,B)=>{
+        const a=A.cells[i].innerText.trim(),b=B.cells[i].innerText.trim();
+        const na=parseFloat(a.replace(/[^\d.\-]/g,"")),nb=parseFloat(b.replace(/[^\d.\-]/g,""));
+        if(!isNaN(na)&&!isNaN(nb))return (na-nb)*dir;
+        return a.localeCompare(b,"zh")*dir;
+      });
+      rows.forEach(r=>tb.tBodies[0].appendChild(r));
+    });
+  });
+});
+(function(){
+  const el=document.getElementById("s-board"); if(!el)return;
+  const tb=el.querySelector("table"); if(!tb)return;
+  const bar=document.createElement("div"); bar.className="filterbar";
+  bar.innerHTML='<button class="fchip on" data-f="全部">全部 35</button>'+
+   '<button class="fchip" data-f="专用模型">专用模型</button>'+
+   '<button class="fchip" data-f="通用模型">通用模型</button>'+
+   '<button class="fchip" data-f="流水线工具">流水线工具</button>'+
+   '<input class="search" id="bsearch" placeholder="搜索模型名…">';
+  tb.parentNode.insertBefore(bar,tb);
+  const chips=bar.querySelectorAll(".fchip"); let cur="全部";
+  function apply(){
+    const q=document.getElementById("bsearch").value.trim().toLowerCase();
+    [...tb.tBodies[0].rows].forEach(r=>{
+      const type=r.cells[2].innerText.trim(),name=r.cells[1].innerText.toLowerCase();
+      r.style.display=((cur==="全部"||type===cur)&&name.includes(q))?"":"none";
+    });
+  }
+  chips.forEach(c=>c.onclick=()=>{chips.forEach(x=>x.classList.remove("on"));c.classList.add("on");cur=c.dataset.f;apply();});
+  document.getElementById("bsearch").oninput=apply;
+})();
+(function(){
+  const el=document.getElementById("s-board"); if(!el)return;
+  const b=D.board, card=el.querySelectorAll(".card")[0]; if(!card)return;
+  const box=document.createElement("div"); box.className="bars";
+  box.innerHTML='<h3 style="font-size:17px;margin:20px 0 8px">与下一名的差距（分）—— <span style="color:#dc2626">红</span> = 不足 0.1 分，一碰就翻</h3>'+
+   b.rows.filter(r=>r.g!=null).map(r=>{
+    const hot=r.g<0.1, w=Math.min(100,(r.g/1.0)*100);
+    return '<div class="row"><div style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:13.5px">'+r.r+'. '+r.m+'</div>'+
+     '<div class="track"><div class="fill'+(hot?' hot':'')+'" style="width:'+Math.max(2,w)+'%"></div></div>'+
+     '<div class="val" style="color:'+(hot?'#dc2626':'var(--mut)')+'">'+r.g.toFixed(2)+'</div></div>';}).join("");
+  card.appendChild(box);
+})();
+const nav=document.getElementById("nav");
+TABS.forEach((t,i)=>{const b=document.createElement("button");b.textContent=t[1];
+ if(i===0)b.className="on";b.onclick=()=>{document.querySelectorAll("nav button").forEach(x=>x.className="");
+ document.querySelectorAll("main section").forEach(x=>x.className="");b.className="on";document.getElementById(t[0]).className="on";window.scrollTo(0,0);};
+ nav.appendChild(b);});
+/* 打开即演示：自动填入示例并运行，让页面一进来就有结果可看 */
+document.getElementById("fill").click();
+/* 卡片标题图标 */
+const ICONS={"在线检测":"🧪","这个工具解决什么问题":"🎯","怎么检测":"⚙️","核心结论":"📊","如何读这张判定表":"📖","名次可信度判定":"🏆","反例：口径不匹配":"⚠️","宽容度曲线":"📈","真实数据上的判定":"📷","聚合数字掩盖":"🧩","上游公开榜单":"🌍","这张表说明什么":"💡","六档归一化协议":"🧭","一键复现":"⚡","边界（主动声明）":"🚧","与上游开源项目的关系":"🔗"};
+document.querySelectorAll(".card h2").forEach(h=>{
+ for(const k in ICONS){ if(h.innerText.indexOf(k)>-1){ h.innerHTML='<span style="margin-right:9px">'+ICONS[k]+'</span>'+h.innerText; break; } }
+});
+</script>
+</body>
+</html>

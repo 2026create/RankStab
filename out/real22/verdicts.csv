@@ -1,0 +1,4 @@
+﻿rank,model_a,model_b,cer_a,cer_b,gap,span_a,span_b,margin,flipped_groups,ci_overlap,verdict,ref_group
+1,rapidocr_v6,rapidocr_v3_起草偏倚对照,0.140943,0.185605,0.044662,0.03719,0.04303,0.556744,0,1,TIE,whole/P0
+2,rapidocr_v3_起草偏倚对照,windows_ocr,0.185605,0.65198,0.466375,0.04303,0.222194,1.758419,0,0,STABLE,whole/P0
+3,windows_ocr,ddddocr,0.65198,0.96032,0.30834,0.222194,0.047583,1.142944,0,0,STABLE,whole/P0

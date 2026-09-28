@@ -1,0 +1,23 @@
+文件名,文档类型,敏感特征,含第三方信息,已脱敏,备注
+real_0001.png,search_result,繁简混排|URL|全角引号|竖线,否,是,搜索结果页；含繁体「新聞」
+real_0002.png,ai_chat,中英混排|URL|半角标点,否,是,AI 对话截图
+real_0003.png,study_note,符号密集|全角标点,否,是,数学类解答
+real_0004.png,study_note,中英混排|全角引号,否,是,英语语法资料；原文笔误 satrt 须照抄不得修正
+real_0005.png,chat_screenshot,全角数字|大小写混排|全角叹号+半角逗号|emoji,否,是,微信对话；iostrean 为原文笔误须照抄
+real_0006.png,article_table,繁体|表格|全角括号|全角标点,否,是,繁体茶文含表格；补 P5 与表格缺口
+real_0007.png,notice_article,全角冒号|中英混排,否,是,建议类短文
+real_0008.png,ecommerce,数字密集|全角括号,否,是,商品详情页
+real_0009.png,article_table,繁体|表格|全半角数字混排|特殊符号,否,是,元信息行自述「实现全角半角混排」，P3/P4 探针最强
+real_0014.png,calendar,英文大写缩写|数字密集,否,是,日历月视图
+real_0015.png,weather_widget,全角括号+半角数字|单位符号,否,是,7 天天气；含 ℃ hPa m/s %
+real_0016.png,help_doc,大小写混排|换行缩进|符号,否,是,Apple 官方帮助页；公开素材
+real_0017.png,code_editor,缩进空格|代码符号,否,是,React 代码+报错框；顶部工具栏应裁掉
+real_0018.png,mindmap,层级缩进|全角引号,否,是,思维导图；阅读顺序敏感
+real_0019.png,app_store,中英混排|大小写,否,是,App Store 分类页
+real_0020.png,code_editor,缩进空格|运算符|中英注释,否,是,C++ 代码；P1 探针最强
+real_0022.png,code_editor,缩进空格|运算符|中英注释,否,是,C++ 代码
+real_0023.png,code_editor,缩进空格|运算符,否,是,C++ 代码；左侧折叠导轨应裁掉
+real_0024.png,help_doc,代码块前导空格|时间戳,否,是,YouTube 章节说明；公开素材
+real_0025.png,app_store,全角引号|URL|中英混排,否,是,App Store Today；含游戏宣传图须标注来源
+real_0026.png,stat_table,表格|全角括号+半角数字|数字密集,否,是,行政区划统计表；补表格缺口
+real_0027.png,help_doc,缩进空格|全角引号|中英混排,否,是,React 官方文档；公开素材

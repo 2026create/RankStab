@@ -1,0 +1,1071 @@
+[
+  {
+    "sample_id": "probe_baseline_01",
+    "doc_type": "baseline",
+    "source": "generated",
+    "sensitive_attrs": [],
+    "license": "team-authored, CC-BY-4.0"
+  },
+  {
+    "sample_id": "probe_baseline_02",
+    "doc_type": "baseline",
+    "source": "generated",
+    "sensitive_attrs": [],
+    "license": "team-authored, CC-BY-4.0"
+  },
+  {
+    "sample_id": "probe_baseline_03",
+    "doc_type": "baseline",
+    "source": "generated",
+    "sensitive_attrs": [],
+    "license": "team-authored, CC-BY-4.0"
+  },
+  {
+    "sample_id": "probe_baseline_04",
+    "doc_type": "baseline",
+    "source": "generated",
+    "sensitive_attrs": [],
+    "license": "team-authored, CC-BY-4.0"
+  },
+  {
+    "sample_id": "probe_baseline_05",
+    "doc_type": "baseline",
+    "source": "generated",
+    "sensitive_attrs": [],
+    "license": "team-authored, CC-BY-4.0"
+  },
+  {
+    "sample_id": "probe_baseline_06",
+    "doc_type": "baseline",
+    "source": "generated",
+    "sensitive_attrs": [],
+    "license": "team-authored, CC-BY-4.0"
+  },
+  {
+    "sample_id": "probe_baseline_07",
+    "doc_type": "baseline",
+    "source": "generated",
+    "sensitive_attrs": [],
+    "license": "team-authored, CC-BY-4.0"
+  },
+  {
+    "sample_id": "probe_baseline_08",
+    "doc_type": "baseline",
+    "source": "generated",
+    "sensitive_attrs": [],
+    "license": "team-authored, CC-BY-4.0"
+  },
+  {
+    "sample_id": "probe_baseline_09",
+    "doc_type": "baseline",
+    "source": "generated",
+    "sensitive_attrs": [],
+    "license": "team-authored, CC-BY-4.0"
+  },
+  {
+    "sample_id": "probe_baseline_10",
+    "doc_type": "baseline",
+    "source": "generated",
+    "sensitive_attrs": [],
+    "license": "team-authored, CC-BY-4.0"
+  },
+  {
+    "sample_id": "probe_baseline_11",
+    "doc_type": "baseline",
+    "source": "generated",
+    "sensitive_attrs": [],
+    "license": "team-authored, CC-BY-4.0"
+  },
+  {
+    "sample_id": "probe_baseline_12",
+    "doc_type": "baseline",
+    "source": "generated",
+    "sensitive_attrs": [],
+    "license": "team-authored, CC-BY-4.0"
+  },
+  {
+    "sample_id": "probe_code_01",
+    "doc_type": "code",
+    "source": "generated",
+    "sensitive_attrs": [
+      "cjk_latin_mix",
+      "indent",
+      "multi_space",
+      "punct_mixed"
+    ],
+    "license": "team-authored, CC-BY-4.0"
+  },
+  {
+    "sample_id": "probe_code_02",
+    "doc_type": "code",
+    "source": "generated",
+    "sensitive_attrs": [
+      "cjk_latin_mix",
+      "indent",
+      "multi_space",
+      "punct_mixed"
+    ],
+    "license": "team-authored, CC-BY-4.0"
+  },
+  {
+    "sample_id": "probe_code_03",
+    "doc_type": "code",
+    "source": "generated",
+    "sensitive_attrs": [
+      "cjk_latin_mix",
+      "indent",
+      "multi_space",
+      "punct_mixed"
+    ],
+    "license": "team-authored, CC-BY-4.0"
+  },
+  {
+    "sample_id": "probe_code_04",
+    "doc_type": "code",
+    "source": "generated",
+    "sensitive_attrs": [
+      "cjk_latin_mix",
+      "indent",
+      "multi_space",
+      "punct_mixed"
+    ],
+    "license": "team-authored, CC-BY-4.0"
+  },
+  {
+    "sample_id": "probe_code_05",
+    "doc_type": "code",
+    "source": "generated",
+    "sensitive_attrs": [
+      "cjk_latin_mix",
+      "indent",
+      "multi_space",
+      "punct_mixed"
+    ],
+    "license": "team-authored, CC-BY-4.0"
+  },
+  {
+    "sample_id": "probe_code_06",
+    "doc_type": "code",
+    "source": "generated",
+    "sensitive_attrs": [
+      "cjk_latin_mix",
+      "indent",
+      "multi_space",
+      "punct_mixed"
+    ],
+    "license": "team-authored, CC-BY-4.0"
+  },
+  {
+    "sample_id": "probe_code_07",
+    "doc_type": "code",
+    "source": "generated",
+    "sensitive_attrs": [
+      "cjk_latin_mix",
+      "indent",
+      "multi_space",
+      "punct_mixed"
+    ],
+    "license": "team-authored, CC-BY-4.0"
+  },
+  {
+    "sample_id": "probe_code_08",
+    "doc_type": "code",
+    "source": "generated",
+    "sensitive_attrs": [
+      "cjk_latin_mix",
+      "indent",
+      "multi_space",
+      "punct_mixed"
+    ],
+    "license": "team-authored, CC-BY-4.0"
+  },
+  {
+    "sample_id": "probe_code_09",
+    "doc_type": "code",
+    "source": "generated",
+    "sensitive_attrs": [
+      "cjk_latin_mix",
+      "indent",
+      "multi_space",
+      "punct_mixed"
+    ],
+    "license": "team-authored, CC-BY-4.0"
+  },
+  {
+    "sample_id": "probe_code_10",
+    "doc_type": "code",
+    "source": "generated",
+    "sensitive_attrs": [
+      "cjk_latin_mix",
+      "indent",
+      "multi_space",
+      "punct_mixed"
+    ],
+    "license": "team-authored, CC-BY-4.0"
+  },
+  {
+    "sample_id": "probe_code_11",
+    "doc_type": "code",
+    "source": "generated",
+    "sensitive_attrs": [
+      "cjk_latin_mix",
+      "indent",
+      "multi_space",
+      "punct_mixed"
+    ],
+    "license": "team-authored, CC-BY-4.0"
+  },
+  {
+    "sample_id": "probe_code_12",
+    "doc_type": "code",
+    "source": "generated",
+    "sensitive_attrs": [
+      "cjk_latin_mix",
+      "indent",
+      "multi_space",
+      "punct_mixed"
+    ],
+    "license": "team-authored, CC-BY-4.0"
+  },
+  {
+    "sample_id": "probe_emoji_sym_01",
+    "doc_type": "emoji",
+    "source": "generated",
+    "sensitive_attrs": [
+      "emoji"
+    ],
+    "license": "team-authored, CC-BY-4.0"
+  },
+  {
+    "sample_id": "probe_emoji_sym_02",
+    "doc_type": "emoji",
+    "source": "generated",
+    "sensitive_attrs": [
+      "emoji"
+    ],
+    "license": "team-authored, CC-BY-4.0"
+  },
+  {
+    "sample_id": "probe_emoji_sym_03",
+    "doc_type": "emoji",
+    "source": "generated",
+    "sensitive_attrs": [
+      "emoji"
+    ],
+    "license": "team-authored, CC-BY-4.0"
+  },
+  {
+    "sample_id": "probe_emoji_sym_04",
+    "doc_type": "emoji",
+    "source": "generated",
+    "sensitive_attrs": [
+      "emoji"
+    ],
+    "license": "team-authored, CC-BY-4.0"
+  },
+  {
+    "sample_id": "probe_emoji_sym_05",
+    "doc_type": "emoji",
+    "source": "generated",
+    "sensitive_attrs": [
+      "emoji"
+    ],
+    "license": "team-authored, CC-BY-4.0"
+  },
+  {
+    "sample_id": "probe_emoji_sym_06",
+    "doc_type": "emoji",
+    "source": "generated",
+    "sensitive_attrs": [
+      "emoji"
+    ],
+    "license": "team-authored, CC-BY-4.0"
+  },
+  {
+    "sample_id": "probe_emoji_sym_07",
+    "doc_type": "emoji",
+    "source": "generated",
+    "sensitive_attrs": [
+      "emoji"
+    ],
+    "license": "team-authored, CC-BY-4.0"
+  },
+  {
+    "sample_id": "probe_emoji_sym_08",
+    "doc_type": "emoji",
+    "source": "generated",
+    "sensitive_attrs": [
+      "emoji"
+    ],
+    "license": "team-authored, CC-BY-4.0"
+  },
+  {
+    "sample_id": "probe_emoji_sym_09",
+    "doc_type": "emoji",
+    "source": "generated",
+    "sensitive_attrs": [
+      "emoji"
+    ],
+    "license": "team-authored, CC-BY-4.0"
+  },
+  {
+    "sample_id": "probe_emoji_sym_10",
+    "doc_type": "emoji",
+    "source": "generated",
+    "sensitive_attrs": [
+      "emoji"
+    ],
+    "license": "team-authored, CC-BY-4.0"
+  },
+  {
+    "sample_id": "probe_emoji_sym_11",
+    "doc_type": "emoji",
+    "source": "generated",
+    "sensitive_attrs": [
+      "emoji"
+    ],
+    "license": "team-authored, CC-BY-4.0"
+  },
+  {
+    "sample_id": "probe_emoji_sym_12",
+    "doc_type": "emoji",
+    "source": "generated",
+    "sensitive_attrs": [
+      "emoji"
+    ],
+    "license": "team-authored, CC-BY-4.0"
+  },
+  {
+    "sample_id": "probe_mix_cjk_latin_01",
+    "doc_type": "mix",
+    "source": "generated",
+    "sensitive_attrs": [
+      "cjk_latin_mix",
+      "punct_mixed"
+    ],
+    "license": "team-authored, CC-BY-4.0"
+  },
+  {
+    "sample_id": "probe_mix_cjk_latin_02",
+    "doc_type": "mix",
+    "source": "generated",
+    "sensitive_attrs": [
+      "cjk_latin_mix"
+    ],
+    "license": "team-authored, CC-BY-4.0"
+  },
+  {
+    "sample_id": "probe_mix_cjk_latin_03",
+    "doc_type": "mix",
+    "source": "generated",
+    "sensitive_attrs": [
+      "cjk_latin_mix",
+      "punct_mixed"
+    ],
+    "license": "team-authored, CC-BY-4.0"
+  },
+  {
+    "sample_id": "probe_mix_cjk_latin_04",
+    "doc_type": "mix",
+    "source": "generated",
+    "sensitive_attrs": [
+      "cjk_latin_mix"
+    ],
+    "license": "team-authored, CC-BY-4.0"
+  },
+  {
+    "sample_id": "probe_mix_cjk_latin_05",
+    "doc_type": "mix",
+    "source": "generated",
+    "sensitive_attrs": [
+      "cjk_latin_mix",
+      "punct_mixed"
+    ],
+    "license": "team-authored, CC-BY-4.0"
+  },
+  {
+    "sample_id": "probe_mix_cjk_latin_06",
+    "doc_type": "mix",
+    "source": "generated",
+    "sensitive_attrs": [
+      "cjk_latin_mix",
+      "punct_mixed"
+    ],
+    "license": "team-authored, CC-BY-4.0"
+  },
+  {
+    "sample_id": "probe_mix_cjk_latin_07",
+    "doc_type": "mix",
+    "source": "generated",
+    "sensitive_attrs": [
+      "cjk_latin_mix",
+      "punct_mixed"
+    ],
+    "license": "team-authored, CC-BY-4.0"
+  },
+  {
+    "sample_id": "probe_mix_cjk_latin_08",
+    "doc_type": "mix",
+    "source": "generated",
+    "sensitive_attrs": [
+      "cjk_latin_mix"
+    ],
+    "license": "team-authored, CC-BY-4.0"
+  },
+  {
+    "sample_id": "probe_mix_cjk_latin_09",
+    "doc_type": "mix",
+    "source": "generated",
+    "sensitive_attrs": [
+      "cjk_latin_mix"
+    ],
+    "license": "team-authored, CC-BY-4.0"
+  },
+  {
+    "sample_id": "probe_mix_cjk_latin_10",
+    "doc_type": "mix",
+    "source": "generated",
+    "sensitive_attrs": [
+      "cjk_latin_mix",
+      "punct_mixed"
+    ],
+    "license": "team-authored, CC-BY-4.0"
+  },
+  {
+    "sample_id": "probe_mix_cjk_latin_11",
+    "doc_type": "mix",
+    "source": "generated",
+    "sensitive_attrs": [
+      "cjk_latin_mix"
+    ],
+    "license": "team-authored, CC-BY-4.0"
+  },
+  {
+    "sample_id": "probe_mix_cjk_latin_12",
+    "doc_type": "mix",
+    "source": "generated",
+    "sensitive_attrs": [
+      "cjk_latin_mix",
+      "punct_mixed"
+    ],
+    "license": "team-authored, CC-BY-4.0"
+  },
+  {
+    "sample_id": "probe_p1_space_01",
+    "doc_type": "p1",
+    "source": "generated",
+    "sensitive_attrs": [
+      "cjk_latin_mix",
+      "cjk_space",
+      "punct_mixed"
+    ],
+    "license": "team-authored, CC-BY-4.0"
+  },
+  {
+    "sample_id": "probe_p1_space_02",
+    "doc_type": "p1",
+    "source": "generated",
+    "sensitive_attrs": [
+      "cjk_space",
+      "multi_space"
+    ],
+    "license": "team-authored, CC-BY-4.0"
+  },
+  {
+    "sample_id": "probe_p1_space_03",
+    "doc_type": "p1",
+    "source": "generated",
+    "sensitive_attrs": [
+      "cjk_latin_mix",
+      "cjk_space",
+      "punct_mixed"
+    ],
+    "license": "team-authored, CC-BY-4.0"
+  },
+  {
+    "sample_id": "probe_p1_space_04",
+    "doc_type": "p1",
+    "source": "generated",
+    "sensitive_attrs": [
+      "cjk_latin_mix",
+      "multi_space",
+      "punct_mixed"
+    ],
+    "license": "team-authored, CC-BY-4.0"
+  },
+  {
+    "sample_id": "probe_p1_space_05",
+    "doc_type": "p1",
+    "source": "generated",
+    "sensitive_attrs": [
+      "cjk_space",
+      "multi_space"
+    ],
+    "license": "team-authored, CC-BY-4.0"
+  },
+  {
+    "sample_id": "probe_p1_space_06",
+    "doc_type": "p1",
+    "source": "generated",
+    "sensitive_attrs": [
+      "cjk_latin_mix",
+      "cjk_space",
+      "multi_space",
+      "punct_mixed"
+    ],
+    "license": "team-authored, CC-BY-4.0"
+  },
+  {
+    "sample_id": "probe_p1_space_07",
+    "doc_type": "p1",
+    "source": "generated",
+    "sensitive_attrs": [
+      "cjk_space",
+      "multi_space"
+    ],
+    "license": "team-authored, CC-BY-4.0"
+  },
+  {
+    "sample_id": "probe_p1_space_08",
+    "doc_type": "p1",
+    "source": "generated",
+    "sensitive_attrs": [
+      "cjk_space"
+    ],
+    "license": "team-authored, CC-BY-4.0"
+  },
+  {
+    "sample_id": "probe_p1_space_09",
+    "doc_type": "p1",
+    "source": "generated",
+    "sensitive_attrs": [
+      "cjk_latin_mix",
+      "cjk_space",
+      "punct_mixed"
+    ],
+    "license": "team-authored, CC-BY-4.0"
+  },
+  {
+    "sample_id": "probe_p1_space_10",
+    "doc_type": "p1",
+    "source": "generated",
+    "sensitive_attrs": [
+      "cjk_space",
+      "multi_space"
+    ],
+    "license": "team-authored, CC-BY-4.0"
+  },
+  {
+    "sample_id": "probe_p1_space_11",
+    "doc_type": "p1",
+    "source": "generated",
+    "sensitive_attrs": [
+      "cjk_latin_mix",
+      "multi_space",
+      "punct_mixed"
+    ],
+    "license": "team-authored, CC-BY-4.0"
+  },
+  {
+    "sample_id": "probe_p1_space_12",
+    "doc_type": "p1",
+    "source": "generated",
+    "sensitive_attrs": [
+      "multi_space"
+    ],
+    "license": "team-authored, CC-BY-4.0"
+  },
+  {
+    "sample_id": "probe_p3_fullwidth_01",
+    "doc_type": "p3",
+    "source": "generated",
+    "sensitive_attrs": [
+      "fullwidth_alpha",
+      "fullwidth_digit"
+    ],
+    "license": "team-authored, CC-BY-4.0"
+  },
+  {
+    "sample_id": "probe_p3_fullwidth_02",
+    "doc_type": "p3",
+    "source": "generated",
+    "sensitive_attrs": [
+      "fullwidth_alpha",
+      "fullwidth_digit",
+      "trad_only"
+    ],
+    "license": "team-authored, CC-BY-4.0"
+  },
+  {
+    "sample_id": "probe_p3_fullwidth_03",
+    "doc_type": "p3",
+    "source": "generated",
+    "sensitive_attrs": [
+      "fullwidth_digit",
+      "trad_only"
+    ],
+    "license": "team-authored, CC-BY-4.0"
+  },
+  {
+    "sample_id": "probe_p3_fullwidth_04",
+    "doc_type": "p3",
+    "source": "generated",
+    "sensitive_attrs": [
+      "fullwidth_alpha",
+      "fullwidth_digit",
+      "trad_only"
+    ],
+    "license": "team-authored, CC-BY-4.0"
+  },
+  {
+    "sample_id": "probe_p3_fullwidth_05",
+    "doc_type": "p3",
+    "source": "generated",
+    "sensitive_attrs": [
+      "fullwidth_digit",
+      "trad_only"
+    ],
+    "license": "team-authored, CC-BY-4.0"
+  },
+  {
+    "sample_id": "probe_p3_fullwidth_06",
+    "doc_type": "p3",
+    "source": "generated",
+    "sensitive_attrs": [
+      "fullwidth_alpha",
+      "fullwidth_digit",
+      "trad_only"
+    ],
+    "license": "team-authored, CC-BY-4.0"
+  },
+  {
+    "sample_id": "probe_p3_fullwidth_07",
+    "doc_type": "p3",
+    "source": "generated",
+    "sensitive_attrs": [
+      "fullwidth_alpha",
+      "fullwidth_digit"
+    ],
+    "license": "team-authored, CC-BY-4.0"
+  },
+  {
+    "sample_id": "probe_p3_fullwidth_08",
+    "doc_type": "p3",
+    "source": "generated",
+    "sensitive_attrs": [
+      "emoji",
+      "fullwidth_digit",
+      "trad_only"
+    ],
+    "license": "team-authored, CC-BY-4.0"
+  },
+  {
+    "sample_id": "probe_p3_fullwidth_09",
+    "doc_type": "p3",
+    "source": "generated",
+    "sensitive_attrs": [
+      "fullwidth_alpha",
+      "fullwidth_digit",
+      "trad_only"
+    ],
+    "license": "team-authored, CC-BY-4.0"
+  },
+  {
+    "sample_id": "probe_p3_fullwidth_10",
+    "doc_type": "p3",
+    "source": "generated",
+    "sensitive_attrs": [
+      "fullwidth_alpha",
+      "fullwidth_digit",
+      "trad_only"
+    ],
+    "license": "team-authored, CC-BY-4.0"
+  },
+  {
+    "sample_id": "probe_p3_fullwidth_11",
+    "doc_type": "p3",
+    "source": "generated",
+    "sensitive_attrs": [
+      "fullwidth_alpha",
+      "fullwidth_digit",
+      "trad_only"
+    ],
+    "license": "team-authored, CC-BY-4.0"
+  },
+  {
+    "sample_id": "probe_p3_fullwidth_12",
+    "doc_type": "p3",
+    "source": "generated",
+    "sensitive_attrs": [
+      "fullwidth_alpha",
+      "fullwidth_digit"
+    ],
+    "license": "team-authored, CC-BY-4.0"
+  },
+  {
+    "sample_id": "probe_p4_punct_01",
+    "doc_type": "p4",
+    "source": "generated",
+    "sensitive_attrs": [
+      "cjk_latin_mix",
+      "punct_mixed"
+    ],
+    "license": "team-authored, CC-BY-4.0"
+  },
+  {
+    "sample_id": "probe_p4_punct_02",
+    "doc_type": "p4",
+    "source": "generated",
+    "sensitive_attrs": [
+      "punct_mixed"
+    ],
+    "license": "team-authored, CC-BY-4.0"
+  },
+  {
+    "sample_id": "probe_p4_punct_03",
+    "doc_type": "p4",
+    "source": "generated",
+    "sensitive_attrs": [
+      "punct_mixed"
+    ],
+    "license": "team-authored, CC-BY-4.0"
+  },
+  {
+    "sample_id": "probe_p4_punct_04",
+    "doc_type": "p4",
+    "source": "generated",
+    "sensitive_attrs": [
+      "punct_mixed"
+    ],
+    "license": "team-authored, CC-BY-4.0"
+  },
+  {
+    "sample_id": "probe_p4_punct_05",
+    "doc_type": "p4",
+    "source": "generated",
+    "sensitive_attrs": [
+      "cjk_latin_mix",
+      "punct_mixed"
+    ],
+    "license": "team-authored, CC-BY-4.0"
+  },
+  {
+    "sample_id": "probe_p4_punct_06",
+    "doc_type": "p4",
+    "source": "generated",
+    "sensitive_attrs": [
+      "punct_mixed"
+    ],
+    "license": "team-authored, CC-BY-4.0"
+  },
+  {
+    "sample_id": "probe_p4_punct_07",
+    "doc_type": "p4",
+    "source": "generated",
+    "sensitive_attrs": [
+      "cjk_latin_mix",
+      "punct_mixed"
+    ],
+    "license": "team-authored, CC-BY-4.0"
+  },
+  {
+    "sample_id": "probe_p4_punct_08",
+    "doc_type": "p4",
+    "source": "generated",
+    "sensitive_attrs": [
+      "punct_mixed"
+    ],
+    "license": "team-authored, CC-BY-4.0"
+  },
+  {
+    "sample_id": "probe_p4_punct_09",
+    "doc_type": "p4",
+    "source": "generated",
+    "sensitive_attrs": [
+      "punct_mixed"
+    ],
+    "license": "team-authored, CC-BY-4.0"
+  },
+  {
+    "sample_id": "probe_p4_punct_10",
+    "doc_type": "p4",
+    "source": "generated",
+    "sensitive_attrs": [
+      "cjk_latin_mix",
+      "punct_mixed"
+    ],
+    "license": "team-authored, CC-BY-4.0"
+  },
+  {
+    "sample_id": "probe_p4_punct_11",
+    "doc_type": "p4",
+    "source": "generated",
+    "sensitive_attrs": [
+      "cjk_latin_mix",
+      "punct_mixed"
+    ],
+    "license": "team-authored, CC-BY-4.0"
+  },
+  {
+    "sample_id": "probe_p4_punct_12",
+    "doc_type": "p4",
+    "source": "generated",
+    "sensitive_attrs": [
+      "cjk_latin_mix",
+      "punct_mixed"
+    ],
+    "license": "team-authored, CC-BY-4.0"
+  },
+  {
+    "sample_id": "probe_p5_trad_01",
+    "doc_type": "p5",
+    "source": "generated",
+    "sensitive_attrs": [
+      "trad_only"
+    ],
+    "license": "team-authored, CC-BY-4.0"
+  },
+  {
+    "sample_id": "probe_p5_trad_02",
+    "doc_type": "p5",
+    "source": "generated",
+    "sensitive_attrs": [
+      "trad_only"
+    ],
+    "license": "team-authored, CC-BY-4.0"
+  },
+  {
+    "sample_id": "probe_p5_trad_03",
+    "doc_type": "p5",
+    "source": "generated",
+    "sensitive_attrs": [
+      "trad_only"
+    ],
+    "license": "team-authored, CC-BY-4.0"
+  },
+  {
+    "sample_id": "probe_p5_trad_04",
+    "doc_type": "p5",
+    "source": "generated",
+    "sensitive_attrs": [
+      "trad_only"
+    ],
+    "license": "team-authored, CC-BY-4.0"
+  },
+  {
+    "sample_id": "probe_p5_trad_05",
+    "doc_type": "p5",
+    "source": "generated",
+    "sensitive_attrs": [
+      "trad_only"
+    ],
+    "license": "team-authored, CC-BY-4.0"
+  },
+  {
+    "sample_id": "probe_p5_trad_06",
+    "doc_type": "p5",
+    "source": "generated",
+    "sensitive_attrs": [
+      "trad_only"
+    ],
+    "license": "team-authored, CC-BY-4.0"
+  },
+  {
+    "sample_id": "probe_p5_trad_07",
+    "doc_type": "p5",
+    "source": "generated",
+    "sensitive_attrs": [
+      "trad_only"
+    ],
+    "license": "team-authored, CC-BY-4.0"
+  },
+  {
+    "sample_id": "probe_p5_trad_08",
+    "doc_type": "p5",
+    "source": "generated",
+    "sensitive_attrs": [
+      "trad_only"
+    ],
+    "license": "team-authored, CC-BY-4.0"
+  },
+  {
+    "sample_id": "probe_p5_trad_09",
+    "doc_type": "p5",
+    "source": "generated",
+    "sensitive_attrs": [
+      "trad_only"
+    ],
+    "license": "team-authored, CC-BY-4.0"
+  },
+  {
+    "sample_id": "probe_p5_trad_10",
+    "doc_type": "p5",
+    "source": "generated",
+    "sensitive_attrs": [
+      "trad_only"
+    ],
+    "license": "team-authored, CC-BY-4.0"
+  },
+  {
+    "sample_id": "probe_p5_trad_11",
+    "doc_type": "p5",
+    "source": "generated",
+    "sensitive_attrs": [
+      "trad_only"
+    ],
+    "license": "team-authored, CC-BY-4.0"
+  },
+  {
+    "sample_id": "probe_p5_trad_12",
+    "doc_type": "p5",
+    "source": "generated",
+    "sensitive_attrs": [
+      "trad_only"
+    ],
+    "license": "team-authored, CC-BY-4.0"
+  },
+  {
+    "sample_id": "probe_table_01",
+    "doc_type": "table",
+    "source": "generated",
+    "sensitive_attrs": [
+      "cjk_space",
+      "fullwidth_digit",
+      "multi_space",
+      "punct_mixed"
+    ],
+    "license": "team-authored, CC-BY-4.0"
+  },
+  {
+    "sample_id": "probe_table_02",
+    "doc_type": "table",
+    "source": "generated",
+    "sensitive_attrs": [
+      "cjk_space",
+      "fullwidth_digit",
+      "multi_space",
+      "punct_mixed"
+    ],
+    "license": "team-authored, CC-BY-4.0"
+  },
+  {
+    "sample_id": "probe_table_03",
+    "doc_type": "table",
+    "source": "generated",
+    "sensitive_attrs": [
+      "cjk_space",
+      "fullwidth_digit",
+      "multi_space",
+      "punct_mixed"
+    ],
+    "license": "team-authored, CC-BY-4.0"
+  },
+  {
+    "sample_id": "probe_table_04",
+    "doc_type": "table",
+    "source": "generated",
+    "sensitive_attrs": [
+      "cjk_space",
+      "fullwidth_digit",
+      "multi_space",
+      "punct_mixed"
+    ],
+    "license": "team-authored, CC-BY-4.0"
+  },
+  {
+    "sample_id": "probe_table_05",
+    "doc_type": "table",
+    "source": "generated",
+    "sensitive_attrs": [
+      "cjk_space",
+      "fullwidth_digit",
+      "multi_space",
+      "punct_mixed"
+    ],
+    "license": "team-authored, CC-BY-4.0"
+  },
+  {
+    "sample_id": "probe_table_06",
+    "doc_type": "table",
+    "source": "generated",
+    "sensitive_attrs": [
+      "cjk_space",
+      "fullwidth_digit",
+      "multi_space",
+      "punct_mixed"
+    ],
+    "license": "team-authored, CC-BY-4.0"
+  },
+  {
+    "sample_id": "probe_table_07",
+    "doc_type": "table",
+    "source": "generated",
+    "sensitive_attrs": [
+      "cjk_space",
+      "fullwidth_digit",
+      "multi_space",
+      "punct_mixed"
+    ],
+    "license": "team-authored, CC-BY-4.0"
+  },
+  {
+    "sample_id": "probe_table_08",
+    "doc_type": "table",
+    "source": "generated",
+    "sensitive_attrs": [
+      "cjk_space",
+      "fullwidth_digit",
+      "multi_space",
+      "punct_mixed"
+    ],
+    "license": "team-authored, CC-BY-4.0"
+  },
+  {
+    "sample_id": "probe_table_09",
+    "doc_type": "table",
+    "source": "generated",
+    "sensitive_attrs": [
+      "cjk_space",
+      "fullwidth_digit",
+      "multi_space",
+      "punct_mixed"
+    ],
+    "license": "team-authored, CC-BY-4.0"
+  },
+  {
+    "sample_id": "probe_table_10",
+    "doc_type": "table",
+    "source": "generated",
+    "sensitive_attrs": [
+      "cjk_space",
+      "fullwidth_digit",
+      "multi_space",
+      "punct_mixed"
+    ],
+    "license": "team-authored, CC-BY-4.0"
+  },
+  {
+    "sample_id": "probe_table_11",
+    "doc_type": "table",
+    "source": "generated",
+    "sensitive_attrs": [
+      "cjk_space",
+      "fullwidth_digit",
+      "multi_space",
+      "punct_mixed"
+    ],
+    "license": "team-authored, CC-BY-4.0"
+  },
+  {
+    "sample_id": "probe_table_12",
+    "doc_type": "table",
+    "source": "generated",
+    "sensitive_attrs": [
+      "cjk_space",
+      "fullwidth_digit",
+      "multi_space",
+      "punct_mixed"
+    ],
+    "license": "team-authored, CC-BY-4.0"
+  }
+]

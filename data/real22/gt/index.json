@@ -1,0 +1,156 @@
+[
+  {
+    "sample_id": "real_0001",
+    "doc_type": "search_result",
+    "source": "real",
+    "sensitive_attrs": [],
+    "license": "team-captured; not redistributed"
+  },
+  {
+    "sample_id": "real_0002",
+    "doc_type": "ai_chat",
+    "source": "real",
+    "sensitive_attrs": [],
+    "license": "team-captured; not redistributed"
+  },
+  {
+    "sample_id": "real_0003",
+    "doc_type": "study_note",
+    "source": "real",
+    "sensitive_attrs": [],
+    "license": "team-captured; not redistributed"
+  },
+  {
+    "sample_id": "real_0004",
+    "doc_type": "study_note",
+    "source": "real",
+    "sensitive_attrs": [],
+    "license": "team-captured; not redistributed"
+  },
+  {
+    "sample_id": "real_0005",
+    "doc_type": "chat_screenshot",
+    "source": "real",
+    "sensitive_attrs": [],
+    "license": "team-captured; not redistributed"
+  },
+  {
+    "sample_id": "real_0006",
+    "doc_type": "article_table",
+    "source": "real",
+    "sensitive_attrs": [],
+    "license": "team-captured; not redistributed"
+  },
+  {
+    "sample_id": "real_0007",
+    "doc_type": "notice_article",
+    "source": "real",
+    "sensitive_attrs": [],
+    "license": "team-captured; not redistributed"
+  },
+  {
+    "sample_id": "real_0008",
+    "doc_type": "ecommerce",
+    "source": "real",
+    "sensitive_attrs": [],
+    "license": "team-captured; not redistributed"
+  },
+  {
+    "sample_id": "real_0009",
+    "doc_type": "article_table",
+    "source": "real",
+    "sensitive_attrs": [],
+    "license": "team-captured; not redistributed"
+  },
+  {
+    "sample_id": "real_0014",
+    "doc_type": "calendar",
+    "source": "real",
+    "sensitive_attrs": [],
+    "license": "team-captured; not redistributed"
+  },
+  {
+    "sample_id": "real_0015",
+    "doc_type": "weather_widget",
+    "source": "real",
+    "sensitive_attrs": [],
+    "license": "team-captured; not redistributed"
+  },
+  {
+    "sample_id": "real_0016",
+    "doc_type": "help_doc",
+    "source": "real",
+    "sensitive_attrs": [],
+    "license": "team-captured; not redistributed"
+  },
+  {
+    "sample_id": "real_0017",
+    "doc_type": "code_editor",
+    "source": "real",
+    "sensitive_attrs": [],
+    "license": "team-captured; not redistributed"
+  },
+  {
+    "sample_id": "real_0018",
+    "doc_type": "mindmap",
+    "source": "real",
+    "sensitive_attrs": [],
+    "license": "team-captured; not redistributed"
+  },
+  {
+    "sample_id": "real_0019",
+    "doc_type": "app_store",
+    "source": "real",
+    "sensitive_attrs": [],
+    "license": "team-captured; not redistributed"
+  },
+  {
+    "sample_id": "real_0020",
+    "doc_type": "code_editor",
+    "source": "real",
+    "sensitive_attrs": [],
+    "license": "team-captured; not redistributed"
+  },
+  {
+    "sample_id": "real_0022",
+    "doc_type": "code_editor",
+    "source": "real",
+    "sensitive_attrs": [],
+    "license": "team-captured; not redistributed"
+  },
+  {
+    "sample_id": "real_0023",
+    "doc_type": "code_editor",
+    "source": "real",
+    "sensitive_attrs": [],
+    "license": "team-captured; not redistributed"
+  },
+  {
+    "sample_id": "real_0024",
+    "doc_type": "help_doc",
+    "source": "real",
+    "sensitive_attrs": [],
+    "license": "team-captured; not redistributed"
+  },
+  {
+    "sample_id": "real_0025",
+    "doc_type": "app_store",
+    "source": "real",
+    "sensitive_attrs": [],
+    "license": "team-captured; not redistributed"
+  },
+  {
+    "sample_id": "real_0026",
+    "doc_type": "stat_table",
+    "source": "real",
+    "sensitive_attrs": [],
+    "license": "team-captured; not redistributed"
+  },
+  {
+    "sample_id": "real_0027",
+    "doc_type": "help_doc",
+    "source": "real",
+    "sensitive_attrs": [],
+    "license": "team-captured; not redistributed"
+  }
+]

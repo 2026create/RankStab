@@ -1,0 +1,4 @@
+﻿rank,model_a,model_b,cer_a,cer_b,gap,span_a,span_b,margin,flipped_groups,ci_overlap,verdict,ref_group
+1,rapidocr_v6,rapidocr_v3,0.10847,0.136389,0.027919,0.087263,0.084099,0.162924,0,0,FRAGILE,whole/P0
+2,rapidocr_v3,windows_ocr,0.136389,0.795588,0.659199,0.084099,0.56967,1.008306,0,0,STABLE,whole/P0
+3,windows_ocr,ddddocr,0.795588,0.950874,0.155286,0.56967,0.056351,0.248052,0,0,FRAGILE,whole/P0

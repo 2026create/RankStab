@@ -84,15 +84,52 @@ rankstab/                   ← 本目录即仓库根
 │   └── trad_table.py       繁简离线快照表（由 OpenCC 生成，勿手改）
 ├── tools/
 │   ├── gen_trad_table.py   重新生成繁简快照表
+│   ├── WinOCR.ps1          Windows 内置 OCR 引擎接入脚本（真实数据层）
 │   └── 中文OCR标注工作台.html  数据集构建工具（单文件、零依赖、纯本地）
 ├── tests/
 │   └── test_all.py         98 项自检
 ├── data/
-│   ├── gt/                 真值（index.json + <sample_id>.md）
-│   └── raw/                原始截图 / 文档（不入库）
-├── models_out/             各模型输出（<model>/<sample_id>.md）
-└── out/                    产物
+│   ├── gt/                 真值·合成演示层（index.json + gen_*.md，10 条）
+│   ├── probe108/           扩充探针层（自研生成，CC-BY-4.0，随仓库分发）
+│   │   ├── gt/             真值 108 条（index.json + probe_*.md）
+│   │   ├── images/         渲染原图 108 张
+│   │   ├── models_out/     4 个真实 OCR 引擎输出（rapidocr_v3/v6、windows_ocr、ddddocr）
+│   │   └── coverage_audit.csv  敏感特征覆盖审计
+│   ├── real22/             真实截图层（真值文本与引擎输出随仓库公开）
+│   │   ├── gt/             人工逐字校对真值 22 条（约 1.13 万字）
+│   │   ├── models_out/     4 引擎输出（v3 为起草偏倚对照角色）
+│   │   ├── annotation_protocol.md  标注规范
+│   │   └── sample_list.csv / coverage_audit_gt_final.csv
+│   └── raw/                原始截图（不入库，见下方「数据分发边界」）
+├── models_out/             合成演示层模拟输出（<model>/<sample_id>.md）
+├── out/                    演示层产物（run.py 默认）
+├── out/probe108/           扩充探针层产物
+└── out/real22/             真实截图层产物
 ```
+
+### 数据分发边界
+
+- 合成探针层（`probe108`）：本项目自研生成，CC-BY-4.0，**含渲染原图全部随仓库分发**。
+- 真实截图层（`real22`）：截图含第三方界面内容（Apple 官方帮助页、即时通讯对话等），
+  **原图不随本仓库分发**（见 `NOTICE` 第 4 节）；**真值文本与引擎输出全部随仓库公开**，
+  原图随比赛数据包另行提交，供评委对照核验。
+- 三层数据**必须分层评测，不得混跑**：各层样本难度与模型覆盖不同，
+  混算会触发本项目自己论证过的「口径混算陷阱」（见 `out/real22` 报告页反例）。
+
+### 复现两个数据层
+
+```bash
+# 扩充探针层（108 样本 × 4 引擎，行级层）
+python run.py --gt data/probe108/gt --models data/probe108/models_out --out out/probe108 --seg-modes whole
+
+# 真实截图层（22 样本 × 4 引擎，行级层）
+python run.py --gt data/real22/gt --models data/real22/models_out --out out/real22 --seg-modes whole
+```
+
+参考组（whole / P0）的 cer_fixed 应为：
+probe108 — rapidocr_v6 `0.108470`、rapidocr_v3 `0.136389`、windows_ocr `0.795588`、ddddocr `0.950874`；
+real22 — rapidocr_v6 `0.140943`、rapidocr_v3（起草偏倚对照）`0.185605`、windows_ocr `0.651980`、ddddocr `0.960320`。
+种子固定，逐字节可复现。
 
 ---
 

@@ -1,0 +1,9 @@
+{
+  "model_name": "rapidocr_v6",
+  "engine": "ppocr-v6",
+  "engine_package": "rapidocr",
+  "n_samples": 108,
+  "images_dir": "D:\\20260920\\2026-09-20-21-18-38\\2026-09-20-21-18-38\\03_data\\probe_expanded\\images",
+  "elapsed_sec": 98.5,
+  "note": "被测模型输出，原样计分，不得人工修改。引擎为显式声明，不做运行时回退（见 D-009）。"
+}
