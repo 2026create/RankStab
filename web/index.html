@@ -109,6 +109,7 @@ textarea:focus{outline:2px solid var(--acc);border-color:var(--acc)}
   <div class="step">③ 对照六档分数变化</div>
  </div>
  <p>左边填<b>标准答案</b>，右边填<b>模型输出</b>，点「运行检测」。工具会在 6 档协议下分别计算字符误差率——<b>同一对文本，换一套评分规则，分数就不一样</b>。</p>
+  <div class="hl"><b>这一页测的是什么：</b>它演示的是可信度检测的<b>原理地基</b>——评分规则本身就能改写同一对文本的误差率。正因为规则能这样改写分数，榜单名次才需要做可信度检验。<b>真实引擎的名次可信度判定（STABLE / FRAGILE / TIE）在「名次判定」页签</b>——那才是本工具的最终产出，本页是它的单样本体验版。</div>
   <div class="grid g2">
    <div><h3>标准答案（GT）</h3><textarea id="gt" rows="8" placeholder="粘贴标准答案文本…"></textarea></div>
    <div><h3>模型输出（Pred）</h3><textarea id="pd" rows="8" placeholder="粘贴模型识别出的文本…"></textarea></div>
@@ -233,7 +234,7 @@ document.getElementById("s-verdict").innerHTML=
 '<div class="step"><b>① 看 margin</b>margin = 名次差距(gap) ÷ 协议能掀起的最大幅度(span)。它回答：这个领先，换一套评分规则还在不在？</div>'+
 '<div class="step"><b>② 对判据</b>margin &gt; 1 → STABLE（站得住）；&lt; 1 → FRAGILE（一拧就翻）；置信区间重叠 → TIE（根本分不开）。</div>'+
 '<div class="step"><b>③ 别误读</b>FRAGILE 不等于"这个模型差"——它说的是<b>「这个名次是评分规则的函数」</b>，换套规则结论可能反过来。</div></div></div>'+
-'<div class="card"><h2>名次可信度判定 —— 行级层（6 组口径）</h2><p class="note">参考组：'+D.line.ref+'，即最严格的归一化档位。这是对外可比的主口径。</p>'+pairTable(D.line)+'</div>'+
+'<div class="card"><h2>名次可信度判定 —— 行级层（6 组口径）</h2><p class="note">参考组：'+D.line.ref+'，即最严格的归一化档位。这是对外可比的主口径。4 个引擎两两组成 3 个相邻名次对（N−1），每个引擎出现在两对中属于正常配对。</p>'+pairTable(D.line)+'</div>'+
 '<div class="card"><h2>反例：口径不匹配时，评测器会安静地给出荒谬排名</h2><p class="note">全协议空间（18 组混算，参考组 '+D.full.ref+'）。</p>'+pairTable(D.full)+
 '<div class="hl">在 18 组混算口径下，<b>验证码识别模型 ddddocr 排到了第 1 名</b>（0.99 vs 1.82）。机制：那种切分下，行级模型「写得多但结构对不上」被判大量错误；而写得极少的模型反而占便宜。<b>口径与模型范式不匹配时，评测器不报错、不警告。</b></div></div>';
 
