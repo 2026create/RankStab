@@ -283,6 +283,10 @@ document.getElementById("s-how").innerHTML=
 '<div class="card"><h2>一键复现（CPU 即可，无 GPU 依赖）</h2>'+
 '<pre>git clone https://github.com/2026create/RankStab.git\ncd RankStab\npython verify.py     # 一键验收：119 项断言 + 连跑两次逐字节一致\npython run.py --demo # 内置样本跑 18 组，输出判定表</pre>'+
 '<p class="note">产物：scores.csv（双口径 CER + bootstrap 区间）、verdicts.csv（相邻名次对判定）、protocol_curve.csv（宽容度曲线）、stability.csv、rank_matrix.csv、meta.json。种子固定，结果可逐字节复现。</p></div>'+
+'<div class="card"><h2>接入你自己的引擎（数量不限）</h2>'+
+'<p style="font-size:14px">每个引擎的识别输出各放一个子目录（与真值同名的 <code>.md</code> 文件），命令行指向即可——<b>传几个引擎就测几个</b>，N 个引擎产出 N−1 对相邻名次判定，评测代码零修改：</p>'+
+'<pre>models_out/\n├── engine_A/\n├── engine_B/\n└── engine_C/   ……数量不限\n\npython run.py --gt data/gt --models models_out --out out</pre>'+
+'<p class="note">前提：所有引擎使用同一份真值与同一批样本，缺失样本按全篇漏识计分；不同数据层不得混跑（分层评测）。判定的置信度由样本条数决定，与引擎数量无关。</p></div>'+
 '<div class="card"><h2>边界（主动声明）</h2><p style="font-size:13.5px">① 合成样本占多数，不能据此声称真实工具在真实文档上的水平；② 4 个实测引擎中，两个同属 PP-OCR 系列（v3 / v6 为不同代际），但微软 Windows 内置 OCR 来自完全不同的家族——<b>「同系列」这一局限已部分缓解，仍不能外推为「通用排名不可信」</b>；③ 领域外对照 ddddocr 是验证码识别模型，仅用于验证判据有分辨力，不参与文档解析水平比较；④ 真实数据 22 条，置信区间较宽；⑤ windows_ocr 的中文输出在字间插空格，其 P0→P5 的巨大降幅（0.796→0.226）是长度型归一化规则的典型作用对象，<b>不代表该引擎识别能力变好了</b>。</p></div>';
 
 (function(){
