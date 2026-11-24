@@ -1,0 +1,5 @@
+﻿model,n_groups,rank_min,rank_max,rank_shift,rank_mean,rank_std,cer_fixed_min,cer_fixed_max,cer_fixed_spread,cer_min,cer_max,ref_cer_fixed,ref_ci_lo,ref_ci_hi,gap_nearest,flipped_groups_nearest,margin,verdict
+rapidocr_v5,6,1,2,1,1.5,0.5,0.027064,0.105434,0.07837,0.028869,0.105434,0.105434,0.095181,0.116089,0.003036,3,0.018327,TIE
+rapidocr_v6,6,1,2,1,1.5,0.5,0.021207,0.10847,0.087263,0.022621,0.10847,0.10847,0.097248,0.121281,0.003036,3,0.018327,TIE
+rapidocr_v3,6,4,4,0,4.0,0.0,0.05229,0.136389,0.084099,0.055776,0.136389,0.136389,0.12501,0.149513,0.016418,0,0.100078,TIE
+rapidocr_v4,6,3,3,0,3.0,0.0,0.040019,0.119971,0.079952,0.042687,0.119971,0.119971,0.109025,0.132047,0.011501,0,0.06878,TIE

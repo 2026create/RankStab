@@ -1,0 +1,49 @@
+{
+  "deck": "09_国赛\\RankStab_国赛答辩_当前版.pptx",
+  "tests": 79,
+  "assertions": 145,
+  "line_coverage": 96.54631083202511,
+  "branch_coverage": 94.36619718309859,
+  "adjacent_reversed_pairs": 2,
+  "pair_protocol_reversals": 8,
+  "verdict_counts": {
+    "STABLE": 0,
+    "FRAGILE": 2,
+    "TIE": 3
+  },
+  "external": [
+    {
+      "model": "cnocr",
+      "dimension": "all",
+      "value": "all",
+      "passed": 38,
+      "total": 226,
+      "rate": 0.168141592920354
+    },
+    {
+      "model": "easyocr",
+      "dimension": "all",
+      "value": "all",
+      "passed": 36,
+      "total": 226,
+      "rate": 0.1592920353982301
+    },
+    {
+      "model": "ppocr-v6",
+      "dimension": "all",
+      "value": "all",
+      "passed": 41,
+      "total": 226,
+      "rate": 0.18141592920353983
+    },
+    {
+      "model": "windows_ocr",
+      "dimension": "all",
+      "value": "all",
+      "passed": 47,
+      "total": 226,
+      "rate": 0.2079646017699115
+    }
+  ],
+  "bootstrap_labels_changed": false
+}

@@ -25,49 +25,55 @@ th.rowh{font-weight:500;color:var(--tx);white-space:nowrap}
 code{background:#F1EFE8;padding:1px 6px;border-radius:4px;font-size:12px}
 .note{font-size:12px;color:var(--tx2);margin-top:10px}
 .warn{background:#FAEEDA;border-color:#EF9F27}
+.pill{display:inline-block;padding:1px 10px;border-radius:10px;font-size:12px;letter-spacing:.5px}
 </style></head><body><div class="wrap">
 
 <h1>归一化协议敏感性评测报告</h1>
-<div class="sub">同一批模型输出，在 3 种切分方式 × 6 档归一化协议下重算 6 遍。不改模型，只改批卷标准。</div>
+<div class="sub">同一批模型输出，在 6 组协议下重算。切分方式及档位以本次运行参数为准。</div>
 
 <div class="card"><div class="meta">
 <span>样本 <b>108</b> 条</span><span>模型 <b>4</b> 个</span><span>组合 <b>6</b> 组</span>
 <span>主口径 <b>cer_fixed</b></span><span>繁简后端 <b>snapshot_table</b></span><span>数据来源 <b>generated</b></span>
 </div>
-<div class="note">单调性自检：发现 1 处违规，需检查协议实现</div></div>
+<div class="note">单调性自检：发现 1 处违规：固定分母只消除分母变化；繁简 1:1 映射与按上下文删除 CJK 间空格仍会改变对齐，故不保证单调。此处如实记录，不属于实现缺陷。</div></div>
+
 
 <h2>核心结论</h2>
 <div class="card">
 <ul class="key">
-<li>4 个模型中有 <b>0 个</b>的名次在 18 组规则下发生位移。</li>
+<li>4 个模型中有 <b>0 个</b>的名次在 6 组规则下发生位移。</li>
 <li>位移最大的模型是 <b>ddddocr</b>，名次在 <b>4</b> 到 <b>4</b> 之间跳动，位移 <b>0 位</b>。</li>
-<li>各模型在 P5 档下的置信区间互不重叠，名次差异可视为真实差异。</li>
+<li>参考组 whole/P0 下模型置信区间互不重叠；此描述不构成显著性检验。</li>
 </ul></div>
 
 <h2>名次稳定度</h2>
 <table><thead><tr><th>模型</th><th>最低名次</th><th>最高名次</th><th>名次位移</th><th>名次标准差</th><th>参与组数</th></tr></thead>
 <tbody><tr><td>ddddocr</td><td>4</td><td>4</td><td><span class="bar" style="width:0px"></span> 0</td><td>0.0</td><td>6</td></tr><tr><td>rapidocr_v3</td><td>2</td><td>2</td><td><span class="bar" style="width:0px"></span> 0</td><td>0.0</td><td>6</td></tr><tr><td>rapidocr_v6</td><td>1</td><td>1</td><td><span class="bar" style="width:0px"></span> 0</td><td>0.0</td><td>6</td></tr><tr><td>windows_ocr</td><td>3</td><td>3</td><td><span class="bar" style="width:0px"></span> 0</td><td>0.0</td><td>6</td></tr></tbody></table>
-<div class="note">位移为 0 的模型，名次可以放心引用；位移 ≥ 2 的模型，任何单一榜单的排名都不足以支撑结论。</div>
+<div class="note">位移为 0 的模型在本次样本和参与协议范围内未发生名次变化；位移 ≥ 2 的模型对协议选择较敏感，单一榜单不足以概括其稳定性。</div>
+
+<h2>名次可信度判定</h2>
+<table><thead><tr><th>名次对</th><th>相邻模型</th><th>参考分 A</th><th>参考分 B</th>
+<th>margin</th><th>配对差值区间</th><th>翻转组数</th><th>区间重叠</th><th>判定</th></tr></thead>
+<tbody><tr><td>1</td><td>rapidocr_v6 → rapidocr_v3</td><td>0.1085</td><td>0.1364</td><td>0.163</td><td>[+0.0192, +0.0372]</td><td>0</td><td>不重叠</td><td><span class="pill" style="background:#EF9F27;color:#3B2200">FRAGILE</span></td></tr><tr><td>2</td><td>rapidocr_v3 → windows_ocr</td><td>0.1364</td><td>0.7956</td><td>1.008</td><td>[+0.6264, +0.6945]</td><td>0</td><td>不重叠</td><td><span class="pill" style="background:#0F6E56;color:#FFFFFF">STABLE</span></td></tr><tr><td>3</td><td>windows_ocr → ddddocr</td><td>0.7956</td><td>0.9509</td><td>0.248</td><td>[+0.1124, +0.1933]</td><td>0</td><td>不重叠</td><td><span class="pill" style="background:#EF9F27;color:#3B2200">FRAGILE</span></td></tr></tbody></table>
+<div class="note">margin = 名次差距 ÷ 两个模型在<b>本次参与组内</b>的分数极差之和。margin ≥ 1 仅在已采样且包含参考组的协议组内保证不严格翻转（等号可追平），不能外推到未采样协议；margin &lt; 1 只说明「不翻转」的充分条件不成立，<b>不等于已经翻转</b>，是否翻转以「翻转组数」为准。配对差值区间为诊断量，不参与判定；判定仍按参考组各自区间是否重叠（重叠即 TIE，是规则标签而非正式显著性检验）。</div>
 
 <h2>宽容度曲线</h2>
 <div class="card"><svg viewBox="0 0 620 260" width="100%" role="img" xmlns="http://www.w3.org/2000/svg"><line x1="52" y1="226.0" x2="604" y2="226.0" stroke="#D3D1C7" stroke-width="0.5"/><text x="46" y="226.0" font-size="10" fill="#5F5E5A" text-anchor="end" dominant-baseline="central">1e-2</text><line x1="52" y1="121.0" x2="604" y2="121.0" stroke="#D3D1C7" stroke-width="0.5"/><text x="46" y="121.0" font-size="10" fill="#5F5E5A" text-anchor="end" dominant-baseline="central">1e-1</text><line x1="52" y1="16.0" x2="604" y2="16.0" stroke="#D3D1C7" stroke-width="0.5"/><text x="46" y="16.0" font-size="10" fill="#5F5E5A" text-anchor="end" dominant-baseline="central">1</text><text x="52.0" y="246" font-size="11" fill="#2C2C2A" text-anchor="middle">P0</text><text x="162.4" y="246" font-size="11" fill="#2C2C2A" text-anchor="middle">P1</text><text x="272.8" y="246" font-size="11" fill="#2C2C2A" text-anchor="middle">P2</text><text x="383.2" y="246" font-size="11" fill="#2C2C2A" text-anchor="middle">P3</text><text x="493.6" y="246" font-size="11" fill="#2C2C2A" text-anchor="middle">P4</text><text x="604.0" y="246" font-size="11" fill="#2C2C2A" text-anchor="middle">P5</text><polyline points="52.0,18.3 162.4,21.1 272.8,21.1 383.2,21.1 493.6,21.1 604.0,20.9" fill="none" stroke="#185FA5" stroke-width="1.5"/><circle cx="52.0" cy="18.3" r="2.5" fill="#185FA5"/><circle cx="162.4" cy="21.1" r="2.5" fill="#185FA5"/><circle cx="272.8" cy="21.1" r="2.5" fill="#185FA5"/><circle cx="383.2" cy="21.1" r="2.5" fill="#185FA5"/><circle cx="493.6" cy="21.1" r="2.5" fill="#185FA5"/><circle cx="604.0" cy="20.9" r="2.5" fill="#185FA5"/><text x="608.0" y="20.9" font-size="10" fill="#185FA5">ddddocr</text><polyline points="52.0,106.8 162.4,133.3 272.8,133.4 383.2,148.3 493.6,148.3 604.0,150.6" fill="none" stroke="#0F6E56" stroke-width="1.5"/><circle cx="52.0" cy="106.8" r="2.5" fill="#0F6E56"/><circle cx="162.4" cy="133.3" r="2.5" fill="#0F6E56"/><circle cx="272.8" cy="133.4" r="2.5" fill="#0F6E56"/><circle cx="383.2" cy="148.3" r="2.5" fill="#0F6E56"/><circle cx="493.6" cy="148.3" r="2.5" fill="#0F6E56"/><circle cx="604.0" cy="150.6" r="2.5" fill="#0F6E56"/><text x="608.0" y="150.6" font-size="10" fill="#0F6E56">rapidocr_v3</text><polyline points="52.0,117.3 162.4,156.2 272.8,156.2 383.2,188.3 493.6,188.3 604.0,191.7" fill="none" stroke="#993C1D" stroke-width="1.5"/><circle cx="52.0" cy="117.3" r="2.5" fill="#993C1D"/><circle cx="162.4" cy="156.2" r="2.5" fill="#993C1D"/><circle cx="272.8" cy="156.2" r="2.5" fill="#993C1D"/><circle cx="383.2" cy="188.3" r="2.5" fill="#993C1D"/><circle cx="493.6" cy="188.3" r="2.5" fill="#993C1D"/><circle cx="604.0" cy="191.7" r="2.5" fill="#993C1D"/><text x="608.0" y="191.7" font-size="10" fill="#993C1D">rapidocr_v6</text><polyline points="52.0,26.4 162.4,29.8 272.8,29.8 383.2,31.3 493.6,31.4 604.0,83.8" fill="none" stroke="#534AB7" stroke-width="1.5"/><circle cx="52.0" cy="26.4" r="2.5" fill="#534AB7"/><circle cx="162.4" cy="29.8" r="2.5" fill="#534AB7"/><circle cx="272.8" cy="29.8" r="2.5" fill="#534AB7"/><circle cx="383.2" cy="31.3" r="2.5" fill="#534AB7"/><circle cx="493.6" cy="31.4" r="2.5" fill="#534AB7"/><circle cx="604.0" cy="83.8" r="2.5" fill="#534AB7"/><text x="608.0" y="83.8" font-size="10" fill="#534AB7">windows_ocr</text></svg>
-<div class="note">纵轴为对数刻度。P0 最严，P5 最宽。曲线在某档突然下降，说明该模型的主要偏差正好是那一档消除的东西。</div></div>
+<div class="note">纵轴为对数刻度。P0 最严，P5 最宽。曲线在某档出现明显变化，说明该模型对该协议规则较敏感；这只是协议敏感性线索，不能单独归因于某类主要偏差。</div></div>
 
 <h2>名次矩阵（6 组完整榜单）</h2>
 <div style="overflow-x:auto"><table>
 <thead><tr><th rowspan="2">模型</th><th colspan="6">whole</th></tr><tr><th>P0</th><th>P1</th><th>P2</th><th>P3</th><th>P4</th><th>P5</th></tr></thead>
-<tbody><tr><th class="rowh">ddddocr</th><td class="rk" style="background:#F5C4B3;color:#4A1B0C">4</td><td class="rk" style="background:#F5C4B3;color:#4A1B0C">4</td><td class="rk" style="background:#F5C4B3;color:#4A1B0C">4</td><td class="rk" style="background:#F5C4B3;color:#4A1B0C">4</td><td class="rk" style="background:#F5C4B3;color:#4A1B0C">4</td><td class="rk" style="background:#F5C4B3;color:#4A1B0C">4</td></tr><tr><th class="rowh">rapidocr_v3</th><td class="rk" style="background:#F5C4B3;color:#4A1B0C">4</td><td class="rk" style="background:#F5C4B3;color:#4A1B0C">4</td><td class="rk" style="background:#F5C4B3;color:#4A1B0C">4</td><td class="rk" style="background:#F5C4B3;color:#4A1B0C">4</td><td class="rk" style="background:#F5C4B3;color:#4A1B0C">4</td><td class="rk" style="background:#F5C4B3;color:#4A1B0C">4</td></tr><tr><th class="rowh">rapidocr_v6</th><td class="rk" style="background:#F5C4B3;color:#4A1B0C">4</td><td class="rk" style="background:#F5C4B3;color:#4A1B0C">4</td><td class="rk" style="background:#F5C4B3;color:#4A1B0C">4</td><td class="rk" style="background:#F5C4B3;color:#4A1B0C">4</td><td class="rk" style="background:#F5C4B3;color:#4A1B0C">4</td><td class="rk" style="background:#F5C4B3;color:#4A1B0C">4</td></tr><tr><th class="rowh">windows_ocr</th><td class="rk" style="background:#F5C4B3;color:#4A1B0C">4</td><td class="rk" style="background:#F5C4B3;color:#4A1B0C">4</td><td class="rk" style="background:#F5C4B3;color:#4A1B0C">4</td><td class="rk" style="background:#F5C4B3;color:#4A1B0C">4</td><td class="rk" style="background:#F5C4B3;color:#4A1B0C">4</td><td class="rk" style="background:#F5C4B3;color:#4A1B0C">4</td></tr></tbody></table></div>
+<tbody><tr><th class="rowh">ddddocr</th><td class="rk" style="background:#F5C4B3;color:#4A1B0C">4</td><td class="rk" style="background:#F5C4B3;color:#4A1B0C">4</td><td class="rk" style="background:#F5C4B3;color:#4A1B0C">4</td><td class="rk" style="background:#F5C4B3;color:#4A1B0C">4</td><td class="rk" style="background:#F5C4B3;color:#4A1B0C">4</td><td class="rk" style="background:#F5C4B3;color:#4A1B0C">4</td></tr><tr><th class="rowh">rapidocr_v3</th><td class="rk" style="background:#5DCAA5;color:#04342C">2</td><td class="rk" style="background:#5DCAA5;color:#04342C">2</td><td class="rk" style="background:#5DCAA5;color:#04342C">2</td><td class="rk" style="background:#5DCAA5;color:#04342C">2</td><td class="rk" style="background:#5DCAA5;color:#04342C">2</td><td class="rk" style="background:#5DCAA5;color:#04342C">2</td></tr><tr><th class="rowh">rapidocr_v6</th><td class="rk" style="background:#0F6E56;color:#FFFFFF">1</td><td class="rk" style="background:#0F6E56;color:#FFFFFF">1</td><td class="rk" style="background:#0F6E56;color:#FFFFFF">1</td><td class="rk" style="background:#0F6E56;color:#FFFFFF">1</td><td class="rk" style="background:#0F6E56;color:#FFFFFF">1</td><td class="rk" style="background:#0F6E56;color:#FFFFFF">1</td></tr><tr><th class="rowh">windows_ocr</th><td class="rk" style="background:#CECBF6;color:#26215C">3</td><td class="rk" style="background:#CECBF6;color:#26215C">3</td><td class="rk" style="background:#CECBF6;color:#26215C">3</td><td class="rk" style="background:#CECBF6;color:#26215C">3</td><td class="rk" style="background:#CECBF6;color:#26215C">3</td><td class="rk" style="background:#CECBF6;color:#26215C">3</td></tr></tbody></table></div>
 <div class="note">颜色越深名次越好。横向看同一行，颜色跳变即名次不稳定。</div>
 
 <h2>复现</h2>
-<div class="card"><code>pip install opencc-python-reimplemented</code><br>
-<code>python verify.py</code> &nbsp;→ 必须输出「全部通过：3 / 3」<br>
-<code>python run.py --demo</code>
-<div class="note">所有随机源固定种子（bootstrap 20260921）。meta.json 记录了全部影响结果的开关。</div></div>
+<div class="card"><code>python run.py --gt &lt;GT目录&gt; --models &lt;模型输出目录&gt; --out &lt;输出目录&gt; --boot 2000 --ref-seg whole --ref-level P0 --seg-modes whole</code>
+<div class="note">bootstrap 次数为 2000，随机种子为 20260921；参考组与数据来源均记录在 meta.json。</div></div>
 
 <div class="card warn"><b>边界声明</b>
-<div class="note" style="margin-top:6px">本报告的样本来源为 synthetic（source=generated），只能证明方法可行，不能证明任何真实工具的水平。
-切分方式实现为按上游公开描述的等价重建，尚未与上游源码逐条对齐。本报告不声称构建了评测基准——
-基准是上游既有的，本实验量化的是它从未量化的一层。</div></div>
+<div class="note" style="margin-top:6px">样本来源标记为 generated；本报告不据此推断脱敏状态或再分发许可。
+切分方式按上游公开描述重建（reconstructed），尚未与上游源码逐条对齐，不能声称等价。
+本报告不声称构建了评测基准；本实验仅在本次数据与参与配置上量化评分规则的敏感性，不据此声称上游或其他研究从未进行类似量化。</div></div>
 
 </div></body></html>

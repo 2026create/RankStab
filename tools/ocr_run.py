@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""在指定图片集上运行**声明的**行级 OCR 引擎，输出可作为被测模型的 Markdown。
+r"""在指定图片集上运行**声明的**行级 OCR 引擎，输出可作为被测模型的 Markdown。
 
     python tools/ocr_run.py --engine ppocr-v3 --name rapidocr_v3 \
         --images <图片目录> --models-out <模型输出根目录>
@@ -21,19 +21,45 @@ D-009 已经把「运行时探测环境」定为可复现性漏洞 ——
 可用引擎：
 
     ppocr-v3   rapidocr-onnxruntime  → PP-OCRv3   文档解析
+    ppocr-v4   rapidocr (3.x)        → PP-OCRv4   文档解析
+    ppocr-v5   rapidocr (3.x)        → PP-OCRv5   文档解析
     ppocr-v6   rapidocr (3.x)        → PP-OCRv6   文档解析
+    cnocr      cnocr                 → CnOCR      文档解析（独立技术路线）
+    easyocr    easyocr               → EasyOCR    文档解析（独立技术路线）
     ddddocr    ddddocr               → 验证码识别  **领域外对照**
 
-前两者是 PP-OCR 系列的**不同代际**，是真正不同的识别模型。
-第三个**不是文档解析模型**，其角色见 `_Dddd` 的说明：它是**判据的对照**，
+前四个是 PP-OCR 系列的不同代际。主实验保留 v6，其他代际作历史对照。
+当前 CnOCR 默认采用 PP-OCR v6 检测器与 DenseNet-GRU 识别器。
+EasyOCR 采用 CRAFT 检测器与中英混合识别器。精确配置和权重随清单记录。
+`ddddocr` **不是文档解析模型**，其角色见 `_Dddd` 的说明：它是**判据的对照**，
 用来检验"差距很大时判据是否仍能给出 STABLE"。
 
-依赖：pip install rapidocr-onnxruntime rapidocr ddddocr
+**依赖与环境（环境本身也是实验变量，必须与 manifest 一起登记）**：
+
+    # 全局解释器：ppocr-v4 / v5 / v6
+    pip install rapidocr onnxruntime
+    # 全局解释器：easyocr（自带 torch CPU 版）
+    pip install easyocr
+    # 全局解释器：ddddocr 对照（只在重跑对照时需要）
+    pip install ddddocr
+
+    # cnocr 必须独立 venv：cnocr 2.3.3 / cnstd 1.2.8 要求 rapidocr>=3.9.1，
+    # 但它们调用的 rapidocr.utils.model_resolver.resolve_model_key 在 3.10 已移除，
+    # 与上面 v4/v5/v6 所需的 rapidocr 3.10 冲突，故钉在 3.9.2：
+    python -m venv %LOCALAPPDATA%\rankgap\venv-cnocr
+    %LOCALAPPDATA%\rankgap\venv-cnocr\Scripts\python -m pip install cnocr onnxruntime "rapidocr==3.9.2"
+    # 再用该解释器调用本脚本：
+    #   ...\venv-cnocr\Scripts\python tools/ocr_run.py --engine cnocr ...
+
+本机实测（2026-11-22）：rapidocr 3.10.0 / cnocr 2.3.3 / easyocr 1.7.2（torch 2.15.0+cpu）。
+`ppocr-v3`（rapidocr-onnxruntime）未随现有输出重跑，其产物见 models_out 中已入库的历史目录。
 """
 
 from __future__ import annotations
 
 import argparse
+import hashlib
+from importlib.metadata import version, PackageNotFoundError
 import json
 import logging
 import os
@@ -95,6 +121,44 @@ class _V6:
         return boxes_to_markdown(boxes, txts)
 
 
+class _RapidVersioned:
+    """rapidocr 3.x 指定代际（PP-OCRv4 / v5，mobile）。"""
+
+    package = "rapidocr"
+    version = ""
+
+    def __init__(self):
+        logging.getLogger("RapidOCR").setLevel(logging.ERROR)
+        from rapidocr import RapidOCR
+        from rapidocr.utils.typings import ModelType, OCRVersion
+        v = getattr(OCRVersion, self.version)
+        self._eng = RapidOCR(params={
+            "Det.ocr_version": v,
+            "Det.model_type": ModelType.MOBILE,
+            "Rec.ocr_version": v,
+            "Rec.model_type": ModelType.MOBILE,
+            "Global.log_level": "error",
+        })
+
+    def run(self, path: str) -> str:
+        out = self._eng(path)
+        boxes = getattr(out, "boxes", None)
+        txts = getattr(out, "txts", None)
+        if boxes is None or txts is None:
+            return ""
+        return boxes_to_markdown(boxes, txts)
+
+
+class _V4(_RapidVersioned):
+    name = "ppocr-v4"
+    version = "PPOCRV4"
+
+
+class _V5(_RapidVersioned):
+    name = "ppocr-v5"
+    version = "PPOCRV5"
+
+
 class _Dddd:
     """ddddocr —— **领域外对照，不是文档解析模型**。
 
@@ -108,8 +172,7 @@ class _Dddd:
     那才是判据本身的问题。**它是判据的对照，不是排名表的选手。**
 
     之所以选它：模型（`common.onnx` 等三个文件）**随 wheel 分发**，
-    不需要联网拉取 —— 本机实测 github.com 与 HF 镜像均不可达，
-    EasyOCR / docling 的权重都取不下来。
+    不需要联网拉取，适合当"极端垫底"的判据对照。
     """
 
     name = "ddddocr"
@@ -146,7 +209,60 @@ class _Dddd:
         return boxes_to_markdown(polys, texts)
 
 
-ENGINES = {"ppocr-v3": _V3, "ppocr-v6": _V6, "ddddocr": _Dddd}
+class _Cnocr:
+    """CnOCR 默认采用 PP-OCR v6 检测器和 DenseNet-GRU 识别器。"""
+
+    name = "cnocr"
+    package = "cnocr"
+
+    def __init__(self):
+        from cnocr import CnOcr
+        self._eng = CnOcr()
+
+    def run(self, path: str) -> str:
+        outs = self._eng.ocr(path) or []
+        polys, texts = [], []
+        for o in outs:
+            t = (o.get("text") or "").strip()
+            pos = o.get("position")
+            if not t or pos is None:
+                continue
+            polys.append([[float(x), float(y)] for x, y in pos])
+            texts.append(t)
+        return boxes_to_markdown(polys, texts)
+
+
+class _EasyOCR:
+    """EasyOCR —— CRAFT 检测 + CRNN 识别，PyTorch 实现，独立于 PP-OCR 家族。
+
+    识别模型选 `ch_sim + en`（官方中英混合权重），用于检验结论是否只在
+    「百度系 + CnOCR」两族之间成立。
+    """
+
+    name = "easyocr"
+    package = "easyocr"
+
+    def __init__(self):
+        import easyocr
+        self._eng = easyocr.Reader(["ch_sim", "en"], gpu=False, verbose=False)
+
+    def run(self, path: str) -> str:
+        outs = self._eng.readtext(path, detail=1, paragraph=False,
+                                  batch_size=getattr(self, 'batch_size', 1),
+                                  canvas_size=getattr(self, 'canvas_size', 2560))
+        polys, texts = [], []
+        for box, text, _conf in outs:
+            t = (text or "").strip()
+            if not t:
+                continue
+            polys.append([[float(x), float(y)] for x, y in box])
+            texts.append(t)
+        return boxes_to_markdown(polys, texts)
+
+
+ENGINES = {"ppocr-v3": _V3, "ppocr-v4": _V4, "ppocr-v5": _V5,
+           "ppocr-v6": _V6, "cnocr": _Cnocr, "easyocr": _EasyOCR,
+           "ddddocr": _Dddd}
 
 
 def main() -> int:
@@ -158,7 +274,19 @@ def main() -> int:
     ap.add_argument("--images", required=True)
     ap.add_argument("--models-out", required=True)
     ap.add_argument("--limit", type=int, default=0)
+    ap.add_argument('--resume', action='store_true', help='保留已有样本输出，仅推理缺失文件。')
+    ap.add_argument('--threads', type=int, default=None, help='显式设置 PyTorch CPU 线程数。')
+    ap.add_argument('--batch-size', type=int, default=1, help='EasyOCR 识别批大小。')
+    ap.add_argument('--canvas-size', type=int, default=2560, help='EasyOCR 检测画布最大边。')
     args = ap.parse_args()
+
+    if args.threads is not None:
+        if args.threads < 1:
+            ap.error('--threads must be positive')
+        if args.engine == 'easyocr':
+            import torch
+            torch.set_num_threads(args.threads)
+            torch.set_num_interop_threads(1)
 
     try:
         engine = ENGINES[args.engine]()
@@ -166,6 +294,13 @@ def main() -> int:
         print("缺少依赖：pip install %s（%s）" % (ENGINES[args.engine].package, e),
               file=sys.stderr)
         return 2
+    if args.batch_size < 1:
+        ap.error('--batch-size must be positive')
+    if args.engine == 'easyocr':
+        engine.batch_size = args.batch_size
+        if args.canvas_size < 32:
+            ap.error('--canvas-size must be at least 32')
+        engine.canvas_size = args.canvas_size
 
     names = sorted(n for n in os.listdir(args.images)
                    if os.path.splitext(n)[1].lower() in SUPPORTED)
@@ -181,6 +316,8 @@ def main() -> int:
     t0 = time.time()
     for i, n in enumerate(names, 1):
         sid = os.path.splitext(n)[0]
+        if args.resume and os.path.isfile(os.path.join(dst, sid + '.md')):
+            continue
         s = time.time()
         md = engine.run(os.path.join(args.images, n))
         with open(os.path.join(dst, sid + ".md"), "w",
@@ -198,9 +335,41 @@ def main() -> int:
         "n_samples": len(names),
         "images_dir": os.path.abspath(args.images),
         "elapsed_sec": round(time.time() - t0, 1),
+        "python_version": sys.version,
+        "resume": args.resume,
+        "cpu_threads": args.threads,
+        "recognition_batch_size": args.batch_size,
+        "detection_canvas_size": args.canvas_size if args.engine == 'easyocr' else None,
         "note": ("被测模型输出，原样计分，不得人工修改。"
                  "引擎为显式声明，不做运行时回退（见 D-009）。"),
     }
+    packages = {}
+    for package in ('rapidocr', 'onnxruntime', 'cnocr', 'cnstd', 'easyocr', 'torch', 'torchvision'):
+        try:
+            packages[package] = version(package)
+        except PackageNotFoundError:
+            pass
+    manifest['package_versions'] = packages
+    weight_roots = []
+    if args.engine.startswith('ppocr-v'):
+        import rapidocr
+        weight_roots.append(os.path.dirname(rapidocr.__file__))
+    elif args.engine == 'cnocr':
+        from cnocr.utils import data_dir
+        from cnstd.utils import data_dir as detector_data_dir
+        weight_roots.extend([str(data_dir()), str(detector_data_dir())])
+    elif args.engine == 'easyocr':
+        weight_roots.append(os.path.expanduser('~/.EasyOCR/model'))
+    weights = []
+    for weight_root in weight_roots:
+        for folder, _, files in os.walk(weight_root):
+            for filename in files:
+                if filename.endswith(('.onnx', '.pth', '.pt')):
+                    path = os.path.join(folder, filename)
+                    with open(path, 'rb') as handle:
+                        digest = hashlib.file_digest(handle, 'sha256').hexdigest()
+                    weights.append({'file': path, 'sha256': digest, 'bytes': os.path.getsize(path)})
+    manifest['available_weight_files'] = weights
     with open(os.path.join(dst, "_manifest.json"), "w",
               encoding="utf-8", newline="\n") as f:
         json.dump(manifest, f, ensure_ascii=False, indent=2)

@@ -1,0 +1,82 @@
+[
+  {
+    "id": "M01",
+    "description": "字符替换成本被错误置零",
+    "test": "test_oracles.NumericalOracleTests.test_edit_distance_matches_independent_library",
+    "detected": true,
+    "exit_code": 1,
+    "evidence": "F\n======================================================================\nFAIL: test_edit_distance_matches_independent_library (test_oracles.NumericalOracleTests.test_edit_distance_matches_independent_library)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"C:\\Users\\13212\\AppData\\Local\\Temp\\rankstab_mutations_fc18gdkn\\M01\\tests\\test_oracles.py\", line 23, in test_edit_distance_matches_independent_library\n    self.assertEqual(operations['dist'], Levenshtein.distance(reference, prediction))\n    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: 0 != 1\n\n----------------------------------------------------------------------\nRan 1 test in 0.002s\n\nFAILED (failures=1)\n"
+  },
+  {
+    "id": "M02",
+    "description": "语料级分母被错误增加",
+    "test": "test_oracles.NumericalOracleTests.test_aggregation_uses_total_errors_and_lengths",
+    "detected": true,
+    "exit_code": 1,
+    "evidence": "F\n======================================================================\nFAIL: test_aggregation_uses_total_errors_and_lengths (test_oracles.NumericalOracleTests.test_aggregation_uses_total_errors_and_lengths)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"C:\\Users\\13212\\AppData\\Local\\Temp\\rankstab_mutations_fc18gdkn\\M02\\tests\\test_oracles.py\", line 79, in test_aggregation_uses_total_errors_and_lengths\n    self.assertAlmostEqual(metrics.corpus_cer(rows)['cer_fixed'], .1)\n    ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: 0.09090909090909091 != 0.1 within 7 places (0.009090909090909094 difference)\n\n----------------------------------------------------------------------\nRan 1 test in 0.001s\n\nFAILED (failures=1)\n"
+  },
+  {
+    "id": "M03",
+    "description": "归一化规则被跳过",
+    "test": "test_oracles.NumericalOracleTests.test_normalization_expected_equivalences",
+    "detected": true,
+    "exit_code": 1,
+    "evidence": "F\n======================================================================\nFAIL: test_normalization_expected_equivalences (test_oracles.NumericalOracleTests.test_normalization_expected_equivalences)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"C:\\Users\\13212\\AppData\\Local\\Temp\\rankstab_mutations_fc18gdkn\\M03\\tests\\test_oracles.py\", line 74, in test_normalization_expected_equivalences\n    self.assertEqual(protocol.normalize(text, level), expected)\n    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: ' ABC ' != 'ABC'\n-  ABC \n? -   -\n+ ABC\n\n\n----------------------------------------------------------------------\nRan 1 test in 0.001s\n\nFAILED (failures=1)\n"
+  },
+  {
+    "id": "M04",
+    "description": "margin 等于一被错误判为脆弱",
+    "test": "test_oracles.VerdictOracleTests.test_margin_equal_one_allows_tie_without_reversal",
+    "detected": true,
+    "exit_code": 1,
+    "evidence": "F\n======================================================================\nFAIL: test_margin_equal_one_allows_tie_without_reversal (test_oracles.VerdictOracleTests.test_margin_equal_one_allows_tie_without_reversal)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"C:\\Users\\13212\\AppData\\Local\\Temp\\rankstab_mutations_fc18gdkn\\M04\\tests\\test_oracles.py\", line 165, in test_margin_equal_one_allows_tie_without_reversal\n    self.assertEqual(pair['verdict'], 'STABLE')\n    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: 'FRAGILE' != 'STABLE'\n- FRAGILE\n+ STABLE\n\n\n----------------------------------------------------------------------\nRan 1 test in 0.102s\n\nFAILED (failures=1)\n"
+  },
+  {
+    "id": "M05",
+    "description": "区间重叠优先级被移除",
+    "test": "test_oracles.VerdictOracleTests.test_ci_overlap_takes_precedence_over_observed_reversal",
+    "detected": true,
+    "exit_code": 1,
+    "evidence": "F\n======================================================================\nFAIL: test_ci_overlap_takes_precedence_over_observed_reversal (test_oracles.VerdictOracleTests.test_ci_overlap_takes_precedence_over_observed_reversal)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"C:\\Users\\13212\\AppData\\Local\\Temp\\rankstab_mutations_fc18gdkn\\M05\\tests\\test_oracles.py\", line 179, in test_ci_overlap_takes_precedence_over_observed_reversal\n    self.assertEqual(pair['verdict'], 'TIE')\n    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: 'FRAGILE' != 'TIE'\n- FRAGILE\n+ TIE\n\n\n----------------------------------------------------------------------\nRan 1 test in 0.097s\n\nFAILED (failures=1)\n"
+  },
+  {
+    "id": "M06",
+    "description": "实际逆序判定分支被移除",
+    "test": "test_oracles.VerdictOracleTests.test_hand_calculated_case_reverses_under_casefold",
+    "detected": true,
+    "exit_code": 1,
+    "evidence": "F\n======================================================================\nFAIL: test_hand_calculated_case_reverses_under_casefold (test_oracles.VerdictOracleTests.test_hand_calculated_case_reverses_under_casefold)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"C:\\Users\\13212\\AppData\\Local\\Temp\\rankstab_mutations_fc18gdkn\\M06\\tests\\test_oracles.py\", line 147, in test_hand_calculated_case_reverses_under_casefold\n    self.assertEqual(pair['verdict_reason'], 'observed_reversal')\n    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: 'insufficient_margin' != 'observed_reversal'\n- insufficient_margin\n+ observed_reversal\n\n\n----------------------------------------------------------------------\nRan 1 test in 0.124s\n\nFAILED (failures=1)\n"
+  },
+  {
+    "id": "M07",
+    "description": "模型选择被忽略",
+    "test": "test_oracles.VerdictOracleTests.test_single_model_has_no_adjacent_pair",
+    "detected": true,
+    "exit_code": 1,
+    "evidence": "F\n======================================================================\nFAIL: test_single_model_has_no_adjacent_pair (test_oracles.VerdictOracleTests.test_single_model_has_no_adjacent_pair)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"C:\\Users\\13212\\AppData\\Local\\Temp\\rankstab_mutations_fc18gdkn\\M07\\tests\\test_oracles.py\", line 190, in test_single_model_has_no_adjacent_pair\n    self.assertEqual(result['verdicts'], [])\n    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: Lists differ: [{'rank': 1, 'model_a': 'model_a', 'model_[359 chars]0.5}] != []\n\nFirst list contains 1 additional elements.\nFirst extra element 0:\n{'rank': 1, 'model_a': 'model_a', 'model_b': 'model_b', 'cer_a': 0.5, 'cer_b': 1.0, 'gap': 0.5, 'span_a': 0.0, 'span_b': 1.0, 'margin': 0.5, 'flipped_groups': 12, 'ci_overlap': 0, 'paired_diff_lo': 0.5, 'paired_diff_hi': 0.5, 'verdict': 'FRAGILE', 'ref_group': 'whole/P0', 'verdict_reason': 'observed_reversal', 'min_pair_difference': -0.5, 'min_difference_group': 'whole/P2', 'max_pair_difference': 0.5}\n\n+ []\n- [{'cer_a': 0.5,\n-   'cer_b': 1.0,\n-   'ci_overlap': 0,\n-   'flipped_groups': 12,\n-   'gap': 0.5,\n-   'margin': 0.5,\n-   'max_pair_difference': 0.5,\n-   'min_difference_group': 'whole/P2',\n-   'min_pair_difference': -0.5,\n-   'model_a': 'model_a',\n-   'model_b': 'model_b',\n-   'paired_diff_hi': 0.5,\n-   'paired_diff_lo': 0.5,\n-   'rank': 1,\n-   'ref_group': 'whole/P0',\n-   'span_a': 0.0,\n-   'span_b': 1.0,\n-   'verdict': 'FRAGILE',\n-   'verdict_reason': 'observed_reversal'}]\n\n----------------------------------------------------------------------\nRan 1 test in 0.127s\n\nFAILED (failures=1)\n"
+  },
+  {
+    "id": "M08",
+    "description": "行切分退化为整页",
+    "test": "test_oracles.NumericalOracleTests.test_block_alignment_keeps_suffix_after_extra_line",
+    "detected": true,
+    "exit_code": 1,
+    "evidence": "F\n======================================================================\nFAIL: test_block_alignment_keeps_suffix_after_extra_line (test_oracles.NumericalOracleTests.test_block_alignment_keeps_suffix_after_extra_line)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"C:\\Users\\13212\\AppData\\Local\\Temp\\rankstab_mutations_fc18gdkn\\M08\\tests\\test_oracles.py\", line 54, in test_block_alignment_keeps_suffix_after_extra_line\n    self.assertEqual(segmatch.split_blocks('甲\\n乙', 'para'), ['甲', '乙'])\n    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: Lists differ: ['甲\\n乙'] != ['甲', '乙']\n\nFirst differing element 0:\n'甲\\n乙'\n'甲'\n\nSecond list contains 1 additional elements.\nFirst extra element 1:\n'乙'\n\n- ['甲\\n乙']\n+ ['甲', '乙']\n\n----------------------------------------------------------------------\nRan 1 test in 0.004s\n\nFAILED (failures=1)\n"
+  },
+  {
+    "id": "M09",
+    "description": "随机种子记录失真",
+    "test": "test_oracles.VerdictOracleTests.test_seed_is_recorded_in_all_metadata",
+    "detected": true,
+    "exit_code": 1,
+    "evidence": "F\n======================================================================\nFAIL: test_seed_is_recorded_in_all_metadata (test_oracles.VerdictOracleTests.test_seed_is_recorded_in_all_metadata)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"C:\\Users\\13212\\AppData\\Local\\Temp\\rankstab_mutations_fc18gdkn\\M09\\tests\\test_oracles.py\", line 195, in test_seed_is_recorded_in_all_metadata\n    self.assertEqual(result['meta']['bootstrap_seed'], 19)\n    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: 0 != 19\n\n----------------------------------------------------------------------\nRan 1 test in 0.139s\n\nFAILED (failures=1)\n"
+  },
+  {
+    "id": "M10",
+    "description": "最小分差被错误取为最大值",
+    "test": "test_oracles.VerdictOracleTests.test_hand_calculated_case_reverses_under_casefold",
+    "detected": true,
+    "exit_code": 1,
+    "evidence": "F\n======================================================================\nFAIL: test_hand_calculated_case_reverses_under_casefold (test_oracles.VerdictOracleTests.test_hand_calculated_case_reverses_under_casefold)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"C:\\Users\\13212\\AppData\\Local\\Temp\\rankstab_mutations_fc18gdkn\\M10\\tests\\test_oracles.py\", line 149, in test_hand_calculated_case_reverses_under_casefold\n    self.assertEqual(pair['min_pair_difference'], -.5)\n    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: 0.5 != -0.5\n\n----------------------------------------------------------------------\nRan 1 test in 0.111s\n\nFAILED (failures=1)\n"
+  }
+]

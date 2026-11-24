@@ -1,0 +1,4 @@
+﻿rank,model_a,model_b,cer_a,cer_b,gap,span_a,span_b,margin,flipped_groups,ci_overlap,paired_diff_lo,paired_diff_hi,verdict,ref_group
+1,rapidocr_v5,rapidocr_v6,0.10543417845995981,0.1084697934926675,0.003036,0.07837,0.087263,0.018327,3,1,-0.001799,0.008878,TIE,whole/P0
+2,rapidocr_v6,rapidocr_v4,0.1084697934926675,0.1199709265039121,0.011501,0.087263,0.079952,0.06878,0,1,0.006117,0.017099,TIE,whole/P0
+3,rapidocr_v4,rapidocr_v3,0.1199709265039121,0.13638890076531704,0.016418,0.079952,0.084099,0.100078,0,1,0.010592,0.023055,TIE,whole/P0

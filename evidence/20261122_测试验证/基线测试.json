@@ -1,0 +1,69 @@
+{
+  "legacy_assertions": 145,
+  "unit_tests": 12,
+  "failures": 0,
+  "errors": 0,
+  "skipped": 0,
+  "cases": [
+    {
+      "case": "test_input_validation.InputValidationTests.test_invalid_parameters_do_not_silently_fallback",
+      "status": "PASS",
+      "seconds": 0.0122
+    },
+    {
+      "case": "test_input_validation.InputValidationTests.test_missing_file_is_distinct_from_empty_file",
+      "status": "PASS",
+      "seconds": 0.0252
+    },
+    {
+      "case": "test_input_validation.InputValidationTests.test_rejects_empty_duplicate_and_path_ids",
+      "status": "PASS",
+      "seconds": 0.0224
+    },
+    {
+      "case": "test_output_safety.OutputSafetyTests.test_failed_run_preserves_existing_output",
+      "status": "PASS",
+      "seconds": 0.0046
+    },
+    {
+      "case": "test_output_safety.OutputSafetyTests.test_lock_and_gitkeep",
+      "status": "PASS",
+      "seconds": 0.0156
+    },
+    {
+      "case": "test_output_safety.OutputSafetyTests.test_output_cannot_overlap_input",
+      "status": "PASS",
+      "seconds": 0.0053
+    },
+    {
+      "case": "test_output_safety.OutputSafetyTests.test_publication_failures_preserve_previous_output",
+      "status": "PASS",
+      "seconds": 0.0161
+    },
+    {
+      "case": "test_pair_protocol_details.PairProtocolDetailsTests.test_five_reversed_groups_are_one_transition",
+      "status": "PASS",
+      "seconds": 0.0001
+    },
+    {
+      "case": "test_pair_protocol_details.PairProtocolDetailsTests.test_identical_scores_with_one_sample_are_not_stable",
+      "status": "PASS",
+      "seconds": 0.0341
+    },
+    {
+      "case": "test_pair_protocol_details.PairProtocolDetailsTests.test_reference_tie_has_no_direction",
+      "status": "PASS",
+      "seconds": 0.0001
+    },
+    {
+      "case": "test_pair_protocol_details.PairProtocolDetailsTests.test_selection_and_report_escape",
+      "status": "PASS",
+      "seconds": 0.0345
+    },
+    {
+      "case": "test_pair_protocol_details.PairProtocolDetailsTests.test_ties_and_mode_boundaries_are_not_transitions",
+      "status": "PASS",
+      "seconds": 0.0001
+    }
+  ]
+}

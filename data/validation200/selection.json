@@ -1,0 +1,40 @@
+{
+  "n_samples": 200,
+  "seed": 20261122,
+  "annotation_sha256": "a45cd84b04ad8b793e775089640e6b681209abea33ead54c1828ddca35fae496",
+  "languages": {
+    "simplified_chinese": 142,
+    "en_ch_mixed": 26,
+    "english": 32
+  },
+  "layouts": {
+    "single_column": 115,
+    "1andmore_column": 23,
+    "other_layout": 31,
+    "double_column": 28,
+    "three_column": 3
+  },
+  "document_types": {
+    "PPT2PDF": 53,
+    "book": 24,
+    "colorful_textbook": 27,
+    "exam_paper": 15,
+    "magazine": 42,
+    "note": 35,
+    "academic_literature": 2,
+    "research_report": 2
+  },
+  "split": {
+    "development": 62,
+    "validation": 138
+  },
+  "document_id_status": {
+    "page_identifier_only": 88,
+    "filename_document": 112
+  },
+  "filters": "Retain 38 baseline pages with public outputs; add 162 pages without tables/display equations, 100-1600 characters, round-robin language/layout/document-type strata. Original 50-page baseline retained separately.",
+  "upstream_dataset": "https://huggingface.co/datasets/opendatalab/OmniDocBench",
+  "public_output_archive_sha256": "5ea73577603a96da9d27630025b3de06daa35e2c4436403b8549d43f36a3844c",
+  "bootstrap_clusters": 167,
+  "notes": "Known note pages from the same notebook are grouped and assigned to the same development split. Merged-source page identifiers do not establish original-document independence; these pages retain page-level clusters."
+}

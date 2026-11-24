@@ -1,0 +1,19 @@
+{
+  "model_name": "windows_ocr",
+  "engine": "windows-ocr",
+  "engine_package": "Windows.Media.Ocr (WinRT, zh-Hans-CN)",
+  "domain": "document-parsing",
+  "n_samples": 200,
+  "images_dir": "D:\\20260920\\2026-09-20-21-18-38\\2026-09-20-21-18-38\\03_data\\validation200\\images",
+  "elapsed_sec": 208.6,
+  "note": "被测模型输出，原样计分，不得人工修改。由 tools/WinOCR.ps1 产出，引擎为 Windows 内置 OCR，不做运行时回退（见 D-009）。",
+  "verified_configuration": {
+    "engine": "Windows.Media.Ocr",
+    "recognizer_language": "zh-Hans-CN",
+    "windows_version": "10.0.26200",
+    "ocr_dll_version": "10.0.26100.9278",
+    "output_adapter": "Native Windows line order",
+    "selected_weight_files": []
+  },
+  "configuration_verification": "Installed defaults, executed CLI settings, retained model files; 2026-11-22"
+}

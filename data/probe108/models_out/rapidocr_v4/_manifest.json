@@ -1,0 +1,10 @@
+{
+  "model_name": "rapidocr_v4",
+  "engine": "ppocr-v4",
+  "engine_package": "rapidocr",
+  "domain": "document-parsing",
+  "n_samples": 108,
+  "images_dir": "D:\\20260920\\2026-09-20-21-18-38\\2026-09-20-21-18-38\\02_code\\data\\probe108\\images",
+  "elapsed_sec": 176.1,
+  "note": "被测模型输出，原样计分，不得人工修改。引擎为显式声明，不做运行时回退（见 D-009）。"
+}

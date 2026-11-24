@@ -1,0 +1,83 @@
+{
+  "model_name": "ppocr-v6",
+  "engine": "ppocr-v6",
+  "engine_package": "rapidocr",
+  "domain": "document-parsing",
+  "n_samples": 200,
+  "images_dir": "D:\\20260920\\2026-09-20-21-18-38\\2026-09-20-21-18-38\\03_data\\validation200\\images",
+  "elapsed_sec": 847.2,
+  "python_version": "3.14.5 (tags/v3.14.5:5607950, May 10 2026, 10:43:50) [MSC v.1944 64 bit (AMD64)]",
+  "resume": false,
+  "note": "被测模型输出，原样计分，不得人工修改。引擎为显式声明，不做运行时回退（见 D-009）。",
+  "package_versions": {
+    "rapidocr": "3.10.0",
+    "onnxruntime": "1.31.1",
+    "cnocr": "2.3.3",
+    "cnstd": "1.2.8",
+    "easyocr": "1.7.2",
+    "torch": "2.15.0",
+    "torchvision": "0.29.2"
+  },
+  "available_weight_files": [
+    {
+      "file": "C:\\Users\\13212\\AppData\\Local\\Programs\\Python\\Python314\\Lib\\site-packages\\rapidocr\\models\\ch_PP-OCRv4_det_mobile.onnx",
+      "sha256": "d2a7720d45a54257208b1e13e36a8479894cb74155a5efe29462512d42f49da9",
+      "bytes": 4745517
+    },
+    {
+      "file": "C:\\Users\\13212\\AppData\\Local\\Programs\\Python\\Python314\\Lib\\site-packages\\rapidocr\\models\\ch_PP-OCRv4_rec_mobile.onnx",
+      "sha256": "48fc40f24f6d2a207a2b1091d3437eb3cc3eb6b676dc3ef9c37384005483683b",
+      "bytes": 10857958
+    },
+    {
+      "file": "C:\\Users\\13212\\AppData\\Local\\Programs\\Python\\Python314\\Lib\\site-packages\\rapidocr\\models\\ch_PP-OCRv5_det_mobile.onnx",
+      "sha256": "4d97c44a20d30a81aad087d6a396b08f786c4635742afc391f6621f5c6ae78ae",
+      "bytes": 4819576
+    },
+    {
+      "file": "C:\\Users\\13212\\AppData\\Local\\Programs\\Python\\Python314\\Lib\\site-packages\\rapidocr\\models\\ch_PP-OCRv5_rec_mobile.onnx",
+      "sha256": "5825fc7ebf84ae7a412be049820b4d86d77620f204a041697b0494669b1742c5",
+      "bytes": 16631306
+    },
+    {
+      "file": "C:\\Users\\13212\\AppData\\Local\\Programs\\Python\\Python314\\Lib\\site-packages\\rapidocr\\models\\ch_ppocr_mobile_v2.0_cls_mobile.onnx",
+      "sha256": "e47acedf663230f8863ff1ab0e64dd2d82b838fceb5957146dab185a89d6215c",
+      "bytes": 585532
+    },
+    {
+      "file": "C:\\Users\\13212\\AppData\\Local\\Programs\\Python\\Python314\\Lib\\site-packages\\rapidocr\\models\\PP-OCRv6_det_small.onnx",
+      "sha256": "090f04abcd9d9a7498bc4ebf677e4cb9bdce1fe4197ddb7e529f1ef44e1ff94f",
+      "bytes": 9929594
+    },
+    {
+      "file": "C:\\Users\\13212\\AppData\\Local\\Programs\\Python\\Python314\\Lib\\site-packages\\rapidocr\\models\\PP-OCRv6_rec_small.onnx",
+      "sha256": "6f327246b50388f3c176ae304bd95767ea6dc0c9ae92153ef8cbe210b3c14884",
+      "bytes": 21234383
+    }
+  ],
+  "verified_configuration": {
+    "detector": "PP-OCRv6 small",
+    "recognizer": "PP-OCRv6 small",
+    "direction_classifier": "PP-OCRv4 mobile",
+    "runtime": "ONNX Runtime CPU",
+    "selected_weight_files": [
+      {
+        "file": "C:\\Users\\13212\\AppData\\Local\\Programs\\Python\\Python314\\Lib\\site-packages\\rapidocr\\models\\PP-OCRv6_det_small.onnx",
+        "sha256": "090f04abcd9d9a7498bc4ebf677e4cb9bdce1fe4197ddb7e529f1ef44e1ff94f",
+        "bytes": 9929594
+      },
+      {
+        "file": "C:\\Users\\13212\\AppData\\Local\\Programs\\Python\\Python314\\Lib\\site-packages\\rapidocr\\models\\PP-OCRv6_rec_small.onnx",
+        "sha256": "6f327246b50388f3c176ae304bd95767ea6dc0c9ae92153ef8cbe210b3c14884",
+        "bytes": 21234383
+      },
+      {
+        "file": "C:\\Users\\13212\\AppData\\Local\\Programs\\Python\\Python314\\Lib\\site-packages\\rapidocr\\models\\ch_ppocr_mobile_v2.0_cls_mobile.onnx",
+        "sha256": "e47acedf663230f8863ff1ab0e64dd2d82b838fceb5957146dab185a89d6215c",
+        "bytes": 585532
+      }
+    ],
+    "output_adapter": "Row-position heuristic from src.ocr_lines.boxes_to_markdown"
+  },
+  "configuration_verification": "Installed defaults, executed CLI settings, retained model files; 2026-11-22"
+}

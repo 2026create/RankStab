@@ -1,4 +1,4 @@
-# WinOCR.ps1 - Batch OCR images with the built-in Windows OCR engine.
+﻿# WinOCR.ps1 - Batch OCR images with the built-in Windows OCR engine.
 # Output format matches ocr_run.py: <Out>/<sample_id>.md  (one recognized line per row, UTF-8 no BOM)
 # Usage: powershell -NoProfile -ExecutionPolicy Bypass -File WinOCR.ps1 -Images <dir> -Out <dir> [-Limit N] [-Lang zh-Hans-CN]
 param(
@@ -25,11 +25,8 @@ function Await($op, $type) {
   return $t.Result
 }
 
-$engine = [Windows.Media.Ocr.OcrEngine]::TryCreateFromUserProfileLanguages()
-if (-not $engine) {
-  $lang = [Windows.Globalization.Language,Windows.Foundation,ContentType=WindowsRuntime]::new($Lang)
-  $engine = [Windows.Media.Ocr.OcrEngine]::TryCreateFromLanguage($lang)
-}
+$ocrLanguage = [Windows.Globalization.Language,Windows.Foundation,ContentType=WindowsRuntime]::new($Lang)
+$engine = [Windows.Media.Ocr.OcrEngine]::TryCreateFromLanguage($ocrLanguage)
 if (-not $engine) { throw "Cannot create OCR engine (language $Lang)" }
 Write-Output ("Engine ready: " + $engine.RecognizerLanguage.LanguageTag + "  max dim " + $engine.MaxImageDimension)
 
@@ -40,6 +37,7 @@ Write-Output ("Images to process: " + $imgs.Count)
 
 $n = 0; $fail = 0
 $utf8 = New-Object System.Text.UTF8Encoding($false)
+$sw = [Diagnostics.Stopwatch]::StartNew()
 foreach ($img in $imgs) {
   $sid = [IO.Path]::GetFileNameWithoutExtension($img.Name)
   try {
@@ -59,3 +57,24 @@ foreach ($img in $imgs) {
   }
 }
 Write-Output ("DONE ok=" + $n + " fail=" + $fail + "  ->  " + $Out)
+
+# 与 ocr_run.py 同口径的清单：领域/引擎/样本数/耗时
+$sw.Stop()
+$manifest = [ordered]@{
+  model_name     = (Split-Path -Leaf $Out)
+  engine         = "windows-ocr"
+  engine_package = ("Windows.Media.Ocr (WinRT, " + $engine.RecognizerLanguage.LanguageTag + ")")
+  domain         = "document-parsing"
+  n_samples      = $n
+  failed_samples = $fail
+  windows_version = [Environment]::OSVersion.Version.ToString()
+  recognizer_language = $engine.RecognizerLanguage.LanguageTag
+  available_languages = @([Windows.Media.Ocr.OcrEngine]::AvailableRecognizerLanguages | ForEach-Object { $_.LanguageTag })
+  images_dir     = (Resolve-Path -LiteralPath $Images).Path
+  elapsed_sec    = [math]::Round($sw.Elapsed.TotalSeconds, 1)
+  note           = "被测模型输出，原样计分，不得人工修改。由 tools/WinOCR.ps1 产出，引擎为 Windows 内置 OCR，不做运行时回退（见 D-009）。"
+}
+$json = $manifest | ConvertTo-Json -Depth 3
+[IO.File]::WriteAllText((Join-Path $Out "_manifest.json"), ($json + "`n"), $utf8)
+Write-Output ("manifest: " + (Join-Path $Out "_manifest.json"))
+if ($fail -gt 0) { throw "OCR failed for $fail images. See the execution log." }

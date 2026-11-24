@@ -1,0 +1,110 @@
+{
+  "source_sha256": "b25318b4e752b1e75cff2d9d736c1f2346daee3facb6771fe7adad34afc316fb",
+  "scope": "Upstream cost-matrix function and scipy assignment on explicit text blocks",
+  "preprocessing": "Identical literal blocks, table/formula preprocessing excluded",
+  "cases": [
+    {
+      "case": "same_order",
+      "reference": [
+        "甲乙",
+        "丙丁"
+      ],
+      "prediction": [
+        "甲乙",
+        "丙丁"
+      ],
+      "upstream_hungarian_pairs": [
+        [
+          "甲乙",
+          "甲乙"
+        ],
+        [
+          "丙丁",
+          "丙丁"
+        ]
+      ],
+      "upstream_character_error": 0,
+      "monotonic_pairs": [
+        [
+          "甲乙",
+          "甲乙"
+        ],
+        [
+          "丙丁",
+          "丙丁"
+        ]
+      ],
+      "monotonic_character_error": 0,
+      "same_error": true
+    },
+    {
+      "case": "extra_line",
+      "reference": [
+        "甲乙",
+        "丙丁"
+      ],
+      "prediction": [
+        "甲乙",
+        "额外",
+        "丙丁"
+      ],
+      "upstream_hungarian_pairs": [
+        [
+          "甲乙",
+          "甲乙"
+        ],
+        [
+          "丙丁",
+          "丙丁"
+        ]
+      ],
+      "upstream_character_error": 2,
+      "monotonic_pairs": [
+        [
+          "甲乙",
+          "甲乙"
+        ],
+        [
+          "丙丁",
+          "丙丁"
+        ]
+      ],
+      "monotonic_character_error": 2,
+      "same_error": true
+    },
+    {
+      "case": "reordered",
+      "reference": [
+        "甲乙",
+        "丙丁"
+      ],
+      "prediction": [
+        "丙丁",
+        "甲乙"
+      ],
+      "upstream_hungarian_pairs": [
+        [
+          "甲乙",
+          "甲乙"
+        ],
+        [
+          "丙丁",
+          "丙丁"
+        ]
+      ],
+      "upstream_character_error": 0,
+      "monotonic_pairs": [
+        [
+          "甲乙",
+          "丙丁"
+        ],
+        [
+          "丙丁",
+          "甲乙"
+        ]
+      ],
+      "monotonic_character_error": 4,
+      "same_error": false
+    }
+  ]
+}

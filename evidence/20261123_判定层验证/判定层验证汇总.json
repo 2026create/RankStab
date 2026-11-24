@@ -1,0 +1,556 @@
+{
+  "synthetic_confusion_matrix": {
+    "pairs": 60,
+    "per_class": 20,
+    "labels": [
+      "STABLE",
+      "FRAGILE",
+      "TIE"
+    ],
+    "matrix": {
+      "STABLE": {
+        "STABLE": 20,
+        "FRAGILE": 0,
+        "TIE": 0
+      },
+      "FRAGILE": {
+        "STABLE": 0,
+        "FRAGILE": 20,
+        "TIE": 0
+      },
+      "TIE": {
+        "STABLE": 0,
+        "FRAGILE": 0,
+        "TIE": 20
+      }
+    },
+    "accuracy": 1.0,
+    "records": [
+      {
+        "case": "stable_00",
+        "expected": "STABLE",
+        "predicted": "STABLE",
+        "margin": "inf",
+        "flipped_groups": 0,
+        "verdict_reason": "sufficient_margin"
+      },
+      {
+        "case": "stable_01",
+        "expected": "STABLE",
+        "predicted": "STABLE",
+        "margin": "inf",
+        "flipped_groups": 0,
+        "verdict_reason": "sufficient_margin"
+      },
+      {
+        "case": "stable_02",
+        "expected": "STABLE",
+        "predicted": "STABLE",
+        "margin": "inf",
+        "flipped_groups": 0,
+        "verdict_reason": "sufficient_margin"
+      },
+      {
+        "case": "stable_03",
+        "expected": "STABLE",
+        "predicted": "STABLE",
+        "margin": "inf",
+        "flipped_groups": 0,
+        "verdict_reason": "sufficient_margin"
+      },
+      {
+        "case": "stable_04",
+        "expected": "STABLE",
+        "predicted": "STABLE",
+        "margin": "inf",
+        "flipped_groups": 0,
+        "verdict_reason": "sufficient_margin"
+      },
+      {
+        "case": "stable_05",
+        "expected": "STABLE",
+        "predicted": "STABLE",
+        "margin": "inf",
+        "flipped_groups": 0,
+        "verdict_reason": "sufficient_margin"
+      },
+      {
+        "case": "stable_06",
+        "expected": "STABLE",
+        "predicted": "STABLE",
+        "margin": "inf",
+        "flipped_groups": 0,
+        "verdict_reason": "sufficient_margin"
+      },
+      {
+        "case": "stable_07",
+        "expected": "STABLE",
+        "predicted": "STABLE",
+        "margin": "inf",
+        "flipped_groups": 0,
+        "verdict_reason": "sufficient_margin"
+      },
+      {
+        "case": "stable_08",
+        "expected": "STABLE",
+        "predicted": "STABLE",
+        "margin": "inf",
+        "flipped_groups": 0,
+        "verdict_reason": "sufficient_margin"
+      },
+      {
+        "case": "stable_09",
+        "expected": "STABLE",
+        "predicted": "STABLE",
+        "margin": "inf",
+        "flipped_groups": 0,
+        "verdict_reason": "sufficient_margin"
+      },
+      {
+        "case": "stable_10",
+        "expected": "STABLE",
+        "predicted": "STABLE",
+        "margin": "inf",
+        "flipped_groups": 0,
+        "verdict_reason": "sufficient_margin"
+      },
+      {
+        "case": "stable_11",
+        "expected": "STABLE",
+        "predicted": "STABLE",
+        "margin": "inf",
+        "flipped_groups": 0,
+        "verdict_reason": "sufficient_margin"
+      },
+      {
+        "case": "stable_12",
+        "expected": "STABLE",
+        "predicted": "STABLE",
+        "margin": "inf",
+        "flipped_groups": 0,
+        "verdict_reason": "sufficient_margin"
+      },
+      {
+        "case": "stable_13",
+        "expected": "STABLE",
+        "predicted": "STABLE",
+        "margin": "inf",
+        "flipped_groups": 0,
+        "verdict_reason": "sufficient_margin"
+      },
+      {
+        "case": "stable_14",
+        "expected": "STABLE",
+        "predicted": "STABLE",
+        "margin": "inf",
+        "flipped_groups": 0,
+        "verdict_reason": "sufficient_margin"
+      },
+      {
+        "case": "stable_15",
+        "expected": "STABLE",
+        "predicted": "STABLE",
+        "margin": "inf",
+        "flipped_groups": 0,
+        "verdict_reason": "sufficient_margin"
+      },
+      {
+        "case": "stable_16",
+        "expected": "STABLE",
+        "predicted": "STABLE",
+        "margin": "inf",
+        "flipped_groups": 0,
+        "verdict_reason": "sufficient_margin"
+      },
+      {
+        "case": "stable_17",
+        "expected": "STABLE",
+        "predicted": "STABLE",
+        "margin": "inf",
+        "flipped_groups": 0,
+        "verdict_reason": "sufficient_margin"
+      },
+      {
+        "case": "stable_18",
+        "expected": "STABLE",
+        "predicted": "STABLE",
+        "margin": "inf",
+        "flipped_groups": 0,
+        "verdict_reason": "sufficient_margin"
+      },
+      {
+        "case": "stable_19",
+        "expected": "STABLE",
+        "predicted": "STABLE",
+        "margin": "inf",
+        "flipped_groups": 0,
+        "verdict_reason": "sufficient_margin"
+      },
+      {
+        "case": "fragile_00",
+        "expected": "FRAGILE",
+        "predicted": "FRAGILE",
+        "margin": 0.8,
+        "flipped_groups": 3,
+        "verdict_reason": "observed_reversal"
+      },
+      {
+        "case": "fragile_01",
+        "expected": "FRAGILE",
+        "predicted": "FRAGILE",
+        "margin": 0.8,
+        "flipped_groups": 3,
+        "verdict_reason": "observed_reversal"
+      },
+      {
+        "case": "fragile_02",
+        "expected": "FRAGILE",
+        "predicted": "FRAGILE",
+        "margin": 0.8,
+        "flipped_groups": 3,
+        "verdict_reason": "observed_reversal"
+      },
+      {
+        "case": "fragile_03",
+        "expected": "FRAGILE",
+        "predicted": "FRAGILE",
+        "margin": 0.8,
+        "flipped_groups": 3,
+        "verdict_reason": "observed_reversal"
+      },
+      {
+        "case": "fragile_04",
+        "expected": "FRAGILE",
+        "predicted": "FRAGILE",
+        "margin": 0.8,
+        "flipped_groups": 3,
+        "verdict_reason": "observed_reversal"
+      },
+      {
+        "case": "fragile_05",
+        "expected": "FRAGILE",
+        "predicted": "FRAGILE",
+        "margin": 0.8,
+        "flipped_groups": 3,
+        "verdict_reason": "observed_reversal"
+      },
+      {
+        "case": "fragile_06",
+        "expected": "FRAGILE",
+        "predicted": "FRAGILE",
+        "margin": 0.8,
+        "flipped_groups": 3,
+        "verdict_reason": "observed_reversal"
+      },
+      {
+        "case": "fragile_07",
+        "expected": "FRAGILE",
+        "predicted": "FRAGILE",
+        "margin": 0.8,
+        "flipped_groups": 3,
+        "verdict_reason": "observed_reversal"
+      },
+      {
+        "case": "fragile_08",
+        "expected": "FRAGILE",
+        "predicted": "FRAGILE",
+        "margin": 0.8,
+        "flipped_groups": 3,
+        "verdict_reason": "observed_reversal"
+      },
+      {
+        "case": "fragile_09",
+        "expected": "FRAGILE",
+        "predicted": "FRAGILE",
+        "margin": 0.8,
+        "flipped_groups": 3,
+        "verdict_reason": "observed_reversal"
+      },
+      {
+        "case": "fragile_10",
+        "expected": "FRAGILE",
+        "predicted": "FRAGILE",
+        "margin": 0.8,
+        "flipped_groups": 3,
+        "verdict_reason": "observed_reversal"
+      },
+      {
+        "case": "fragile_11",
+        "expected": "FRAGILE",
+        "predicted": "FRAGILE",
+        "margin": 0.8,
+        "flipped_groups": 3,
+        "verdict_reason": "observed_reversal"
+      },
+      {
+        "case": "fragile_12",
+        "expected": "FRAGILE",
+        "predicted": "FRAGILE",
+        "margin": 0.8,
+        "flipped_groups": 3,
+        "verdict_reason": "observed_reversal"
+      },
+      {
+        "case": "fragile_13",
+        "expected": "FRAGILE",
+        "predicted": "FRAGILE",
+        "margin": 0.8,
+        "flipped_groups": 3,
+        "verdict_reason": "observed_reversal"
+      },
+      {
+        "case": "fragile_14",
+        "expected": "FRAGILE",
+        "predicted": "FRAGILE",
+        "margin": 0.8,
+        "flipped_groups": 3,
+        "verdict_reason": "observed_reversal"
+      },
+      {
+        "case": "fragile_15",
+        "expected": "FRAGILE",
+        "predicted": "FRAGILE",
+        "margin": 0.8,
+        "flipped_groups": 3,
+        "verdict_reason": "observed_reversal"
+      },
+      {
+        "case": "fragile_16",
+        "expected": "FRAGILE",
+        "predicted": "FRAGILE",
+        "margin": 0.8,
+        "flipped_groups": 3,
+        "verdict_reason": "observed_reversal"
+      },
+      {
+        "case": "fragile_17",
+        "expected": "FRAGILE",
+        "predicted": "FRAGILE",
+        "margin": 0.8,
+        "flipped_groups": 3,
+        "verdict_reason": "observed_reversal"
+      },
+      {
+        "case": "fragile_18",
+        "expected": "FRAGILE",
+        "predicted": "FRAGILE",
+        "margin": 0.8,
+        "flipped_groups": 3,
+        "verdict_reason": "observed_reversal"
+      },
+      {
+        "case": "fragile_19",
+        "expected": "FRAGILE",
+        "predicted": "FRAGILE",
+        "margin": 0.8,
+        "flipped_groups": 3,
+        "verdict_reason": "observed_reversal"
+      },
+      {
+        "case": "tie_00",
+        "expected": "TIE",
+        "predicted": "TIE",
+        "margin": 0.0,
+        "flipped_groups": 0,
+        "verdict_reason": "reference_ci_overlap"
+      },
+      {
+        "case": "tie_01",
+        "expected": "TIE",
+        "predicted": "TIE",
+        "margin": 0.0,
+        "flipped_groups": 0,
+        "verdict_reason": "reference_ci_overlap"
+      },
+      {
+        "case": "tie_02",
+        "expected": "TIE",
+        "predicted": "TIE",
+        "margin": 0.0,
+        "flipped_groups": 0,
+        "verdict_reason": "reference_ci_overlap"
+      },
+      {
+        "case": "tie_03",
+        "expected": "TIE",
+        "predicted": "TIE",
+        "margin": 0.0,
+        "flipped_groups": 0,
+        "verdict_reason": "reference_ci_overlap"
+      },
+      {
+        "case": "tie_04",
+        "expected": "TIE",
+        "predicted": "TIE",
+        "margin": 0.0,
+        "flipped_groups": 0,
+        "verdict_reason": "reference_ci_overlap"
+      },
+      {
+        "case": "tie_05",
+        "expected": "TIE",
+        "predicted": "TIE",
+        "margin": 0.0,
+        "flipped_groups": 0,
+        "verdict_reason": "reference_ci_overlap"
+      },
+      {
+        "case": "tie_06",
+        "expected": "TIE",
+        "predicted": "TIE",
+        "margin": 0.0,
+        "flipped_groups": 0,
+        "verdict_reason": "reference_ci_overlap"
+      },
+      {
+        "case": "tie_07",
+        "expected": "TIE",
+        "predicted": "TIE",
+        "margin": 0.0,
+        "flipped_groups": 0,
+        "verdict_reason": "reference_ci_overlap"
+      },
+      {
+        "case": "tie_08",
+        "expected": "TIE",
+        "predicted": "TIE",
+        "margin": 0.0,
+        "flipped_groups": 0,
+        "verdict_reason": "reference_ci_overlap"
+      },
+      {
+        "case": "tie_09",
+        "expected": "TIE",
+        "predicted": "TIE",
+        "margin": 0.0,
+        "flipped_groups": 0,
+        "verdict_reason": "reference_ci_overlap"
+      },
+      {
+        "case": "tie_10",
+        "expected": "TIE",
+        "predicted": "TIE",
+        "margin": 0.0,
+        "flipped_groups": 0,
+        "verdict_reason": "reference_ci_overlap"
+      },
+      {
+        "case": "tie_11",
+        "expected": "TIE",
+        "predicted": "TIE",
+        "margin": 0.0,
+        "flipped_groups": 0,
+        "verdict_reason": "reference_ci_overlap"
+      },
+      {
+        "case": "tie_12",
+        "expected": "TIE",
+        "predicted": "TIE",
+        "margin": 0.0,
+        "flipped_groups": 0,
+        "verdict_reason": "reference_ci_overlap"
+      },
+      {
+        "case": "tie_13",
+        "expected": "TIE",
+        "predicted": "TIE",
+        "margin": 0.0,
+        "flipped_groups": 0,
+        "verdict_reason": "reference_ci_overlap"
+      },
+      {
+        "case": "tie_14",
+        "expected": "TIE",
+        "predicted": "TIE",
+        "margin": 0.0,
+        "flipped_groups": 0,
+        "verdict_reason": "reference_ci_overlap"
+      },
+      {
+        "case": "tie_15",
+        "expected": "TIE",
+        "predicted": "TIE",
+        "margin": 0.0,
+        "flipped_groups": 0,
+        "verdict_reason": "reference_ci_overlap"
+      },
+      {
+        "case": "tie_16",
+        "expected": "TIE",
+        "predicted": "TIE",
+        "margin": 0.0,
+        "flipped_groups": 0,
+        "verdict_reason": "reference_ci_overlap"
+      },
+      {
+        "case": "tie_17",
+        "expected": "TIE",
+        "predicted": "TIE",
+        "margin": 0.0,
+        "flipped_groups": 0,
+        "verdict_reason": "reference_ci_overlap"
+      },
+      {
+        "case": "tie_18",
+        "expected": "TIE",
+        "predicted": "TIE",
+        "margin": 0.0,
+        "flipped_groups": 0,
+        "verdict_reason": "reference_ci_overlap"
+      },
+      {
+        "case": "tie_19",
+        "expected": "TIE",
+        "predicted": "TIE",
+        "margin": 0.0,
+        "flipped_groups": 0,
+        "verdict_reason": "reference_ci_overlap"
+      }
+    ]
+  },
+  "threshold_scan": {
+    "source": "09_国赛\\复现结果\\扩充200_六配置_18组\\verdicts.csv",
+    "scan_range": [
+      0.0,
+      2.0
+    ],
+    "included_fine_range": [
+      0.001,
+      0.05
+    ],
+    "current_threshold": 1.0,
+    "threshold_is_sufficient_condition": true
+  },
+  "metamorphic_tests": {
+    "symmetry": {
+      "passed": true,
+      "baseline": {
+        "verdict": "FRAGILE",
+        "flipped_groups": 3
+      },
+      "swapped": {
+        "verdict": "FRAGILE",
+        "flipped_groups": 3
+      }
+    },
+    "idempotence": {
+      "passed": true,
+      "byte_identical": true
+    },
+    "level_order_independence": {
+      "passed": true,
+      "compared_files": [
+        "scores.csv",
+        "rank_matrix.csv",
+        "verdicts.csv"
+      ]
+    },
+    "all_passed": true
+  },
+  "interpretation": {
+    "implementation_layer": "existing 145 assertions and 79 automated tests",
+    "judgment_layer": "synthetic known-label confusion matrix",
+    "reproducibility_layer": "metamorphic properties and fixed-seed byte comparison",
+    "threshold_note": "margin=1.0 is the derived sufficient-condition boundary. The scan tests sensitivity around that boundary and does not tune the threshold by class balance."
+  }
+}

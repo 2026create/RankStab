@@ -1,0 +1,62 @@
+{
+  "model_name": "easyocr",
+  "engine": "easyocr",
+  "engine_package": "easyocr",
+  "domain": "document-parsing",
+  "n_samples": 200,
+  "images_dir": "D:\\20260920\\2026-09-20-21-18-38\\2026-09-20-21-18-38\\03_data\\validation200\\images",
+  "elapsed_sec": 1894.2,
+  "python_version": "3.14.5 (tags/v3.14.5:5607950, May 10 2026, 10:43:50) [MSC v.1944 64 bit (AMD64)]",
+  "resume": false,
+  "cpu_threads": 4,
+  "recognition_batch_size": 1,
+  "detection_canvas_size": 1280,
+  "note": "被测模型输出，原样计分，不得人工修改。引擎为显式声明，不做运行时回退（见 D-009）。",
+  "package_versions": {
+    "rapidocr": "3.10.0",
+    "onnxruntime": "1.31.1",
+    "cnocr": "2.3.3",
+    "cnstd": "1.2.8",
+    "easyocr": "1.7.2",
+    "torch": "2.15.0",
+    "torchvision": "0.29.2"
+  },
+  "available_weight_files": [
+    {
+      "file": "C:\\Users\\13212/.EasyOCR/model\\craft_mlt_25k.pth",
+      "sha256": "4a5efbfb48b4081100544e75e1e2b57f8de3d84f213004b14b85fd4b3748db17",
+      "bytes": 83152330
+    },
+    {
+      "file": "C:\\Users\\13212/.EasyOCR/model\\zh_sim_g2.pth",
+      "sha256": "cb678fdef09d651e7763ca551ad790dc89f0b2e3d2a640484330e338fb574c7a",
+      "bytes": 21951421
+    }
+  ],
+  "verified_configuration": {
+    "detector": "CRAFT",
+    "recognizer": "chinese_sim_g2",
+    "languages": [
+      "ch_sim",
+      "en"
+    ],
+    "runtime": "PyTorch CPU",
+    "cpu_threads": 4,
+    "detection_canvas_size": 1280,
+    "recognition_batch_size": 1,
+    "selected_weight_files": [
+      {
+        "file": "C:\\Users\\13212\\.EasyOCR\\model\\craft_mlt_25k.pth",
+        "sha256": "4a5efbfb48b4081100544e75e1e2b57f8de3d84f213004b14b85fd4b3748db17",
+        "bytes": 83152330
+      },
+      {
+        "file": "C:\\Users\\13212\\.EasyOCR\\model\\zh_sim_g2.pth",
+        "sha256": "cb678fdef09d651e7763ca551ad790dc89f0b2e3d2a640484330e338fb574c7a",
+        "bytes": 21951421
+      }
+    ],
+    "output_adapter": "Row-position heuristic from src.ocr_lines.boxes_to_markdown"
+  },
+  "configuration_verification": "Installed defaults, executed CLI settings, retained model files; 2026-11-22"
+}

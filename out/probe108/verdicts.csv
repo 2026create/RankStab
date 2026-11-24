@@ -1,4 +1,4 @@
-﻿rank,model_a,model_b,cer_a,cer_b,gap,span_a,span_b,margin,flipped_groups,ci_overlap,verdict,ref_group
-1,rapidocr_v6,rapidocr_v3,0.10847,0.136389,0.027919,0.087263,0.084099,0.162924,0,0,FRAGILE,whole/P0
-2,rapidocr_v3,windows_ocr,0.136389,0.795588,0.659199,0.084099,0.56967,1.008306,0,0,STABLE,whole/P0
-3,windows_ocr,ddddocr,0.795588,0.950874,0.155286,0.56967,0.056351,0.248052,0,0,FRAGILE,whole/P0
+﻿rank,model_a,model_b,cer_a,cer_b,gap,span_a,span_b,margin,flipped_groups,ci_overlap,paired_diff_lo,paired_diff_hi,verdict,ref_group
+1,rapidocr_v6,rapidocr_v3,0.1084697934926675,0.13638890076531704,0.027919,0.087263,0.084099,0.162924,0,0,0.019243,0.037213,FRAGILE,whole/P0
+2,rapidocr_v3,windows_ocr,0.13638890076531704,0.7955876694172475,0.659199,0.084099,0.56967,1.008306,0,0,0.62641,0.694545,STABLE,whole/P0
+3,windows_ocr,ddddocr,0.7955876694172475,0.9508743426397024,0.155287,0.56967,0.056351,0.248054,0,0,0.112444,0.193279,FRAGILE,whole/P0

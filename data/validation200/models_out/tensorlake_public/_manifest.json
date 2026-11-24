@@ -1,0 +1,9 @@
+{
+  "model_name": "tensorlake_public",
+  "n_samples": 200,
+  "source": "https://huggingface.co/datasets/tensorlake/OmniDocBench-eval-outputs",
+  "archive_sha256": "5ea73577603a96da9d27630025b3de06daa35e2c4436403b8549d43f36a3844c",
+  "source_role": "public saved outputs, reproduced scoring locally",
+  "producer_model_version": "not declared by publisher",
+  "conversion": "src.flatten.md_to_plain, raw files retained in public_raw"
+}

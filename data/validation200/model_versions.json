@@ -1,0 +1,100 @@
+{
+  "local_configurations": [
+    {
+      "name": "ppocr-v6",
+      "detector": "PP-OCRv6 small",
+      "recognizer": "PP-OCRv6 small",
+      "direction_classifier": "PP-OCRv4 mobile",
+      "runtime": "ONNX Runtime CPU",
+      "selected_weight_files": [
+        {
+          "file": "C:\\Users\\13212\\AppData\\Local\\Programs\\Python\\Python314\\Lib\\site-packages\\rapidocr\\models\\PP-OCRv6_det_small.onnx",
+          "sha256": "090f04abcd9d9a7498bc4ebf677e4cb9bdce1fe4197ddb7e529f1ef44e1ff94f",
+          "bytes": 9929594
+        },
+        {
+          "file": "C:\\Users\\13212\\AppData\\Local\\Programs\\Python\\Python314\\Lib\\site-packages\\rapidocr\\models\\PP-OCRv6_rec_small.onnx",
+          "sha256": "6f327246b50388f3c176ae304bd95767ea6dc0c9ae92153ef8cbe210b3c14884",
+          "bytes": 21234383
+        },
+        {
+          "file": "C:\\Users\\13212\\AppData\\Local\\Programs\\Python\\Python314\\Lib\\site-packages\\rapidocr\\models\\ch_ppocr_mobile_v2.0_cls_mobile.onnx",
+          "sha256": "e47acedf663230f8863ff1ab0e64dd2d82b838fceb5957146dab185a89d6215c",
+          "bytes": 585532
+        }
+      ],
+      "output_adapter": "Row-position heuristic from src.ocr_lines.boxes_to_markdown"
+    },
+    {
+      "name": "cnocr",
+      "detector": "multi_PP-OCRv6_det_small",
+      "recognizer": "densenet_lite_136-gru",
+      "runtime": "ONNX Runtime CPU",
+      "shared_component": "PP-OCR v6 detector family",
+      "selected_weight_files": [
+        {
+          "file": "C:\\Users\\13212\\AppData\\Roaming\\cnocr\\2.3\\densenet_lite_136-gru\\cnocr-v2.3-densenet_lite_136-gru-epoch=004-ft-model.onnx",
+          "sha256": "338ca9309cbe7bc1d7bc74d276d7edf190ed2ad882abf268f87dc75a0ddf0913",
+          "bytes": 12571242
+        },
+        {
+          "file": "C:\\Users\\13212\\AppData\\Roaming\\cnstd\\1.2\\ppocr\\multi_PP-OCRv6_det_small\\PP-OCRv6_det_small.onnx",
+          "sha256": "090f04abcd9d9a7498bc4ebf677e4cb9bdce1fe4197ddb7e529f1ef44e1ff94f",
+          "bytes": 9929594
+        }
+      ],
+      "output_adapter": "Row-position heuristic from src.ocr_lines.boxes_to_markdown"
+    },
+    {
+      "name": "easyocr",
+      "detector": "CRAFT",
+      "recognizer": "chinese_sim_g2",
+      "languages": [
+        "ch_sim",
+        "en"
+      ],
+      "runtime": "PyTorch CPU",
+      "cpu_threads": 4,
+      "detection_canvas_size": 1280,
+      "recognition_batch_size": 1,
+      "selected_weight_files": [
+        {
+          "file": "C:\\Users\\13212\\.EasyOCR\\model\\craft_mlt_25k.pth",
+          "sha256": "4a5efbfb48b4081100544e75e1e2b57f8de3d84f213004b14b85fd4b3748db17",
+          "bytes": 83152330
+        },
+        {
+          "file": "C:\\Users\\13212\\.EasyOCR\\model\\zh_sim_g2.pth",
+          "sha256": "cb678fdef09d651e7763ca551ad790dc89f0b2e3d2a640484330e338fb574c7a",
+          "bytes": 21951421
+        }
+      ],
+      "output_adapter": "Row-position heuristic from src.ocr_lines.boxes_to_markdown"
+    },
+    {
+      "name": "windows_ocr",
+      "engine": "Windows.Media.Ocr",
+      "recognizer_language": "zh-Hans-CN",
+      "windows_version": "10.0.26200",
+      "ocr_dll_version": "10.0.26100.9278",
+      "output_adapter": "Native Windows line order",
+      "selected_weight_files": []
+    }
+  ],
+  "public_configurations": [
+    {
+      "name": "docling_public",
+      "role": "Publisher saved output, local scoring",
+      "exact_model_version": "Undisclosed",
+      "repository_commit": "a499caf91ab2d00595f9fe10cafe2afd12c48f21",
+      "source": "https://huggingface.co/datasets/tensorlake/OmniDocBench-eval-outputs"
+    },
+    {
+      "name": "tensorlake_public",
+      "role": "Publisher saved output, local scoring",
+      "exact_model_version": "Undisclosed",
+      "repository_commit": "a499caf91ab2d00595f9fe10cafe2afd12c48f21",
+      "source": "https://huggingface.co/datasets/tensorlake/OmniDocBench-eval-outputs"
+    }
+  ]
+}

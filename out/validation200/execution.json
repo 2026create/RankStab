@@ -1,0 +1,14 @@
+{
+  "cache_sha256": "19ecdc9eeba3ec0b2362282eb53238836ca598cd60a60806be6a6f35ba18d158",
+  "exact_cache_hits": 18000,
+  "exact_new_scores": 3600,
+  "cache_key": "Entire reference and prediction text, segmentation, level, denominator",
+  "configurations": [
+    "ppocr-v6",
+    "cnocr",
+    "easyocr",
+    "windows_ocr",
+    "docling_public",
+    "tensorlake_public"
+  ]
+}
