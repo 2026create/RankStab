@@ -4,6 +4,8 @@
 
 四套本地输出为 PP-OCR v6、CnOCR、EasyOCR、Windows OCR，两套为 Docling、Tensorlake 的公开保存输出。CnOCR 使用 PP-OCR v6 检测器与 DenseNet-GRU 识别器。公开输出的精确模型版本未披露。200 页包含原回归集 38 页和新增 162 页，88 页的原始文档归属仍无法完全确认。完整 50 页历史回归集另行保存。
 
+参考组（whole/P0）的固定分母 CER 依次为 0.4032、0.4649、0.5669、0.7686、0.8976、1.7415，对应 PP-OCR v6、CnOCR、EasyOCR、Docling、Windows OCR、Tensorlake。
+
 ## 运行
 
 评分核心使用 Python 标准库，支持 Python 3.10 及以上。以下命令从 02_code 目录执行。
