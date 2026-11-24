@@ -92,14 +92,15 @@ textarea:focus{outline:2px solid var(--acc);border-color:var(--acc)}
   <h1>RankStab · 榜单名次可信度检测</h1>
   <p>教育科研场景 · 在采信一个 AI 模型榜单之前，先检测「这个名次站不站得住」</p>
   <div class="chips">
-    <span class="chip">4 个真实 OCR 引擎实测</span>
+    <span class="chip">六套配置输出（4 套本地 + 2 套公开保存）</span>
     <span class="chip">35 个榜单模型名次间距分析</span>
-    <span class="chip">18 组协议 × 130 张样本</span>
+    <span class="chip">当前实验 · 200 页公开文档 × 6 套配置 × 18 组协议</span>
     <span class="chip">纯 CPU · 一键复现</span>
   </div>
 </div></header>
 <nav><div class="wrap" id="nav"></div></nav>
 <main>
+<div class="card"><h2>当前国赛实验 · 2026-11-22</h2><p>OmniDocBench 200 页中文文档，六套配置：PP-OCR v6、CnOCR、EasyOCR、Windows OCR 四套本地输出，Docling、Tensorlake 两套公开保存输出。3 种切分 × P0–P5 共 <b>18 组</b>，参考组 whole/P0，bootstrap 2000 次按 167 个文档/页面单元重采样。参考组五个相邻名次对：<b>STABLE 0 对、FRAGILE 2 对、TIE 3 对</b>；其中 2 对出现相对参考组逆序，合计 8 个「模型对 × 协议组」。结论限于本次样本与协议。</p><p class="note">本页面其余页签展示历史的 108 条合成探针与 22 条截图（行级层 6 组口径），与 200 页主实验分层展示、不混算。完整 50 页历史回归集另行保存。</p></div>
 <section id="s-demo" class="on">
  <div class="card">
  <h2>🧪 在线检测：粘贴两段文字，亲眼看协议怎么改变分数</h2>
@@ -109,14 +110,14 @@ textarea:focus{outline:2px solid var(--acc);border-color:var(--acc)}
   <div class="step">③ 对照六档分数变化</div>
  </div>
  <p>左边填<b>标准答案</b>，右边填<b>模型输出</b>，点「运行检测」。工具会在 6 档协议下分别计算字符误差率——<b>同一对文本，换一套评分规则，分数就不一样</b>。</p>
-  <div class="hl"><b>这一页测的是什么：</b>它演示的是可信度检测的<b>原理地基</b>——评分规则本身就能改写同一对文本的误差率。正因为规则能这样改写分数，榜单名次才需要做可信度检验。<b>真实引擎的名次可信度判定（STABLE / FRAGILE / TIE）在「名次判定」页签</b>——那才是本工具的最终产出，本页是它的单样本体验版。</div>
+  <div class="hl"><b>这一页测的是什么：</b>它演示的是可信度检测的<b>原理地基</b>——评分规则本身就能改写同一对文本的误差率。正因为规则能这样改写分数，榜单名次才需要做可信度检验。<b>实测配置的名次可信度判定（STABLE / FRAGILE / TIE）在「名次判定」页签</b>——那才是本工具的最终产出，本页是它的单样本体验版。</div>
   <div class="grid g2">
    <div><h3>标准答案（GT）</h3><textarea id="gt" rows="8" placeholder="粘贴标准答案文本…"></textarea></div>
    <div><h3>模型输出（Pred）</h3><textarea id="pd" rows="8" placeholder="粘贴模型识别出的文本…"></textarea></div>
   </div>
   <p style="margin-top:14px"><button class="btn" id="run">▶ 运行检测</button>　<button class="btn2" id="fill">填入示例</button></p>
   <div id="demoOut"></div>
-  <p class="note"><b>两段文字从哪来</b>：左边 = <b>你人工抄写</b>某张图上的文字（照抄原文，全角就写全角、原文错字也不修正——修正了等于给标准答案注水）；右边 = 用任意 OCR 工具识别<b>同一张图</b>的结果（微信截图「提取文字」、手机自带识别都可以）。项目内已附带 130 组现成的 GT / 引擎输出（见仓库 03_data/）。本页面内置的繁简映射为演示简表，完整 3751 对随仓库开源；批量评测请使用仓库命令行工具。</p>
+  <p class="note"><b>两段文字从哪来</b>：左边 = <b>你人工抄写</b>某张图上的文字（照抄原文，全角就写全角、原文错字也不修正——修正了等于给标准答案注水）；右边 = 用任意 OCR 工具识别<b>同一张图</b>的结果（微信截图「提取文字」、手机自带识别都可以）。项目内已附带 130 组现成的 GT / 引擎输出（见仓库 data/probe108/ 与 data/real22/）。本页面内置的繁简映射为演示简表，完整 3751 对随仓库开源；批量评测请使用仓库命令行工具。</p>
  </div>
 </section>
 <section id="s-home"></section>
@@ -126,8 +127,31 @@ textarea:focus{outline:2px solid var(--acc);border-color:var(--acc)}
 <section id="s-board"></section>
 <section id="s-how"></section>
 </main>
-<footer>RankStab · 锐思队 · 教育科研场景 ｜ <a href="https://github.com/2026create/RankStab" target="_blank">GitHub 开源仓库</a> ｜ Apache-2.0 ｜ 对同一批模型输出，在 6 档协议 × 3 种切分下重算 18 遍，检验名次是否站得住</footer>
+<footer>RankStab · 锐思队 · 教育科研场景 ｜ <a href="https://github.com/2026create/RankStab" target="_blank">GitHub 开源仓库</a> ｜ Apache-2.0 ｜ 对同一批模型输出重算评分（完整协议空间 3 切分 × 6 档 = 18 组，历史行级层结果 6 组），检验名次是否站得住</footer>
 <script>
+/* 200 页 / 六套配置 / 18 组主实验（参考组 whole/P0，bootstrap 2000，cluster 167 单元） */
+const MAIN={ref:'whole / P0',pairs:[
+  {rank:1,a:"ppocr-v6",b:"cnocr",ca:0.403242,cb:0.464868,gap:0.061626,span:1.403484,margin:0.043909,flip:0,ci:1,v:"TIE"},
+  {rank:2,a:"cnocr",b:"easyocr",ca:0.464868,cb:0.566887,gap:0.102019,span:1.337123,margin:0.076297,flip:0,ci:1,v:"TIE"},
+  {rank:3,a:"easyocr",b:"docling_public",ca:0.566887,cb:0.768582,gap:0.201695,span:0.837310,margin:0.240884,flip:6,ci:0,v:"FRAGILE"},
+  {rank:4,a:"docling_public",b:"windows_ocr",ca:0.768582,cb:0.897618,gap:0.129036,span:1.297292,margin:0.099466,flip:2,ci:1,v:"TIE"},
+  {rank:5,a:"windows_ocr",b:"tensorlake_public",ca:0.897618,cb:1.741529,gap:0.843911,span:1.296195,margin:0.651068,flip:0,ci:0,v:"FRAGILE"},
+],models:[
+  {m:"ppocr-v6（PP-OCR v6 · 本地）",rank:1,shift:1,cer:0.403242,lo:0.325453,hi:0.496946,margin:0.043909,v:"TIE"},
+  {m:"cnocr（PP-OCR v6 检测 + DenseNet-GRU · 本地）",rank:2,shift:1,cer:0.464868,lo:0.405444,hi:0.524727,margin:0.043909,v:"TIE"},
+  {m:"easyocr（本地）",rank:3,shift:1,cer:0.566887,lo:0.494154,hi:0.623614,margin:0.076297,v:"TIE"},
+  {m:"docling_public（公开保存输出）",rank:4,shift:4,cer:0.768582,lo:0.689977,hi:0.837476,margin:0.099466,v:"TIE"},
+  {m:"windows_ocr（微软内置 · 本地）",rank:5,shift:2,cer:0.897618,lo:0.823227,hi:0.963798,margin:0.099466,v:"TIE"},
+  {m:"tensorlake_public（公开保存输出）",rank:6,shift:0,cer:1.741529,lo:1.245405,hi:2.368765,margin:0.651068,v:"FRAGILE"},
+]};
+const MAIN_CURVE={levels:['P0','P1','P2','P3','P4','P5'],rows:[
+  {m:"ppocr-v6",v:[0.403242,0.393741,0.392798,0.388735,0.387092,0.373147]},
+  {m:"cnocr",v:[0.464868,0.455220,0.453517,0.446393,0.444387,0.430597]},
+  {m:"easyocr",v:[0.566887,0.554386,0.550486,0.535261,0.530878,0.519077]},
+  {m:"docling_public",v:[0.768582,0.708460,0.707699,0.703670,0.701353,0.698223]},
+  {m:"windows_ocr",v:[0.897618,0.886647,0.883880,0.879065,0.876592,0.513215]},
+  {m:"tensorlake_public",v:[1.741529,1.690581,1.690079,1.676307,1.674335,1.673661]},
+]};
 const D={
  line:{ref:"whole / P0",pairs:[
   {rank:1,a:"rapidocr_v6",b:"rapidocr_v3",ca:.10847,cb:.136389,gap:.027919,span:.171362,margin:.162924,flip:0,ci:0,v:"FRAGILE"},
@@ -153,12 +177,12 @@ const D={
  real:{ref:"whole / P0",pairs:[
   {rank:1,a:"rapidocr_v6",b:"rapidocr_v3",ca:.140943,cb:.185605,gap:.044662,span:.08022,margin:.556744,flip:0,ci:1,v:"TIE"},
   {rank:2,a:"rapidocr_v3",b:"windows_ocr",ca:.185605,cb:.65198,gap:.466375,span:.265224,margin:1.758419,flip:0,ci:0,v:"STABLE"},
-  {rank:3,a:"windows_ocr",b:"ddddocr",ca:.65198,cb:.96032,gap:.30834,span:.269777,margin:1.142944,flip:0,ci:0,v:"STABLE"}],
+  {rank:3,a:"windows_ocr",b:"ddddocr",ca:.65198,cb:.96032,gap:.30834,span:.269776,margin:1.142948,flip:0,ci:0,v:"STABLE"}],
   models:[
   {m:"rapidocr_v6",rank:1,shift:0,cer:.140943,lo:.061424,hi:.236813,margin:.556744,v:"TIE"},
   {m:"rapidocr_v3",rank:2,shift:0,cer:.185605,lo:.103154,hi:.284556,margin:.556744,v:"TIE"},
-  {m:"windows_ocr（微软内置 · 非 PP-OCR 家族）",rank:3,shift:0,cer:.65198,lo:.481751,hi:.808313,margin:1.142944,v:"STABLE"},
-  {m:"ddddocr（领域外对照）",rank:4,shift:0,cer:.96032,lo:.933077,hi:.980538,margin:1.142944,v:"STABLE"}]},
+  {m:"windows_ocr（微软内置 · 非 PP-OCR 家族）",rank:3,shift:0,cer:.65198,lo:.481751,hi:.808313,margin:1.142948,v:"STABLE"},
+  {m:"ddddocr（领域外对照）",rank:4,shift:0,cer:.96032,lo:.933077,hi:.980538,margin:1.142948,v:"STABLE"}]},
  themes:[
   {t:"p5 繁体",a:.0456,b:.1923},{t:"table 表格",a:.2172,b:.2393},{t:"p3 全角",a:.1862,b:.2098},
   {t:"baseline 对照组",a:.0605,b:.0777},{t:"p1 空白缩进",a:.1526,b:.1664},{t:"p4 标点",a:.0545,b:.0673},
@@ -212,35 +236,36 @@ function modelTable(p){return '<table><tr><th>模型</th><th>名次</th><th>位�
  p.models.map(r=>'<tr><td>'+r.m+'</td><td>'+r.rank+'</td><td class="num">'+r.shift+'</td><td class="num">'+r.cer.toFixed(4)+'</td><td class="num">['+r.lo.toFixed(4)+', '+r.hi.toFixed(4)+']</td><td class="num">'+r.margin.toFixed(3)+'</td></tr>').join("")+"</table>"}
 document.getElementById("s-home").innerHTML=
 '<div class="grid g2">'+
-'<div class="kpi"><b>18</b><span>重算组数 —— 6 档归一化协议 × 3 种切分方式</span></div>'+
-'<div class="kpi"><b>4</b><span>OCR 引擎完成稳定度实测（含 1 个非 PP-OCR 家族）</span></div>'+
-'<div class="kpi"><b>35</b><span>上游榜单模型完成名次间距分析（非稳定度判定）</span></div>'+
-'<div class="kpi"><b>108 / 22</b><span>合成探针集 / 真实截图（真值约 1.13 万字）</span></div></div>'+
+'<div class="kpi"><b>18</b><span>完整协议空间：6 档 × 3 切分，主实验全部跑满</span></div>'+
+'<div class="kpi"><b>6</b><span>套配置实测：4 套本地输出 + 2 套公开保存输出</span></div>'+
+'<div class="kpi"><b>200</b><span>页 OmniDocBench 中文文档；另有 50 页历史回归集</span></div>'+
+'<div class="kpi"><b>35</b><span>上游榜单模型完成名次间距分析（非稳定度判定）</span></div></div>'+
 '<div class="card"><h2>这个工具解决什么问题</h2>'+
-'<p style="font-size:14px">文档解析榜单按「谁错得少谁第一」排名。但「错一个字」没有统一定义：全角还是半角、繁体还是简体、中文逗号还是英文逗号、有没有缩进——这些规定合起来叫<b>评测协议</b>，各家自己定，从没有人量过<b>改动它会造成什么后果</b>。</p>'+
-'<div class="hl"><b>三条事实（均有一手证据）</b>：① 上游榜单 v1.5→v1.6，同一模型分数 92.98 → 95.69，<b>模型未改</b>；② 同一份内容仅因输出格式不同，误差在 <b>0.0 与 1.0 之间跳变</b>；③ 榜单相邻名次最小差距 <b>0.030 分</b>，34 组里 7 组 &lt; 0.1 分。</div></div>'+
-'<div class="card"><h2>怎么检测</h2><p style="font-size:14px">把评测协议从写死的常量变成<b>可调节的旋钮</b>，对<b>同一批模型输出</b>重算 18 遍。因为输入完全不变，分数的任何变化<b>只能来自评分规则</b>——这就是变量隔离。然后按判据给每个相邻名次打标签：</p>'+
+'<p style="font-size:14px">文档解析榜单按「谁错得少谁第一」排名。但「错一个字」没有统一定义：全角还是半角、繁体还是简体、中文逗号还是英文逗号、有没有缩进——这些规定合起来叫<b>评测协议</b>，不同评测实现可能采用不同规则，本工具量测<b>改动规则后的分数与名次变化</b>。</p>'+
+'<div class="hl"><b>三条事实（均有一手证据）</b>：① 上游榜单 v1.5→v1.6，同名模型条目的分数 92.98 → 95.69，<b>仅凭榜单不能确认模型或其他条件未变</b>；② 同一份内容仅因输出格式不同，误差在 <b>0.0 与 1.0 之间跳变</b>；③ 榜单相邻名次最小差距 <b>0.030 分</b>，34 组里 7 组 &lt; 0.1 分。</div></div>'+
+'<div class="card"><h2>怎么检测</h2><p style="font-size:14px">把评测协议从写死的常量变成<b>可调节的旋钮</b>，对<b>同一批模型输出</b>按 3 种切分 × 6 档共 <b>18 组</b>重算。因为输入完全不变，分数的任何变化<b>只能来自评分规则</b>——这就是变量隔离。然后按判据给每个相邻名次打标签：</p>'+
 '<div class="grid g3" style="margin-top:12px">'+
-'<div class="kpi"><b style="color:#0d9463">STABLE</b><span>margin &gt; 1，协议拧到底也翻不过这个差距</span></div>'+
-'<div class="kpi"><b style="color:#d97706">FRAGILE</b><span>margin &lt; 1，协议一拧就可能翻转</span></div>'+
-'<div class="kpi"><b style="color:#8b5cf6">TIE</b><span>置信区间重叠，根本分不开</span></div></div>'+
-'<p class="note">margin = 相邻名次分数差(gap) ÷ 协议能把分数掀起的最大幅度(span)，其中 span 取两个模型各自幅度之和（表中即 A+B 合计），可直接验算。阈值 1 由定义直接推出：比值大于 1 意味着即使协议全开全关也翻不过去。</p></div>'+
+'<div class="kpi"><b style="color:#0d9463">STABLE</b><span>排除 TIE 后，margin ≥ 1 且无翻转：已采样组内不严格翻转</span></div>'+
+'<div class="kpi"><b style="color:#d97706">FRAGILE</b><span>排除 TIE 后，已观测翻转或 margin &lt; 1；后者不证明可翻转</span></div>'+
+'<div class="kpi"><b style="color:#8b5cf6">TIE</b><span>参考组区间重叠的规则标签；非显著性或等效检验</span></div></div>'+
+'<p class="note">margin = 相邻名次分数差(gap) ÷ 两配置已采样组内分数极差之和(span，表中 A+B 合计)。参考组包含在参与组内时，margin ≥ 1 保证已采样组内不严格翻转；span 不是未知协议的上界，margin &lt; 1 不证明可翻转。</p></div>'+
 '<div class="card"><h2>核心结论</h2>'+
-modelTable(D.line)+
-'<div class="hl">现有榜单只会说「rapidocr_v6 第一」，<b>不会告诉你这个第一在协议抖动面前站不住</b>（margin 仅 0.163）。而同一套判据对差距大的名次对给出 <b>STABLE</b> —— 说明判据有分辨力，不是对所有输入都报 FRAGILE。</div></div>';
+modelTable(MAIN)+
+'<div class="hl">200 页主实验里 ppocr-v6 仍排第一（参考组 CER 0.4032），但前两个相邻名的 <b>margin 只有 0.044、0.076</b>，参考组区间重叠，按规则判 <b>TIE</b>——这两段名次本身不成立。easyocr / docling_public 一对在 18 组内出现 <b>6 组逆序</b>，windows / tensorlake 一对 margin 0.651，均判 FRAGILE。五个相邻对里 <b>没有一对拿到 STABLE</b>：名次顺序稳定，但差距不足以抵抗协议切换。</div></div>';
 
 document.getElementById("s-verdict").innerHTML=
 '<div class="card"><h2>如何读这张判定表（3 步）</h2><div class="howto">'+
-'<div class="step"><b>① 看 margin</b>margin = 名次差距(gap) ÷ 协议能掀起的最大幅度(span)。它回答：这个领先，换一套评分规则还在不在？</div>'+
-'<div class="step"><b>② 对判据</b>margin &gt; 1 → STABLE（站得住）；&lt; 1 → FRAGILE（一拧就翻）；置信区间重叠 → TIE（根本分不开）。</div>'+
-'<div class="step"><b>③ 别误读</b>FRAGILE 不等于"这个模型差"——它说的是<b>「这个名次是评分规则的函数」</b>，换套规则结论可能反过来。</div></div></div>'+
-'<div class="card"><h2>名次可信度判定 —— 行级层（6 组口径）</h2><p class="note">参考组：'+D.line.ref+'，即最严格的归一化档位。这是对外可比的主口径。4 个引擎两两组成 3 个相邻名次对（N−1），每个引擎出现在两对中属于正常配对。</p>'+pairTable(D.line)+'</div>'+
-'<div class="card"><h2>反例：口径不匹配时，评测器会安静地给出荒谬排名</h2><p class="note">全协议空间（18 组混算，参考组 '+D.full.ref+'）。</p>'+pairTable(D.full)+
+'<div class="step"><b>① 看 margin</b>margin = 名次差距(gap) ÷ 两配置已采样组内分数极差之和(span)。它用于检查不严格翻转的充分条件。</div>'+
+'<div class="step"><b>② 对判据</b>参考组 CI 重叠优先标 TIE（规则标签，非显著性或等效检验）；否则已观测翻转或 margin &lt; 1 标 FRAGILE；其余标 STABLE。参考组包含在参与组内时，margin ≥ 1 仅保证已采样组内不严格翻转。</div>'+
+'<div class="step"><b>③ 别误读</b>FRAGILE 需结合触发条件阅读：<b>margin &lt; 1 只表示充分条件未满足</b>，不证明存在可翻转协议；已观测翻转须看翻转组数。</div></div></div>'+
+'<div class="card"><h2>名次可信度判定 —— 200 页主实验（18 组口径）</h2><p class="note">参考组：'+MAIN.ref+'，bootstrap 2000 次，按 167 个文档/页面单元重采样。6 套配置按参考排名组成 5 个相邻名次对（N−1）。</p>'+pairTable(MAIN)+modelTable(MAIN)+'</div>'+
+'<div class="card"><h2>历史层：行级层（6 组口径，108 条合成探针）</h2><p class="note">参考组：'+D.line.ref+'。这一层只采样整页切分，正是「少采一个自变量会怎样」的对照：6 组下部分名次对拿到 STABLE，扩到 18 组后同一批数据变成 FRAGILE。与 200 页主实验分层展示，不混算。</p>'+pairTable(D.line)+'</div>'+
+'<div class="card"><h2>反例：口径不匹配时，评测器会安静地给出荒谬排名</h2><p class="note">历史 108 条探针层的全协议空间（18 组混算，参考组 '+D.full.ref+'）。</p>'+pairTable(D.full)+
 '<div class="hl">在 18 组混算口径下，<b>验证码识别模型 ddddocr 排到了第 1 名</b>（0.99 vs 1.82）。机制：那种切分下，行级模型「写得多但结构对不上」被判大量错误；而写得极少的模型反而占便宜。<b>口径与模型范式不匹配时，评测器不报错、不警告。</b></div></div>';
 
 (function(){
 const W=960,H=300,L=64,B=40,T=18,R=18;
-const d=D.curve,lv=d.levels;
+const d=MAIN_CURVE,lv=d.levels;
 const max=Math.max.apply(null,d.rows.map(r=>Math.max.apply(null,r.v)))*1.08;
 const x=i=>L+i*(W-L-R)/(lv.length-1), y=v=>T+(H-T-B)*(1-v/max);
 let g='<svg viewBox="0 0 '+W+' '+H+'">';
@@ -248,27 +273,27 @@ for(let k=0;k<=4;k++){const vv=max*k/4,yy=y(vv);
  g+='<line x1="'+L+'" y1="'+yy+'" x2="'+(W-R)+'" y2="'+yy+'" stroke="#e4e7f0"/>';
  g+='<text x="'+(L-8)+'" y="'+(yy+4)+'" font-size="11" fill="#69718a" text-anchor="end">'+vv.toFixed(2)+'</text>';}
 lv.forEach((l,i)=>{g+='<text x="'+x(i)+'" y="'+(H-B+20)+'" font-size="12" fill="#69718a" text-anchor="middle">'+l+'</text>';});
-const col=["#3b5bfd","#d97706","#0d9463"];
+const col=["#3b5bfd","#d97706","#0d9463","#8b5cf6","#dc2626","#0891b2"];
 d.rows.forEach((r,i)=>{const pts=r.v.map((v,k)=>x(k)+","+y(v)).join(" ");
  g+='<polyline points="'+pts+'" fill="none" stroke="'+col[i]+'" stroke-width="2.2"/>';
  r.v.forEach((v,k)=>{g+='<circle cx="'+x(k)+'" cy="'+y(v)+'" r="4" fill="'+col[i]+'"/>';});});
 g+='</svg>';
 document.getElementById("s-curve").innerHTML=
-'<div class="card"><h2>宽容度曲线：拧动协议，每个模型的分数怎么走</h2>'+
+'<div class="card"><h2>宽容度曲线：200 页主实验，六套配置在 P0–P5 的走势</h2>'+
 '<div class="legend">'+d.rows.map((r,i)=>'<span><i class="dot" style="background:'+col[i]+'"></i>'+r.m+'</span>').join("")+'</div>'+g+
-'<div class="hl"><b>P0 → P1 一步就吃掉约 71% 的总降幅</b>（v3 降 0.060、v6 降 0.062）。在这批中文文档上，「空白/缩进」比「全角」和「繁简」都敏感得多。拆开看：这部分改善 <b>83–85% 来自「漏字」的减少</b>——一个多余的缩进空格会破坏后面整段的对齐，把大量本来正确的字符算成漏了。</div>'+
-'<div class="hl">另一个机制性发现：P1→P3 的改善<b>全部发生在「替换」上</b>——v3 残留替换率 0.0174，v6 降到 0.0012（几乎清零）。说明 <b>v6 几乎不产生全角/半角差异</b>，这是后处理层的差别，不是识别能力的差别。</div></div>';
+'<div class="hl">六套配置里只有 <b>windows_ocr 在 P5 断崖</b>（0.8766 → 0.5132，降 0.3844）：它的中文输出在字间插空格，P5「删除 CJK 字符间空格」直接改变对齐。其余五套 P0→P5 总降幅都只有 <b>0.03–0.07</b>。<b>「分数对协议敏感」不是普遍规律，取决于输出形态。</b></div>'+
+'<div class="hl">曲线平坦不等于名次稳：参考组 CER 只差 0.06 的两套配置，在整页 / 按行合并 / 按行三种切分下的分数极差（span）可达 <b>0.69–0.71</b>。名次风险主要来自<b>切分口径</b>，而不是 P0–P5 这几档归一化——这正是主实验必须跑满 18 组的原因。</div></div>';
 })();
 
 document.getElementById("s-real").innerHTML=
-'<div class="card"><h2>真实数据上的判定（22 条真实截图，真值约 1.13 万字）</h2>'+
+'<div class="card"><h2>历史层：真实截图上的判定（22 条，真值约 1.13 万字）</h2>'+
 '<p class="note">真值由人工逐字对照原图校对，纪律：照抄所见（全角就写全角）、原文错字不修正（否则等于给标准答案注水）。本层 rapidocr_v3 采用「起草偏倚对照」输出（仓库 data/real22/models_out/rapidocr_v3_起草偏倚对照），表中简写为 rapidocr_v3。</p>'+
 pairTable(D.real)+modelTable(D.real)+
-'<div class="hl">真实数据只有 22 条，置信区间明显更宽（v6 的区间是 [0.061, 0.237]），因此两个真实模型对判为 <b>TIE</b> —— 不是判据失效，是<b>样本量决定分辨力</b>。领域外对照依然稳定垫底（STABLE）。</div></div>'+
+'<div class="hl">真实数据为 22 条，v6 的区间为 [0.061, 0.237]；v6 与 v3 这一相邻对因参考组区间重叠标为 <b>TIE</b>。这是<b>规则标签，不是显著性或等效检验</b>，不能将区间宽度唯一归因于样本量。领域外对照与上一配置的相邻对标为 STABLE。</div></div>'+
 '<div class="card"><h2>切片分析：聚合数字掩盖了差距的领域结构（合成探针层 108 条，按 9 类主题切片）</h2>'+
 '<table><tr><th>文档类型</th><th>rapidocr_v6</th><th>rapidocr_v3</th><th>差距</th></tr>'+
 D.themes.map(t=>'<tr><td>'+t.t+'</td><td class="num">'+t.a.toFixed(4)+'</td><td class="num">'+t.b.toFixed(4)+'</td><td class="num">'+Math.abs(t.a-t.b).toFixed(4)+'</td></tr>').join("")+'</table>'+
-'<div class="hl">整体差距 0.028 是<b>误导性</b>的：在<b>繁体</b>上差 0.147（5.3 倍），在 <b>emoji</b> 上只差 0.002 且<b>方向相反</b>。只报总分的榜单永远不会告诉你这件事。另外，刻意不注入任何敏感特征的对照组 baseline，抖动也有 0.045 —— <b>不存在「协议不敏感」的中文样本</b>，因为中文天然自带全角标点。</div></div>';
+'<div class="hl">整体差距 0.028 <b>不能完整描述切片差异</b>：在<b>繁体</b>上差 0.147（5.3 倍），在 <b>emoji</b> 上只差 0.002 且<b>方向相反</b>。总分没有呈现这些差异。本次对照组 baseline 的抖动为 0.045 —— <b>这一观察仅适用于本批样本与协议</b>，不能推断所有中文样本都对协议敏感。</div></div>';
 
 document.getElementById("s-how").innerHTML=
 '<div class="card"><h2>六档归一化协议（P0 最严 → P5 最宽，逐档追加规则）</h2>'+
@@ -279,18 +304,18 @@ document.getElementById("s-how").innerHTML=
 '<tr><td>P3</td><td>宽度宽容</td><td>全角字母/数字/符号 → 半角</td></tr>'+
 '<tr><td>P4</td><td>标点宽容</td><td>中英标点归一（25 条 1:1 映射）</td></tr>'+
 '<tr><td>P5</td><td>字形宽容</td><td>繁体 → 简体；删除 CJK 字符间空格</td></tr></table>'+
-'<div class="hl">规则分两类：<b>映射型</b>（P2/P3/P4，长度不变）与<b>长度型</b>（P1/P5，改变长度）。长度型会让「误差率的分母」变小，导致放宽规则分数反而变差。<b>解法是固定分母口径 cer_fixed：分母恒用 P0 下的参考文本长度</b>，使档位间差异 100% 来自比对规则。</div></div>'+
+'<div class="hl">规则分两类：<b>映射型</b>（P2/P3/P4，长度不变）与<b>长度型</b>（P1/P5，改变长度）。长度型会让「误差率的分母」变小，导致放宽规则分数反而变差。<b>解法是固定分母口径 cer_fixed：分母恒用 P0 下的参考文本长度</b>，使档位间差异不再包含「分母随归一化变化」这一项（比对与对齐仍会改变分数，故不保证单调）。</div></div>'+
 '<div class="card"><h2>一键复现（CPU 即可，无 GPU 依赖）</h2>'+
-'<pre>git clone https://github.com/2026create/RankStab.git\ncd RankStab\npython verify.py     # 一键验收：119 项断言 + 连跑两次逐字节一致\npython run.py --demo # 内置样本跑 18 组，输出判定表</pre>'+
-'<p class="note">产物：scores.csv（双口径 CER + bootstrap 区间）、verdicts.csv（相邻名次对判定）、protocol_curve.csv（宽容度曲线）、stability.csv、rank_matrix.csv、meta.json。种子固定，结果可逐字节复现。</p></div>'+
-'<div class="card"><h2>边界（主动声明）</h2><p style="font-size:13.5px">① 合成样本占多数，不能据此声称真实工具在真实文档上的水平；② 4 个实测引擎中，两个同属 PP-OCR 系列（v3 / v6 为不同代际），但微软 Windows 内置 OCR 来自完全不同的家族——<b>「同系列」这一局限已部分缓解，仍不能外推为「通用排名不可信」</b>；③ 领域外对照 ddddocr 是验证码识别模型，仅用于验证判据有分辨力，不参与文档解析水平比较；④ 真实数据 22 条，置信区间较宽；⑤ windows_ocr 的中文输出在字间插空格，其 P0→P5 的巨大降幅（0.796→0.226）是长度型归一化规则的典型作用对象，<b>不代表该引擎识别能力变好了</b>。</p></div>';
+'<pre>git clone https://github.com/2026create/RankStab.git\ncd RankStab\npython -m pip install -r requirements-test.txt\npython tests/run_suite.py    # 预期：145 断言 / 79 测试 / 0 失败\n# 200 页主实验复算（文本数据随仓库 data/validation200 分发，原图不入库）\npython run.py --gt data/validation200/gt --models data/validation200/models_out \\\n  --ref-seg whole --boot 2000 --seed 20260921 \\\n  --cluster-field bootstrap_cluster --max-edit-cells 16000000 \\\n  --out ./out/validation200_18组</pre>'+
+'<p class="note">产物：scores.csv（双口径 CER + bootstrap 区间）、verdicts.csv（相邻名次对判定）、protocol_curve.csv（宽容度曲线）、stability.csv、rank_matrix.csv、meta.json。示例在临时目录生成模拟输入并跑完整 18 组。正式重算请指定新的、尚不存在的输出目录，非空目录会被拒绝。固定已保存输入、代码、参数和环境后可核对评测结果；不承诺真实 OCR 重新推理逐字节一致。</p></div>'+
+'<div class="card"><h2>边界（主动声明）</h2><p style="font-size:13.5px">① 200 页是筛选子集，结论仅适用于本次数据、输出与 18 组协议，<b>不能外推为「通用排名不可信」</b>；② 六套配置里 PP-OCR v6 与 CnOCR 共用检测器、EasyOCR 为独立实现，<b>不等于六个独立引擎</b>；Docling 与 Tensorlake 是公开保存输出，<b>精确模型版本未披露</b>；③ 88 页的原始文档归属无法完全确认，跨榜单归因不成立；④ 三种切分由本项目单调配对实现，尚未与上游 simple_match 源码对齐，数字不能宣称与上游等价；⑤ windows_ocr 的中文输出在字间插空格，其 P0→P5 的巨大降幅（0.8976→0.5132）是长度型归一化规则的典型作用对象，<b>不代表该引擎识别能力变好了</b>；⑥ 外部用户试用与第三方独立复核尚未完成。</p></div>';
 
 (function(){
 const b=D.board;
 const kpi='<div class="grid g3" style="margin-bottom:18px">'+
  '<div class="kpi"><b>'+b.total+'</b><span>上游榜单模型总数 —— 全部列出，一条不少</span></div>'+
  '<div class="kpi"><b>'+b.stat.min.toFixed(3)+'</b><span>相邻名次最小差距（满分 100 分）</span></div>'+
- '<div class="kpi"><b>'+b.stat.lt01+' / '+b.stat.npairs+'</b><span>差距不足 0.1 分的名次对 —— 一碰就翻</span></div></div>';
+ '<div class="kpi"><b>'+b.stat.lt01+' / '+b.stat.npairs+'</b><span>差距不足 0.1 分的名次对 —— 间距极薄</span></div></div>';
 const rows=b.rows.map(r=>{
  const g=r.g==null?"—":r.g.toFixed(2);
  const hot=r.g!=null&&r.g<0.1;
@@ -302,13 +327,13 @@ document.getElementById("s-board").innerHTML=
 '<div class="hl"><b>先说清楚这张表是什么、不是什么：</b><br>'+
 '✅ 这张表是 <b>名次间距分析</b> —— 基于榜单公开的聚合分数，算出相邻名次差多少分。<br>'+
 '❌ 这张表<b>不是</b>稳定度判定 —— 判定需要每个模型的逐页输出，榜单只公布聚合分，我们拿不到。<br>'+
-'真正做了 18 组协议重算并给出 STABLE / FRAGILE / TIE 判定的，是<b>「名次判定」页里实测的 3 个引擎</b>。</div>'+
+'真正做了协议重算并给出 STABLE / FRAGILE / TIE 判定的，是<b>「名次判定」页里实测的 6 套配置</b>（200 页、18 组口径）。</div>'+
 kpi+
 '<table><tr><th>名次</th><th>模型</th><th>类型</th><th>参数量</th><th>总分</th><th>与下一名差距（分）</th></tr>'+rows+'</table>'+
 '<p class="note"><span style="color:#dc2626;font-weight:700">红色</span> = 差距不足 0.1 分。统计：最小 '+b.stat.min.toFixed(3)+'，中位 '+b.stat.med.toFixed(3)+'，最大 '+b.stat.max.toFixed(3)+'；&lt; 0.1 分的 '+b.stat.lt01+' 组，&lt; 0.5 分的 '+b.stat.lt05+' 组（共 '+b.stat.npairs+' 组）。</p></div>'+
 '<div class="card"><h2>这张表说明什么</h2>'+
-'<div class="hl">在 0–100 分的尺度上，<b>千分之几的评分规则偏差，就足以改变名次</b>。而本工具复现的缺陷，在单个样本上就能造成 0.0 → 1.0 的满量程误差——所以「受影响样本的占比」哪怕很低，也可能改写这张表的名次。</div>'+
-'<p class="note">为什么实测引擎只有 3 个：其余模型的权重托管在境外模型仓库，本环境不可达。工具本身<b>不限制模型数量</b>——接入新模型只需提供它的输出目录，评测代码不需要改。</p></div>';
+'<div class="hl">这张表描述上游 <b>0–100 聚合分数的相邻间距</b>。本地单样本 CER 的 0.0 → 1.0 变化与其统计单位、聚合方式不同，<b>不可直接比较</b>；缺少逐页输出和同口径重算，不能据此判定上游榜单会翻转。</div>'+
+'<p class="note">主实验的六套配置分两类：四套本地可跑（PP-OCR v6、CnOCR、EasyOCR、Windows OCR）与两套公开保存输出（Docling、Tensorlake）；它们不代表完整或最小的引擎集合，公开输出的精确版本未披露。工具本身<b>不限制模型数量</b>——接入新模型只需提供它的输出目录，评测代码不需要改。</p></div>';
 })();
 
 /* ---- 在线检测引擎：与仓库 src/protocol.py 同一套规则的前端实现 ---- */
@@ -355,12 +380,12 @@ function runDemo(){
  }
  out.innerHTML='<h3 style="margin-top:20px">六档协议下的检测结果（分母固定 = P0 长度 '+base+' 字符）</h3>'+
  '<table><tr><th>档</th><th>名称</th><th>归一化后长度</th><th>编辑距离</th><th>替换/删除/插入</th><th>标准 CER</th><th>固定分母 CER</th></tr>'+rows+'</table>'+
- '<div class="hl">看<b>固定分母 CER</b> 这一列：<b>哪里变了，就说明两个文本的差异其实是评分规则造成的，不是模型错了</b>。本工具量测的"协议效应"，就是这个。</div>';
+ '<div class="hl">看<b>固定分母 CER</b> 这一列：<b>固定两段输入时，数值变化来自评分规则变化；这不说明文本差异由规则造成，也不能排除模型错误</b>。本工具量测的"协议效应"，就是这个。</div>';
 }
 document.getElementById("run").onclick=runDemo;
 document.getElementById("fill").onclick=()=>{
- document.getElementById("gt").value="论文题目：多模态文档解析评测协议的敏感性分析\n第 3 章：实验设计（１８ 组）\n结论：协议变更会使名次发生翻转，详见附表。";
- document.getElementById("pd").value="论文题目:多模态文档解析评测协议的敏感性分析\n第3章:实验设计(18组)\n结论:协议变更会使名次发生翻转,详见附表";
+ document.getElementById("gt").value="论文题目：多模态文档解析评测协议的敏感性分析\n第 3 章：实验设计（１８ 组）\n结论：协议变更会影响名次判定，详见附表。";
+ document.getElementById("pd").value="论文题目:多模态文档解析评测协议的敏感性分析\n第3章:实验设计(18组)\n结论:协议变更会影响名次判定,详见附表";
  runDemo();
 };
 /* ---- v2 交互增强：排序 / 奖牌 / 筛选 / 条形图 ---- */
@@ -413,7 +438,7 @@ document.querySelectorAll("main table").forEach(tb=>{
   const el=document.getElementById("s-board"); if(!el)return;
   const b=D.board, card=el.querySelectorAll(".card")[0]; if(!card)return;
   const box=document.createElement("div"); box.className="bars";
-  box.innerHTML='<h3 style="font-size:17px;margin:20px 0 8px">与下一名的差距（分）—— <span style="color:#dc2626">红</span> = 不足 0.1 分，一碰就翻</h3>'+
+  box.innerHTML='<h3 style="font-size:17px;margin:20px 0 8px">与下一名的差距（分）—— <span style="color:#dc2626">红</span> = 不足 0.1 分，间距极薄</h3>'+
    b.rows.filter(r=>r.g!=null).map(r=>{
     const hot=r.g<0.1, w=Math.min(100,(r.g/1.0)*100);
     return '<div class="row"><div style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:13.5px">'+r.r+'. '+r.m+'</div>'+
