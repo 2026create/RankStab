@@ -22,6 +22,7 @@ import os
 import shutil
 import sys
 import tempfile
+from unittest.mock import patch
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
@@ -129,6 +130,17 @@ def test_protocol():
     ok("A26 标点表全部 1:1 映射", protocol.punct_map_is_length_preserving(), bad)
     eq("A27 标点归一如实登记为映射型", protocol.RULE_KIND["punct_unify"], "mapping")
 
+    # P5 除 1:1 繁简映射外，还按**上下文**删除 CJK 间空格：删除与否取决于
+    # 空格两侧的字符，因此可能只在一侧生效 —— 原本可匹配的空格在另一侧变成
+    # 额外插入，出现「档位更宽、固定分母 CER 反而上升」。这不是实现缺陷，
+    # 而是固定分母只消除分母变化、不消除对齐变化的直接证据（可复现反例）。
+    _r, _h = "中 文", "中a 文"
+    d4 = metrics.edit_ops(protocol.normalize(_r, "P4"),
+                          protocol.normalize(_h, "P4"))["dist"]
+    d5 = metrics.edit_ops(protocol.normalize(_r, "P5"),
+                          protocol.normalize(_h, "P5"))["dist"]
+    eq("A29 P5 上下文删空格可致距离上升（固定分母非单调反例）", (d4, d5), (1, 2))
+
     total_kinds = {r for r in protocol.RULE_KIND.values()}
     eq("A28 规则类型只有三种", total_kinds, {"mapping", "length", "boundary"})
 
@@ -151,6 +163,7 @@ def test_metrics():
     eq("B4 多字 I=1", (e("abc", "abXc")["I"], e("abc", "abXc")["dist"]), (1, 1))
     eq("B5 中文漏字", e("中文测试", "中文测")["D"], 1)
     eq("B6 空 vs 空", e("", "")["dist"], 0)
+    eq("B6b 空 vs 空包含 overflow", e("", "")["overflow"], False)
 
     c = metrics.char_error_rate
     eq("B7 CER 分母为参考长度", round(c("abcd", "ab")["cer"], 6), 0.5)
@@ -187,6 +200,23 @@ def test_metrics():
     ok("B16 区间包含点估计", a1[0] <= metrics.corpus_cer(rows)["cer_fixed"] <= a1[1],
        "ci=%s" % (a1,))
 
+    # 单条样本无法重采样：必须返回「不可估计」，不能伪装成 (0, 0)，
+    # 否则调用方会把「不知道」当成「完全重叠」判成 TIE。
+    eq("B17 单样本区间不可估计", metrics.bootstrap_ci(rows[:1], n_boot=10), (None, None))
+
+    # 配对 bootstrap：同一模型对自身差值的区间必须退化到 0。
+    eq("B18 配对区间：自身差值恒为 0",
+       tuple(round(x, 12) for x in metrics.bootstrap_diff_ci(rows, rows, n_boot=200)),
+       (0.0, 0.0))
+    # 差值定义为 b - a，故「更差的 b」应得到全正区间。
+    d = metrics.bootstrap_diff_ci(rows[:10], rows[10:], n_boot=200)
+    ok("B19 配对区间方向正确（b 更差为正）", d[0] > 0 and d[1] > 0, "diff=%s" % (d,))
+    try:
+        metrics.bootstrap_diff_ci(rows[:3], rows[:4], n_boot=10)
+        ok("B20 配对序列不等长必须报错", False)
+    except ValueError:
+        ok("B20 配对序列不等长必须报错", True)
+
 
 # ---------------------------------------------------------------- C 切分
 def test_segmatch():
@@ -209,6 +239,9 @@ def test_segmatch():
 
     ok("C10 三种切分方式齐全", segmatch.SEG_MODES == ["whole", "para", "para_merge"],
        segmatch.SEG_MODES)
+
+    # 行级 OCR 文本没有空行，若按空行切段会退化成单块，para 与 whole 不可区分
+    eq("C11 无空行的行级文本按行切块", len(s("甲\n乙\n丙", "para")), 3)
 
 
 # ---------------------------------------------------------------- D 端到端
@@ -310,6 +343,21 @@ def test_end_to_end():
               h.count("<svg"), h.count("</svg>")))
         leftovers = [t for t in ("%s", "%d", "%%") if t in h]
         ok("D23 报告无未替换占位符", not leftovers, leftovers)
+        import html
+        import re
+        matrix_rows = re.findall(r'<tr><th class="rowh">(.*?)</th>(.*?)</tr>', h)
+        rendered_ranks = {
+            html.unescape(model): [int(v) for v in re.findall(r'<td class="rk"[^>]*>(\d+)</td>', cells)]
+            for model, cells in matrix_rows
+        }
+        expected_ranks = {
+            model: [next(r["rank"] for r in res["ranks"]
+                         if (r["model"], r["seg_mode"], r["level"]) == (model, seg, level))
+                    for seg in meta["seg_modes"] for level in meta["levels"]]
+            for model in rendered_ranks
+        }
+        eq("D24 名次矩阵包含全部模型", len(rendered_ranks), len(res["stability"]))
+        eq("D25 报告逐模型逐协议名次与结果一致", rendered_ranks, expected_ranks)
 
         # ---- E 组：跨平台字节一致性 ----
         # 行尾必须统一为 LF。两个独立的 Windows 陷阱会破坏这一点：
@@ -388,6 +436,15 @@ def test_end_to_end():
             ok("F8 stability.csv 含可信度摘要列",
                all(k in srows[0] for k in need), list(srows[0].keys()))
 
+            # 配对差值区间是**诊断量**：只要求列存在且上下界有序，
+            # 不要求它包含点估计（百分位区间不保证覆盖），更不能据此改判。
+            pd_bad = [r for r in vrows
+                      if r.get("paired_diff_lo", "") != ""
+                      and float(r["paired_diff_lo"]) > float(r["paired_diff_hi"])]
+            ok("F9 配对差值区间列存在且上下界有序",
+               "paired_diff_lo" in vrows[0] and "paired_diff_hi" in vrows[0]
+               and not pd_bad, pd_bad[:3])
+
         # ---- G 组：长文本保护必须可见（SPEC v1.1 第 4.6 节）----
         # 实测背景：whole 口径下 18 条样本里有 6~7 条的乘积超过阈值，
         # 于是「编辑距离」被静默替换成长度差，而下游一无所知 ——
@@ -395,13 +452,86 @@ def test_end_to_end():
         # 这组断言的作用就是让这件事**不可能再静默发生**。
         ok("G1 小文本不触发长文本保护",
            metrics.edit_ops("甲乙丙", "甲乙丁").get("overflow") is False)
+        def read_rows(folder, name):
+            with open(os.path.join(folder, name + ".csv"), encoding="utf-8-sig", newline="") as fh:
+                return list(csv.DictReader(fh))
+
+        def fake_sample(value):
+            return {"dist": value * 10, "S": value * 10, "D": 0, "I": 0,
+                    "ref_len": 10, "hyp_len": 10, "fixed_denom": 10,
+                    "cer": value, "cer_fixed": value, "sub_rate": value,
+                    "del_rate": 0, "ins_rate": 0, "overflow_samples": 0}
+
+        fixture = [{"sample_id": "sample", "_ref_md": "甲"}]
+        predictions = {m: {"sample": m} for m in ("A", "B", "C")}
+        precision_out = os.path.join(tmp, "precision")
+        values = {"A": 0.1000002, "B": 0.1000001, "C": 0.1000001}
+        with patch.object(runner, "load_gt", return_value=fixture), patch.object(runner, "load_predictions", return_value=predictions), patch.object(
+                runner, "_score_one", side_effect=lambda ref, hyp, seg, level, **kwargs: fake_sample(values[hyp])), patch.object(
+                    runner, "bootstrap_ci", side_effect=lambda rows, **kwargs: (rows[0]["cer_fixed"], rows[0]["cer_fixed"])):
+            runner.run("fixture", "models", precision_out, seg_modes=["whole"], n_boot=10, ref_level="P0")
+        ranks = {r["model"]: int(r["rank"]) for r in read_rows(precision_out, "rank_matrix")}
+        ok("R1 低于六位小数差值仍正确排名", ranks["A"] == 3 and ranks["B"] == 1)
+        ok("R2 同分采用竞赛名次1,1,3", ranks == {"A": 3, "B": 1, "C": 1})
+        precision_scores = {r["model"]: r for r in read_rows(precision_out, "scores")}
+        ok("R3 分数与CI保留原始精度", float(precision_scores["B"]["cer_fixed"]) == values["B"]
+           and float(precision_scores["B"]["ci_lo"]) == values["B"])
+        for label, table, expected in (
+                ("保持方向", {"P0": {"A": .1, "B": .2, "C": .9}, "P1": {"A": .11, "B": .21, "C": .91}}, 0),
+                ("反向翻转", {"P0": {"A": .1, "B": .2, "C": .9}, "P1": {"A": .25, "B": .15, "C": .9}}, 1),
+                ("参考同分", {"P0": {"A": .1, "B": .1, "C": .9}, "P1": {"A": .2, "B": .1, "C": .9}}, 0),
+                ("当前追平", {"P0": {"A": .1, "B": .2, "C": .9}, "P1": {"A": .2, "B": .2, "C": .9}}, 0)):
+            direction_out = os.path.join(tmp, label)
+            with patch.object(runner, "load_gt", return_value=fixture), patch.object(runner, "load_predictions", return_value=predictions), patch.object(
+                    runner, "_score_one", side_effect=lambda ref, hyp, seg, level, **kwargs: fake_sample(table.get(level, table["P0"])[hyp])):
+                runner.run("fixture", "models", direction_out, seg_modes=["whole"], n_boot=10, ref_level="P0")
+            stab = {r["model"]: r for r in read_rows(direction_out, "stability")}
+            pair = read_rows(direction_out, "verdicts")[0]
+            ok("R4 " + label + "双向邻居计数一致", int(stab["A"]["flipped_groups_nearest"]) == expected
+               and int(stab["B"]["flipped_groups_nearest"]) == expected and int(pair["flipped_groups"]) == expected)
+        failed_out = os.path.join(tmp, "failed_scoring")
+        calls = 0
+        def late_failure(ref, hyp, seg, level, **kwargs):
+            nonlocal calls
+            calls += 1
+            if calls > 3:
+                return metrics.char_error_rate("甲" * 2001, "乙" * 2000)
+            return fake_sample(.1)
+        with patch.object(runner, "load_gt", return_value=fixture), patch.object(runner, "load_predictions", return_value=predictions), patch.object(runner, "_score_one", side_effect=late_failure):
+            ok("R5 runner完成首组后超限仍失败", _raises(lambda: runner.run(
+                "fixture", "models", failed_out, seg_modes=["whole"], n_boot=10)))
+        ok("R6 评分失败不产生成功产物", not os.path.exists(failed_out))
+        def file_bytes(folder):
+            result = {}
+            for name in os.listdir(folder):
+                with open(os.path.join(folder, name), "rb") as fh:
+                    result[name] = fh.read()
+            return result
+        before = file_bytes(precision_out)
+        try:
+            runner.run("missing", "missing", precision_out)
+        except FileExistsError as exc:
+            ok("R7 拒绝非空目录并明确旧产物无效", "已有产物不代表本次成功" in str(exc))
+        else:
+            ok("R7 拒绝非空目录并明确旧产物无效", False)
+        ok("R8 拒绝后旧文件字节不变", before == file_bytes(precision_out))
+        weighted = [{"cer": 0., "cer_fixed": 0., "ref_len": 9, "fixed_denom": 1},
+                    {"cer": 1., "cer_fixed": 1., "ref_len": 1, "fixed_denom": 9}]
+        class Alternating:
+            def __init__(self, seed):
+                self.i = 0
+            def randrange(self, n):
+                self.i += 1
+                return (self.i - 1) % n
+        with patch.object(metrics.random, "Random", Alternating):
+            ok("R9 bootstrap标准CER按ref_len加权", metrics.bootstrap_ci(weighted, key="cer", n_boot=10) == (.1, .1))
+            ok("R10 bootstrap固定CER按固定分母加权", metrics.bootstrap_ci(weighted, key="cer_fixed", n_boot=10) == (.9, .9))
+
         big_a, big_b = "甲" * 2001, "乙" * 2000      # 乘积 4,002,000 > 4e6
-        ops_big = metrics.edit_ops(big_a, big_b)
-        ok("G2 超阈值时显式置 overflow（不得静默降级）",
-           ops_big.get("overflow") is True,
-           "len %d x %d" % (len(big_a), len(big_b)))
-        ok("G3 保护路径下只给 D/I、不给 S（S=0 是降级路径的特征）",
-           ops_big["S"] == 0 and ops_big["D"] + ops_big["I"] == ops_big["dist"])
+        ok("G2 超阈值拒绝编辑距离估算",
+           _raises(lambda: metrics.edit_ops(big_a, big_b)))
+        ok("G3 CER 传播超限拒绝",
+           _raises(lambda: metrics.char_error_rate(big_a, big_b)))
         ok("G4 overflow 字段恒存在（缺失会让上游忘记检查）",
            "overflow" in metrics.edit_ops("a", "b"))
 
@@ -439,6 +569,15 @@ def test_end_to_end():
             ok("J4 全部切分方式已登记备查",
                m1.get("seg_modes_all") == list(segmatch.SEG_MODES),
                m1.get("seg_modes_all"))
+            single_report = os.path.join(o1, "report.html")
+            make_report.build(r1, single_report)
+            with open(single_report, encoding="utf-8") as fh:
+                single_html = fh.read()
+            ok("J6 单切分报告按实际六组展示", "6 组协议" in single_html
+               and "名次矩阵（6 组完整榜单）" in single_html)
+            ok("J7 区间描述来自实际参考组", "参考组 whole/P0 下模型" in single_html)
+            ok("J8 报告不把区间重叠直接当成显著性检验", "不等同于显著性检验" in single_html
+               or "不构成显著性检验" in single_html)
             # span 只在参与组上计算：限定后必然小于等于未限定时的 span
             o2 = os.path.join(t3, "out_all")
             r2 = runner.run(ds, mo, o2, n_boot=200)
