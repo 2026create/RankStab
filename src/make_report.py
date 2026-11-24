@@ -73,7 +73,7 @@ def _curve_svg(curve: List[Dict], levels: List[str], models: List[str]) -> str:
     for i, lv in enumerate(levels):
         x = x_of(i)
         parts.append('<text x="%.1f" y="%d" font-size="11" fill="#2C2C2A" text-anchor="middle">%s</text>'
-                     % (x, H - 14, lv))
+                     % (x, H - 14, html.escape(lv)))
 
     # 折线
     for mi, model in enumerate(models):
@@ -97,8 +97,17 @@ def build(res: Dict, out_path: str) -> str:
     seg_modes = meta["seg_modes"]
     models = [r["model"] for r in res["stability"]]
     ranks = res["ranks"]
+    missing = meta.get("missing_predictions", {})
+    missing_note = ""
+    if missing:
+        details = ["%s：%s" % (html.escape(model),
+                   ", ".join(html.escape(sid) for sid in sample_ids))
+                   for model, sample_ids in sorted(missing.items())]
+        missing_note = ('<div class="card warn"><b>缺失的预测文件</b>'
+                        '<div class="note">以下样本按空预测计分，请核对文件准备：%s</div></div>'
+                        % "；".join(details))
 
-    by_key = {(r["seg_mode"], r["level"]): r for r in ranks}
+    by_key = {(r["seg_mode"], r["level"], r["model"]): r for r in ranks}
     groups = [(s, l) for s in seg_modes for l in levels]
 
     # ---- 结论自动生成 ----
@@ -106,14 +115,33 @@ def build(res: Dict, out_path: str) -> str:
     worst = res["stability"][0]
     mono_ok = not meta["monotonicity_violations"]
 
-    # P5 档下置信区间重叠的模型对（分不出胜负）
-    p5 = [r for r in res["scores"] if r["level"] == "P5" and r["seg_mode"] == "para"]
+    # 在实际参与的切分组中描述区间，重叠与否不等同于显著性检验。
+    ref_group = meta.get("ref_group", {})
+    ci_seg = ref_group.get("seg_mode", seg_modes[0])
+    ci_level = ref_group.get("level", levels[0])
+    ci_rows = [r for r in res["scores"]
+               if r["level"] == ci_level and r["seg_mode"] == ci_seg]
     tied = []
-    for i in range(len(p5)):
-        for j in range(i + 1, len(p5)):
-            a, b = p5[i], p5[j]
+    for i in range(len(ci_rows)):
+        for j in range(i + 1, len(ci_rows)):
+            a, b = ci_rows[i], ci_rows[j]
+            # 区间不可估计时写空值，不能当成分数 0 参与比较。
+            if a["ci_hi"] == "" or b["ci_hi"] == "":
+                continue
             if not (a["ci_hi"] < b["ci_lo"] or b["ci_hi"] < a["ci_lo"]):
                 tied.append((a["model"], b["model"]))
+    unavailable = any(r["ci_lo"] == "" or r["ci_hi"] == "" for r in ci_rows)
+    if tied:
+        ci_summary = "参考组 %s/%s 下模型 %s 的置信区间重叠；重叠本身不等同于显著性检验。" % (
+            ci_seg, ci_level, "、".join("与".join(t) for t in tied[:3]))
+        if unavailable:
+            ci_summary += "部分模型区间不可估计。"
+    elif unavailable:
+        ci_summary = "参考组 %s/%s 中存在不可估计的置信区间，无法判断所有模型区间是否重叠。" % (ci_seg, ci_level)
+    elif len(ci_rows) < 2:
+        ci_summary = "参考组 %s/%s 少于两个模型，无区间重叠比较。" % (ci_seg, ci_level)
+    else:
+        ci_summary = "参考组 %s/%s 下模型置信区间互不重叠；此描述不构成显著性检验。" % (ci_seg, ci_level)
 
     # ---- 稳定度表 ----
     stab_rows = []
@@ -127,12 +155,82 @@ def build(res: Dict, out_path: str) -> str:
                r["rank_std"], "%d" % r["n_groups"])
         )
 
+    # ---- 名次可信度判定表 ----
+    _V_STYLE = {"STABLE": ("#0F6E56", "#FFFFFF"), "FRAGILE": ("#EF9F27", "#3B2200"),
+                "TIE": ("#CECBF6", "#26215C")}
+    verdict_rows = []
+    reasons = {'reference_ci_overlap': '参考组区间重叠',
+               'observed_reversal': '已测协议出现逆序',
+               'insufficient_margin': '稳定充分条件未满足',
+               'sufficient_margin': '满足已测范围内的稳定充分条件'}
+    for v in res.get("verdicts", []):
+        bg, fg = _V_STYLE.get(v["verdict"], ("#F1EFE8", "#2C2C2A"))
+        margin_txt = "∞" if v["margin"] == "inf" else "%.3f" % v["margin"]
+        if v["ci_overlap"] == "":
+            ov_txt = "不可估计"
+        else:
+            ov_txt = "重叠" if v["ci_overlap"] else "不重叠"
+        if v["paired_diff_lo"] == "":
+            pd_txt = "—"
+        else:
+            pd_txt = "[%+.4f, %+.4f]" % (v["paired_diff_lo"], v["paired_diff_hi"])
+        verdict_rows.append(
+            "<tr><td>%d</td><td>%s → %s</td><td>%.4f</td><td>%.4f</td>"
+            "<td>%s</td><td>%s</td><td>%d</td><td>%s</td>"
+            '<td><span class="pill" style="background:%s;color:%s">%s</span></td><td>%s</td></tr>'
+            % (v["rank"], html.escape(v["model_a"]), html.escape(v["model_b"]),
+               v["cer_a"], v["cer_b"], margin_txt, pd_txt, v["flipped_groups"],
+               ov_txt, bg, fg, v["verdict"],
+               reasons.get(v.get('verdict_reason'), '历史结果，详见分差与区间')))
+
+    # 逐协议分差由 runner 计算；旧结果不含该字段时仍可正常生成报告。
+    pair_details = res.get("pair_protocol_details", [])
+    detail_rows = []
+    for row in pair_details:
+        detail_rows.append(
+            "<tr><td>%s → %s</td><td>%s/%s</td><td>%+.8f</td><td>%s</td><td>%s</td></tr>"
+            % (html.escape(row["model_a"]), html.escape(row["model_b"]),
+               html.escape(row["seg_mode"]), html.escape(row["level"]),
+               row["difference_b_minus_a"], html.escape(row["relative_to_reference"]),
+               html.escape(row["transition_from_previous_level"])))
+    summary_rows = []
+    for v in res.get("verdicts", []):
+        rows = [r for r in pair_details if r["model_a"] == v["model_a"]
+                and r["model_b"] == v["model_b"]]
+        if not rows:
+            continue
+        worst_pair = min(rows, key=lambda r: r["difference_b_minus_a"])
+        transitions = sum(r["transition_from_previous_level"] == "换位" for r in rows)
+        ties = sum(r["difference_b_minus_a"] == 0 for r in rows)
+        summary_rows.append(
+            "<tr><td>%s → %s</td><td>%+.8f</td><td>%+.8f（%s/%s）</td>"
+            "<td>%d</td><td>%d</td><td>%d</td></tr>"
+            % (html.escape(v["model_a"]), html.escape(v["model_b"]),
+               v["cer_b"] - v["cer_a"], worst_pair["difference_b_minus_a"],
+               html.escape(worst_pair["seg_mode"]), html.escape(worst_pair["level"]),
+               v["flipped_groups"], transitions, ties))
+    pair_section = ""
+    if pair_details:
+        pair_section = ("<h2>逐协议模型对比</h2>"
+            "<div class=\"note\">分差为 B 的固定分母 CER 减 A 的固定分母 CER，"
+            "A、B 按参考组排序，正值表示 A 分数更低。参考组平分时不定义逆序。"
+            "最小分差取已测协议中的有符号最小值；多个最小值时列出首个。</div>"
+            "<div style=\"overflow-x:auto\"><table><thead><tr><th>模型对 A → B</th>"
+            "<th>参考分差</th><th>最小分差及协议</th><th>相对参考逆序组</th>"
+            "<th>相邻档位换位</th><th>平分组</th></tr></thead><tbody>%s</tbody></table></div>"
+            "<div class=\"note\">相邻档位换位仅统计同一切分方式中连续两档的严格正负变号；"
+            "平分或跨切分不算换位。结果仅适用于已测样本和协议。</div>"
+            "<details><summary>查看全部协议分差</summary><table><thead><tr>"
+            "<th>模型对 A → B</th><th>协议</th><th>B − A</th><th>相对参考组</th>"
+            "<th>与前一档比较</th></tr></thead><tbody>%s</tbody></table></details>"
+            % ("".join(summary_rows), "".join(detail_rows)))
+
     # ---- 名次矩阵 ----
     head = "".join('<th colspan="%d">%s</th>' % (len(levels), html.escape(s)) for s in seg_modes)
-    sub = "".join("<th>%s</th>" % lv for _ in seg_modes for lv in levels)
+    sub = "".join("<th>%s</th>" % html.escape(lv) for _ in seg_modes for lv in levels)
     body = []
     for model in models:
-        cells = "".join(_rank_cell(by_key[(s, l)]["rank"], len(models)) for s, l in groups)
+        cells = "".join(_rank_cell(by_key[(s, l, model)]["rank"], len(models)) for s, l in groups)
         body.append("<tr><th class=\"rowh\">%s</th>%s</tr>" % (html.escape(model), cells))
 
     doc = """<!DOCTYPE html>
@@ -162,21 +260,23 @@ th.rowh{font-weight:500;color:var(--tx);white-space:nowrap}
 code{background:#F1EFE8;padding:1px 6px;border-radius:4px;font-size:12px}
 .note{font-size:12px;color:var(--tx2);margin-top:10px}
 .warn{background:#FAEEDA;border-color:#EF9F27}
+.pill{display:inline-block;padding:1px 10px;border-radius:10px;font-size:12px;letter-spacing:.5px}
 </style></head><body><div class="wrap">
 
 <h1>归一化协议敏感性评测报告</h1>
-<div class="sub">同一批模型输出，在 3 种切分方式 × 6 档归一化协议下重算 %d 遍。不改模型，只改批卷标准。</div>
+<div class="sub">同一批模型输出，在 %d 组协议下重算。切分方式及档位以本次运行参数为准。</div>
 
 <div class="card"><div class="meta">
 <span>样本 <b>%d</b> 条</span><span>模型 <b>%d</b> 个</span><span>组合 <b>%d</b> 组</span>
 <span>主口径 <b>%s</b></span><span>繁简后端 <b>%s</b></span><span>数据来源 <b>%s</b></span>
 </div>
 <div class="note">单调性自检：%s</div></div>
+%s
 
 <h2>核心结论</h2>
 <div class="card">
 <ul class="key">
-<li>%d 个模型中有 <b>%d 个</b>的名次在 18 组规则下发生位移。</li>
+<li>%d 个模型中有 <b>%d 个</b>的名次在 %d 组规则下发生位移。</li>
 <li>位移最大的模型是 <b>%s</b>，名次在 <b>%d</b> 到 <b>%d</b> 之间跳动，位移 <b>%d 位</b>。</li>
 <li>%s</li>
 </ul></div>
@@ -184,11 +284,19 @@ code{background:#F1EFE8;padding:1px 6px;border-radius:4px;font-size:12px}
 <h2>名次稳定度</h2>
 <table><thead><tr><th>模型</th><th>最低名次</th><th>最高名次</th><th>名次位移</th><th>名次标准差</th><th>参与组数</th></tr></thead>
 <tbody>%s</tbody></table>
-<div class="note">位移为 0 的模型，名次可以放心引用；位移 ≥ 2 的模型，任何单一榜单的排名都不足以支撑结论。</div>
+<div class="note">位移为 0 的模型在本次样本和参与协议范围内未发生名次变化；位移 ≥ 2 的模型对协议选择较敏感，单一榜单不足以概括其稳定性。</div>
+
+<h2>名次可信度判定</h2>
+<table><thead><tr><th>名次对</th><th>相邻模型</th><th>参考分 A</th><th>参考分 B</th>
+<th>margin</th><th>配对差值区间</th><th>翻转组数</th><th>区间重叠</th><th>判定</th><th>判定依据</th></tr></thead>
+<tbody>%s</tbody></table>
+<div class="note">margin = 名次差距 ÷ 两个模型在<b>本次参与组内</b>的分数极差之和。margin ≥ 1 仅在已采样且包含参考组的协议组内保证不严格翻转（等号可追平），不能外推到未采样协议；margin &lt; 1 只说明「不翻转」的充分条件不成立，<b>不等于已经翻转</b>，是否翻转以「翻转组数」为准。配对差值区间为诊断量，不参与判定；判定仍按参考组各自区间是否重叠（重叠即 TIE，是规则标签而非正式显著性检验）。</div>
+
+%s
 
 <h2>宽容度曲线</h2>
 <div class="card">%s
-<div class="note">纵轴为对数刻度。P0 最严，P5 最宽。曲线在某档突然下降，说明该模型的主要偏差正好是那一档消除的东西。</div></div>
+<div class="note">纵轴为对数刻度。P0 最严，P5 最宽。曲线在某档出现明显变化，说明该模型对该协议规则较敏感；这只是协议敏感性线索，不能单独归因于某类主要偏差。</div></div>
 
 <h2>名次矩阵（%d 组完整榜单）</h2>
 <div style="overflow-x:auto"><table>
@@ -197,36 +305,44 @@ code{background:#F1EFE8;padding:1px 6px;border-radius:4px;font-size:12px}
 <div class="note">颜色越深名次越好。横向看同一行，颜色跳变即名次不稳定。</div>
 
 <h2>复现</h2>
-<div class="card"><code>pip install opencc-python-reimplemented</code><br>
-<code>python verify.py</code> &nbsp;→ 必须输出「全部通过：3 / 3」<br>
-<code>python run.py%s</code>
-<div class="note">所有随机源固定种子（bootstrap %d）。meta.json 记录了全部影响结果的开关。</div></div>
+<div class="card"><code>python run.py --gt &lt;GT目录&gt; --models &lt;模型输出目录&gt;%s --out &lt;输出目录&gt; --boot %d --ref-seg %s --ref-level %s --seg-modes %s --seed %d --max-edit-cells %d%s</code>
+<div class="note">bootstrap 次数为 %d，随机种子为 %d；参考组与数据来源均记录在 meta.json。</div></div>
 
 <div class="card warn"><b>边界声明</b>
 <div class="note" style="margin-top:6px">%s
-切分方式实现为按上游公开描述的等价重建，尚未与上游源码逐条对齐。本报告不声称构建了评测基准——
-基准是上游既有的，本实验量化的是它从未量化的一层。</div></div>
+切分方式按上游公开描述重建（reconstructed），尚未与上游源码逐条对齐，不能声称等价。
+本报告不声称构建了评测基准；本实验仅在本次数据与参与配置上量化评分规则的敏感性，不据此声称上游或其他研究从未进行类似量化。</div></div>
 
 </div></body></html>""" % (
         meta["n_groups"],
         meta["n_samples"], meta["n_models"], meta["n_groups"],
         html.escape(meta["primary_metric"]), html.escape(meta["trad_backend"]),
         html.escape(", ".join(meta["data_sources"])),
-        ("通过（固定分母口径，18 组内无违规）" if mono_ok
-         else "发现 %d 处违规，需检查协议实现" % len(meta["monotonicity_violations"])),
-        len(models), n_shift,
+        ("通过（固定分母口径，%d 组内无违规）" % meta["n_groups"] if mono_ok
+         else ("发现 %d 处违规：固定分母只消除分母变化；繁简 1:1 映射与按上下文删除 "
+               "CJK 间空格仍会改变对齐，故不保证单调。此处如实记录，不属于实现缺陷。"
+               % len(meta["monotonicity_violations"]))),
+        missing_note,
+        len(models), n_shift, meta["n_groups"],
         html.escape(worst["model"]), worst["rank_min"], worst["rank_max"], worst["rank_shift"],
-        ("P5 档下 " + "、".join("%s 与 %s" % t for t in tied[:3]) + " 的置信区间重叠——"
-         "当前样本量下它们其实分不出胜负。" if tied else
-         "各模型在 P5 档下的置信区间互不重叠，名次差异可视为真实差异。"),
+        html.escape(ci_summary),
+
         "".join(stab_rows),
+        "".join(verdict_rows),
+        pair_section,
         _curve_svg(res["curve"], levels, models),
         meta["n_groups"], head, sub, "".join(body),
-        " --demo" if "generated" in meta["data_sources"] else "",
-        meta["bootstrap_seed"],
-        ("本报告的样本来源为 synthetic（source=generated），只能证明方法可行，"
-         "不能证明任何真实工具的水平。" if "generated" in meta["data_sources"]
-         else "真实样本已完成脱敏并保留可再分发依据。"),
+        (" --select-models " + html.escape(",".join(meta["model_selection"]))
+         if meta.get("model_selection") else ""),
+        meta["bootstrap_n"], html.escape(ref_group.get("seg_mode", seg_modes[0])),
+        html.escape(ref_group.get("level", levels[0])),
+        html.escape(",".join(seg_modes)), meta['bootstrap_seed'],
+        meta.get('long_text_fallback', {}).get('trigger_threshold_product', 4_000_000),
+        (' --cluster-field ' + html.escape("'" + meta['bootstrap_cluster_field'].replace("'", "''") + "'")
+         if meta.get('bootstrap_cluster_field') else ''),
+        meta["bootstrap_n"], meta["bootstrap_seed"],
+        ("样本来源标记为 %s；本报告不据此推断脱敏状态或再分发许可。" %
+         html.escape(", ".join(meta["data_sources"]))),
     )
 
     os.makedirs(os.path.dirname(os.path.abspath(out_path)), exist_ok=True)

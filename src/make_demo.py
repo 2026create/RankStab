@@ -77,12 +77,13 @@ def _to_traditional(s: str) -> str:
 
 
 def _flatten(s: str) -> str:
-    """把段落分隔符压成单换行——模拟「段落结构崩坏」的一类模型输出。
+    """去掉所有换行、把整页压成一行——模拟「段落结构崩坏」的一类模型输出。
 
-    这类输出在 para / para_merge 切分下会被判成整块漏字，
-    但在 whole 切分下分数正常。它专门用来演示「切分方式也是有效自变量」。
+    块的基本单位是文本行（见 segmatch.split_blocks），所以只有把行也压掉，
+    才会在 para / para_merge 下被判成整块漏字；若只压空行，行仍在，
+    新口径下三种切分不会产生差异。本模型专门演示「切分方式也是有效自变量」。
     """
-    return s.replace("\n\n", "\n")
+    return s.replace("\n", "")
 
 
 def _insert_cjk_spaces(s: str, rng: random.Random, p: float = 0.06) -> str:

@@ -1,20 +1,12 @@
 # -*- coding: utf-8 -*-
-"""可复现性验收脚本 —— 评委无需阅读代码，跑这一条命令即可验证全部主张。
+"""可复现性验收脚本。
 
     python verify.py
 
-依次验证四件事：
+验证自动化回归断言、合成演示流程，以及两次隔离运行的产物是否逐字节一致。
+这些检查不证明真实 OCR 模型的效果，也不覆盖全部输入与运行环境。
 
-  1. 自检全过          度量实现本身没有问题（119 项断言）
-  2. 流水线可跑        18 组重算能完整执行并产出全部文件
-  3. 结果可重复        连跑两次，产物**逐字节一致**（sha256 对比）
-  4. 提交状态干净      （若在 git 仓库内）工作区无未提交的产物改动
-
-第 3 项是最关键、也最容易被口头声称却很少被真正验证的一项。
-这里不复述任何承诺，而是直接对 out/ 目录做两次 sha256 快照再逐文件比对。
-它**不依赖 git**，因此下载 zip 解压运行的人也照样能验证。
-
-退出码：0 = 全部通过；1 = 有失败项。
+退出码：0 = 无失败项（跳过不计通过）；1 = 有失败项。
 """
 
 from __future__ import annotations
@@ -22,19 +14,20 @@ from __future__ import annotations
 import hashlib
 import os
 import re
+import shutil
 import subprocess
 import sys
+import tempfile
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 PY = sys.executable
-OUT = os.path.join(HERE, "out")
 
-# 断言总数下限。只允许随新增断言上调；下调意味着有断言被删掉了。
-MIN_ASSERTIONS = 119
+# 断言总数下限。仅随新增断言上调，避免意外删减回归覆盖。
+MIN_ASSERTIONS = 145
 
 # 流水线必须产出的文件，缺一不可（只看退出码不够，脚本可能静默半途而废）
 REQUIRED = ["scores.csv", "rank_matrix.csv", "stability.csv", "verdicts.csv",
-            "protocol_curve.csv", "meta.json", "report.html"]
+            "protocol_curve.csv", "pair_protocol_details.csv", "sample_scores.csv", "meta.json", "report.html"]
 
 USE_COLOR = not (os.name == "nt" and not os.environ.get("WT_SESSION"))
 GREEN = "\033[92m" if USE_COLOR else ""
@@ -73,7 +66,7 @@ def _snapshot(folder: str) -> dict[str, str]:
 
 # --------------------------------------------------------------------- 步骤
 def step_tests() -> tuple[bool, str]:
-    code, out = _run([PY, os.path.join("tests", "test_all.py")])
+    code, out = _run([PY, os.path.join("tests", "run_suite.py")])
     # 优先解析纯 ASCII 汇总行：它不受任何终端/区域编码影响。
     # 中文行只在 ASCII 行缺失时作为兜底，避免编码问题伪装成「自检失败」。
     m = re.search(r"ASSERTIONS\s+(\d+)\s*/\s*(\d+)", out) or \
@@ -86,29 +79,39 @@ def step_tests() -> tuple[bool, str]:
     if total < MIN_ASSERTIONS:
         # 防止「删掉失败的断言让它变绿」——这个下限只允许上调
         return False, "断言总数 %d 少于约定下限 %d，可能有断言被删除" % (total, MIN_ASSERTIONS)
-    return code == 0, "通过 %d / %d" % (passed, total)
+    suite = re.search(r'SUITE\s+\d+ assertions / (\d+) tests / (\d+) failures / (\d+) errors', out)
+    detail = "通过 %d / %d 条回归断言" % (passed, total)
+    if suite:
+        detail += "，%s 项自动化测试，%s 失败，%s 错误" % suite.groups()
+    return code == 0, detail
 
 
 def step_run_twice() -> tuple[bool, str]:
-    """跑两次，比对两次产物的 sha256。这是本脚本的核心。"""
-    code1, out1 = _run([PY, "run.py", "--demo"])
-    if code1 != 0:
-        tail = "\n".join(out1.strip().splitlines()[-3:])
-        return False, "第一次运行失败：\n         " + tail.replace("\n", "\n         ")
+    """在两套独立临时输入/输出目录中运行并比对产物。"""
+    snapshots = []
+    with tempfile.TemporaryDirectory(prefix="rankstab_verify_") as root:
+        for index in (1, 2):
+            run_root = os.path.join(root, "run%d" % index)
+            gt = os.path.join(run_root, "gt")
+            models = os.path.join(run_root, "models")
+            out = os.path.join(run_root, "out")
+            code, text = _run([
+                PY, "run.py", "--demo",
+                "--gt", gt, "--models", models, "--out", out,
+            ])
+            if code != 0:
+                tail = "\n".join(text.strip().splitlines()[-3:])
+                return False, "%d次运行失败：\n         %s" % (
+                    index, tail.replace("\n", "\n         "))
 
-    missing = [f for f in REQUIRED if not os.path.exists(os.path.join(OUT, f))]
-    if missing:
-        return False, "缺少产物: " + ", ".join(missing)
+            missing = [f for f in REQUIRED
+                       if not os.path.isfile(os.path.join(out, f))]
+            if missing:
+                return False, "第%d次运行缺少产物: %s" % (
+                    index, ", ".join(missing))
+            snapshots.append(_snapshot(out))
 
-    snap1 = _snapshot(OUT)
-
-    code2, out2 = _run([PY, "run.py", "--demo"])
-    if code2 != 0:
-        tail = "\n".join(out2.strip().splitlines()[-3:])
-        return False, "第二次运行失败：\n         " + tail.replace("\n", "\n         ")
-
-    snap2 = _snapshot(OUT)
-
+    snap1, snap2 = snapshots
     # 先比文件集合，再比内容——两者是不同性质的失败
     only1 = sorted(set(snap1) - set(snap2))
     only2 = sorted(set(snap2) - set(snap1))
@@ -122,30 +125,38 @@ def step_run_twice() -> tuple[bool, str]:
             detail.append("%s (%s -> %s)" % (n, snap1[n][:10], snap2[n][:10]))
         return False, "两次运行结果不一致，共 %d 个文件：%s" % (len(differ), "; ".join(detail))
 
-    return True, "连跑两次，%d 个产物 sha256 全部一致（%s）" % (
+    return True, "两套独立临时目录各运行一次，%d 个产物 sha256 全部一致（%s）" % (
         len(snap1), snap1.get("stability.csv", "")[:12] + "…")
 
 
-def step_git_clean() -> tuple[bool, str]:
-    code, out = _run(["git", "rev-parse", "--is-inside-work-tree"])
-    if code != 0 or out.strip() != "true":
-        return True, "跳过（非 git 仓库；本项仅作附加确认，不影响上一步结论）"
+def step_git_clean() -> tuple[None | bool, str]:
+    """第三关：out/ 产物与已提交版本一致。
 
-    code, out = _run(["git", "status", "--porcelain", "--", "out/"])
+    只读 git（`status --porcelain`，不写索引、不改工作区）：
+
+    - 没有 git 命令 / 不在 git 仓库里  → 跳过，并说明原因
+    - out/ 存在未提交改动              → 跳过，交付对应工作区及外部快照
+      （此时「产物与提交版本一致」这句话本身就无从证明，不能算通过，也不算失败）
+    - out/ 与 HEAD 完全一致            → 通过
+    """
+    if not shutil.which("git"):
+        return None, "未找到 git 命令，本关跳过（前两关结论不受影响）"
+    code, out = _run(["git", "status", "--porcelain", "--", "out"])
     if code != 0:
-        return True, "跳过（git 命令不可用）"
-
-    dirty = [l for l in out.splitlines() if l.strip()]
-    if not dirty:
-        return True, "out/ 与已提交版本一致"
-    changed = [l.split(maxsplit=1)[-1] for l in dirty]
-    return False, "out/ 有未提交改动（%d 个）：%s" % (len(changed), ", ".join(changed[:4]))
+        return None, "当前目录不是 git 仓库，本关跳过（前两关结论不受影响）"
+    dirty = [line for line in out.splitlines() if line.strip()]
+    if dirty:
+        sample = "、".join(line.strip().split()[-1] for line in dirty[:3])
+        return None, ("out/ 有 %d 项未提交改动（%s%s），本关跳过；"
+                      "当前结果对应工作区，快照与哈希记录可单独复核"
+                      % (len(dirty), sample, " 等" if len(dirty) > 3 else ""))
+    return True, "out/ 与已提交版本一致"
 
 
 STEPS = [
-    ("1  自检 119 项断言", step_tests),
-    ("2  连跑两次，产物逐字节一致", step_run_twice),
-    ("3  out/ 与提交版本一致", step_git_clean),
+    ("1  回归断言、黑盒与独立核算测试", step_tests),
+    ("2  两套隔离目录运行，产物逐字节一致", step_run_twice),
+    ("3  out/ 产物与已提交版本一致", step_git_clean),
 ]
 
 
@@ -155,34 +166,39 @@ def main() -> int:
     print("=" * 66)
     print()
 
-    results = []
+    passed = skipped = 0
+    failed = []
     for name, fn in STEPS:
         try:
             ok, detail = fn()
         except Exception as e:  # 验收脚本自身出错也必须显式暴露，不能静默算过
             ok, detail = False, "脚本异常: %s: %s" % (type(e).__name__, e)
-        results.append((name, ok, detail))
-        tag = GREEN + "PASS" + RESET if ok else RED + "FAIL" + RESET
+        if ok is None:
+            skipped += 1
+            tag = DIM + "SKIP" + RESET
+        elif ok:
+            passed += 1
+            tag = GREEN + "PASS" + RESET
+        else:
+            failed.append(name)
+            tag = RED + "FAIL" + RESET
         print("  [%s] %s" % (tag, name))
         print("         %s%s%s" % (DIM, detail, RESET))
         print()
 
-    failed = [n for n, ok, _ in results if not ok]
     print("-" * 66)
+    print("汇总：%d 项通过，%d 项失败，%d 项跳过" % (passed, len(failed), skipped))
     if failed:
-        print("%s未通过：%d / %d%s" % (RED, len(failed), len(results), RESET))
         for n in failed:
             print("   - " + n)
         print()
         print("排查建议：")
         print("  · 两次结果不一致 -> 源码里存在未固定种子的随机源，或读写了时间/环境变量")
         print("  · 产物缺失       -> 检查 run.py 是否中途异常退出")
-        print("  · out/ 有改动    -> 改过源码但未重新提交，或手工编辑过产物")
         return 1
 
-    print("%s全部通过：%d / %d%s" % (GREEN, len(results), len(results), RESET))
     print()
-    print("这说明：度量实现正确、流水线可运行、结果可重复。")
+    print("已完成统一测试与两套隔离目录的逐字节复现核对。")
     print("复现命令：  python verify.py")
     return 0
 

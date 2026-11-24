@@ -13,23 +13,22 @@ import random
 from typing import Dict, List, Optional, Sequence, Tuple
 
 
-def edit_ops(ref: str, hyp: str) -> Dict[str, int]:
+def edit_ops(ref: str, hyp: str, max_cells: int = 4_000_000) -> Dict[str, int]:
     """带 S/D/I 分解的编辑距离（Levenshtein）。
 
     返回 {'dist', 'S'(替换), 'D'(删除=漏字), 'I'(插入=多字), 'refLen', 'hypLen'}
 
-    长文本保护：乘积超过 4e6 时退化为长度差估算，并置 overflow=True。
+    长文本保护的默认乘积上限为 4e6，可显式设置，超限抛出 ValueError。
     """
     n, m = len(ref), len(hyp)
     if n == 0 and m == 0:
-        return {"dist": 0, "S": 0, "D": 0, "I": 0, "refLen": 0, "hypLen": 0}
+        return {"dist": 0, "S": 0, "D": 0, "I": 0, "refLen": 0, "hypLen": 0, "overflow": False}
 
-    if n * m > 4_000_000:
-        d = abs(n - m)
-        return {
-            "dist": d, "S": 0, "D": max(0, n - m), "I": max(0, m - n),
-            "refLen": n, "hypLen": m, "overflow": True,
-        }
+    if n * m > max_cells:
+        raise ValueError(
+            "编辑距离超限：len(ref)=%d × len(hyp)=%d > %s；"
+            "请显式调整 --max-edit-cells 后重算。" % (n, m, format(max_cells, ','))
+        )
 
     prev = list(range(m + 1))
     rows: List[List[int]] = [prev]
@@ -66,7 +65,7 @@ def char_error_rate(ref_norm: str, hyp_norm: str, fixed_denom: Optional[int] = N
     两个口径同时输出，因为它们的用途不同：
 
     `cer`        标准口径，分母 = len(归一化后的参考文本)。
-                 与公开榜单口径一致，可与外部数字对照。
+                 该实现的标准字符错误率口径。
 
     `cer_fixed`  固定分母口径，分母 = 参考文本在 **P0** 下的字符数。
                  各档共用同一分母，因此档位间的差异 100% 来自比对规则，
@@ -143,17 +142,21 @@ def bootstrap_ci(
     alpha: float = 0.05,
     seed: int = 20260921,
     key: str = "cer_fixed",
-) -> Tuple[float, float]:
+) -> Tuple[Optional[float], Optional[float]]:
     """对语料级指标做样本级 bootstrap，返回 (lo, hi) 双尾区间。
 
     默认对 `cer_fixed`（固定分母口径）做区间估计，因为它是本实验的主口径。
 
     随机种子固定，保证**评委重跑能得到同一组数字**——
     这是「可复现」在统计层面的具体含义。
+
+    有效样本少于 2 条时返回 `(None, None)`：单条样本无法做重采样，
+    区间**不可估计**。此前返回 `(0.0, 0.0)` 会让调用方误以为区间恰好退化到
+    零点，进而把「无法估计」当成「两个模型重叠」判成 TIE。
     """
     valid = [r for r in rows if r]
     if len(valid) < 2:
-        return (0.0, 0.0)
+        return (None, None)
 
     rng = random.Random(seed)
     k = len(valid)
@@ -163,11 +166,74 @@ def bootstrap_ci(
         acc_len = 0
         for _ in range(k):
             r = valid[rng.randrange(k)]
-            denom = max(1, int(r.get("fixed_denom") or r["ref_len"]))
+            denom = max(1, int(r["ref_len"] if key == "cer"
+                               else (r.get("fixed_denom") or r["ref_len"])))
             acc_err += r.get(key, r.get("cer", 0.0)) * denom
             acc_len += denom
         ests.append(acc_err / acc_len if acc_len else 0.0)
 
+    ests.sort()
+    lo = ests[int((alpha / 2) * n_boot)]
+    hi = ests[min(n_boot - 1, int((1 - alpha / 2) * n_boot))]
+    return (lo, hi)
+
+
+def cluster_rows(rows: Sequence[Dict[str, float]], cluster_ids: Sequence[str]) -> List[Dict[str, float]]:
+    """Aggregate pages within the same document before cluster resampling."""
+    if len(rows) != len(cluster_ids):
+        raise ValueError('Cluster identifiers must match the number of rows.')
+    clusters = {}
+    for cluster, row in zip(cluster_ids, rows):
+        clusters.setdefault(cluster, []).append(row)
+    return [corpus_cer(group) for group in clusters.values()]
+
+
+def _weighted_corpus(rows: Sequence[Dict[str, float]],
+                     indices: Sequence[int], key: str) -> float:
+    acc_err = 0.0
+    acc_len = 0
+    for i in indices:
+        r = rows[i]
+        denom = max(1, int(r["ref_len"] if key == "cer"
+                           else (r.get("fixed_denom") or r["ref_len"])))
+        acc_err += r.get(key, r.get("cer", 0.0)) * denom
+        acc_len += denom
+    return acc_err / acc_len if acc_len else 0.0
+
+
+def bootstrap_diff_ci(
+    rows_a: Sequence[Dict[str, float]],
+    rows_b: Sequence[Dict[str, float]],
+    n_boot: int = 2000,
+    alpha: float = 0.05,
+    seed: int = 20260921,
+    key: str = "cer_fixed",
+) -> Tuple[Optional[float], Optional[float]]:
+    """配对 bootstrap：对同一批样本同时重采样两个模型，返回差值的双尾区间。
+
+    差值定义为 `CER_b - CER_a`（正数表示 b 更差）。两条序列必须按**同一批
+    样本、同一顺序**传入；按样本配对比各自独立重采样更能抵消样本难度差异。
+
+    该区间只作为诊断量输出：现有 `TIE` 规则仍按「参考组下两个模型各自的
+    区间是否重叠」判定，本函数不改变任何历史判定，也不把区间是否含 0
+    包装成「显著 / 不显著」的结论。
+
+    有效配对少于 2 条时返回 `(None, None)`，表示不可估计。
+    """
+    if len(rows_a) != len(rows_b):
+        raise ValueError("配对 bootstrap 要求两条序列等长：%d != %d"
+                         % (len(rows_a), len(rows_b)))
+    idx = [i for i, (a, b) in enumerate(zip(rows_a, rows_b)) if a and b]
+    if len(idx) < 2:
+        return (None, None)
+
+    rng = random.Random(seed)
+    k = len(idx)
+    ests: List[float] = []
+    for _ in range(n_boot):
+        draw = [idx[rng.randrange(k)] for _ in range(k)]
+        ests.append(_weighted_corpus(rows_b, draw, key)
+                    - _weighted_corpus(rows_a, draw, key))
     ests.sort()
     lo = ests[int((alpha / 2) * n_boot)]
     hi = ests[min(n_boot - 1, int((1 - alpha / 2) * n_boot))]
